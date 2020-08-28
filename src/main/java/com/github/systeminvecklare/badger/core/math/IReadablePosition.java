@@ -1,6 +1,8 @@
 package com.github.systeminvecklare.badger.core.math;
 
-public interface IReadablePosition {
+import com.github.systeminvecklare.badger.core.pooling.ICopyablePoolable;
+
+public interface IReadablePosition extends ICopyablePoolable<Position> {
 	public float getX();
 	public float getY();
 	public Vector vectorTo(IReadablePosition other, Vector result);

@@ -1,6 +1,8 @@
 package com.github.systeminvecklare.badger.core.math;
 
-public interface IReadableVector {
+import com.github.systeminvecklare.badger.core.pooling.ICopyablePoolable;
+
+public interface IReadableVector extends ICopyablePoolable<Vector> {
 	public float getX();
 	public float getY();
 	public float length();

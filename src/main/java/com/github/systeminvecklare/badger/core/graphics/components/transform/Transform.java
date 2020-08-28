@@ -14,7 +14,7 @@ import com.github.systeminvecklare.badger.core.math.Vector;
 import com.github.systeminvecklare.badger.core.pooling.EasyPooler;
 import com.github.systeminvecklare.badger.core.pooling.IPool;
 
-public class Transform implements ITransform {
+public class Transform extends AbstractTransform {
 	private IPool<ITransform> pool;
 	
 	private Position position = new Position(FlashyEngine.get().getPoolManager().getPool(Position.class)); //This is how you should obtain objects that you have no intention of returning
@@ -38,11 +38,6 @@ public class Transform implements ITransform {
 		pool.free(this);
 	}
 
-	@Override
-	public IPool<ITransform> getPool() {
-		return pool;
-	}
-	
 	@Override
 	public Transform setTo(IReadablePosition position, IReadableVector scale,IReadableRotation rotation, float shear) {
 		this.position.setTo(position);

@@ -3,7 +3,7 @@ package com.github.systeminvecklare.badger.core.math;
 import com.github.systeminvecklare.badger.core.pooling.IPool;
 import com.github.systeminvecklare.badger.core.pooling.IPoolable;
 
-public class Matrix2x2 implements IPoolable, IReadableMatrix2x2 {
+public class Matrix2x2 extends AbstractMatrix2x2 implements IPoolable {
 	private IPool<Matrix2x2> pool;
 	
 	public static final int M11 = 0;
@@ -48,7 +48,7 @@ public class Matrix2x2 implements IPoolable, IReadableMatrix2x2 {
 		return this;
 	}
 	
-	public Matrix2x2 setTo(IReadableMatrix3x3 other)
+	public Matrix2x2 setTo(IReadableMatrix2x2 other)
 	{
 		other.getData(this.data);
 		return this;
@@ -65,18 +65,8 @@ public class Matrix2x2 implements IPoolable, IReadableMatrix2x2 {
 	}
 	
 	@Override
-	public IPool<Matrix2x2> getPool() {
-		return pool;
-	}
-
-	@Override
 	public float getData(int coordinate) {
 		return data[coordinate];
-	}
-	
-	@Override
-	public void getData(float[] result) {
-		getData(result, 0);
 	}
 	
 	@Override
@@ -104,7 +94,7 @@ public class Matrix2x2 implements IPoolable, IReadableMatrix2x2 {
 		return columnVectors[column];
 	}
 	
-	private class ColumnVector implements IReadableVector {
+	private class ColumnVector extends AbstractVector {
 		private int coordX;
 		private int coordY;
 
@@ -121,31 +111,6 @@ public class Matrix2x2 implements IPoolable, IReadableMatrix2x2 {
 		@Override
 		public float getY() {
 			return getData(coordY);
-		}
-
-		@Override
-		public float length() {
-			return Mathf.sqrt(length2());
-		}
-
-		@Override
-		public float length2() {
-			return dot(this);
-		}
-
-		@Override
-		public float dot(IReadableVector other) {
-			return Vector.dot(this, other);
-		}
-
-		@Override
-		public float cross(IReadableVector other) {
-			return Vector.cross(this, other);
-		}
-		
-		@Override
-		public float getRotationTheta() {
-			return Vector.getRotationTheta(this);
 		}
 	}
 }

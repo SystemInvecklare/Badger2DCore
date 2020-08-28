@@ -33,4 +33,8 @@ public class Mathf {
 	public static float floor(float a) {
 		return (float) Math.floor(a);
 	}
+
+	public static float clamp(float value, float min, float max) {
+		return value > max ? max : (value < min ? min : value);
+	}
 }

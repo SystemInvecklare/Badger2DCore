@@ -1,5 +1,6 @@
 package com.github.systeminvecklare.badger.core.math;
 
+import com.github.systeminvecklare.badger.core.pooling.EasyPooler;
 import com.github.systeminvecklare.badger.core.pooling.IPool;
 import com.github.systeminvecklare.badger.core.pooling.IPoolable;
 
@@ -23,6 +24,10 @@ public class DeltaRotation implements IPoolable, IReadableDeltaRotation {
 	
 	public DeltaRotation setTo(IReadableRotation rotation) {
 		return setTo(rotation.getTheta());
+	}
+	
+	public DeltaRotation setTo(IReadableDeltaRotation deltaRotation) {
+		return setTo(deltaRotation.getTheta());
 	}
 	
 	@Override
@@ -59,14 +64,32 @@ public class DeltaRotation implements IPoolable, IReadableDeltaRotation {
 		return setTo(getTheta()+other.getTheta());
 	}
 	
+	public DeltaRotation add(float theta) {
+		return setTo(getTheta()+theta);
+	}
+	
+	public DeltaRotation addScaled(IReadableDeltaRotation delta, float scale) {
+		return add(delta.getTheta()*scale);
+	}
+	
 	@Override
 	public void free() {
 		pool.free(this);
 	}
 	
 	@Override
-	public IPool<DeltaRotation> getPool() {
-		return pool;
+	public DeltaRotation copy() {
+		return new DeltaRotation(null).setTo(getTheta());
+	}
+	
+	@Override
+	public DeltaRotation copy(EasyPooler ep) {
+		return ep.obtain(DeltaRotation.class).setTo(this);
+	}
+	
+	@Override
+	public DeltaRotation copy(IPool<DeltaRotation> pool) {
+		return pool.obtain().setTo(this);
 	}
 	
 	@Override

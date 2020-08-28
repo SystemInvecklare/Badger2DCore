@@ -15,7 +15,6 @@ import com.github.systeminvecklare.badger.core.pooling.IPool;
 import com.github.systeminvecklare.badger.core.pooling.IPoolManager;
 import com.github.systeminvecklare.badger.core.pooling.IPoolable;
 import com.github.systeminvecklare.badger.core.pooling.SimplePool;
-import com.github.systeminvecklare.badger.core.standard.input.keyboard.IKeyReleaseEvent;
 import com.github.systeminvecklare.badger.core.standard.input.keyboard.IPoolableKeyPressEvent;
 import com.github.systeminvecklare.badger.core.standard.input.mouse.IPoolableClickEvent;
 import com.github.systeminvecklare.badger.core.standard.input.mouse.PointerIdentifier;
@@ -231,11 +230,6 @@ public class FlashyInputHandler implements IInputHandler {
 			queuedPressPool.free(this);
 		}
 
-		@Override
-		public IPool<? extends IPoolable> getPool() {
-			return queuedPressPool;
-		}
-		
 		public QueuedPress setEvent(IPoolableClickEvent event)
 		{
 			this.clickEvent = event;
@@ -267,11 +261,6 @@ public class FlashyInputHandler implements IInputHandler {
 			this.pointer = pointer;
 			this.button = button;
 			return this;
-		}
-
-		@Override
-		public IPool<? extends IPoolable> getPool() {
-			return queuedReleasePool;
 		}
 
 		@Override
@@ -317,7 +306,7 @@ public class FlashyInputHandler implements IInputHandler {
 
 		@Override
 		public void free() {
-			getPool().free(this);
+			queuedDragPool.free(this);
 		}
 
 		public QueuedDrag setTo(int screenX, int screenY, int pointer) {
@@ -325,11 +314,6 @@ public class FlashyInputHandler implements IInputHandler {
 			this.screenY = screenY;
 			this.pointer = pointer;
 			return this;
-		}
-
-		@Override
-		public IPool<QueuedDrag> getPool() {
-			return queuedDragPool;
 		}
 
 		@Override
@@ -383,11 +367,6 @@ public class FlashyInputHandler implements IInputHandler {
 		}
 
 		@Override
-		public IPool<? extends IPoolable> getPool() {
-			return queuedKeyPressPool;
-		}
-
-		@Override
 		public void execute(IScene scene) {
 			keyPresses.put(pressEvent.getKeyCode(), pressEvent);
 			scene.onKeyPress(pressEvent);
@@ -411,11 +390,6 @@ public class FlashyInputHandler implements IInputHandler {
 		}
 
 		@Override
-		public IPool<? extends IPoolable> getPool() {
-			return queuedKeyReleasePool;
-		}
-
-		@Override
 		public void execute(IScene scene) {
 			Iterator<Entry<Integer, IPoolableKeyPressEvent>> keyPressIt = keyPresses.entrySet().iterator();
 			while(keyPressIt.hasNext())
@@ -426,10 +400,9 @@ public class FlashyInputHandler implements IInputHandler {
 					IPoolableKeyPressEvent event = entry.getValue();
 					if(event != null)
 					{
-							IKeyReleaseEvent release = event; //TODO ... do this?
 							try
 							{
-								event.fireRelease(release);
+								event.fireRelease(event);
 							}
 							finally
 							{
@@ -439,31 +412,6 @@ public class FlashyInputHandler implements IInputHandler {
 					keyPressIt.remove();
 				}
 			}
-			
-			
-//			IPoolableKeyPressEvent event = keyPresses.get(keycode);
-//			if(event != null)
-//			{
-//				IKeyReleaseEvent release = event; //TODO ... do this?
-////				try
-////				{
-//					event.fireRelease(release);
-//					event.free();
-////				}
-////				finally
-////				{
-////					release.free();
-////				}
-//				Iterator<Entry<Integer, IPoolableKeyPressEvent>> keyPressIt = keyPresses.entrySet().iterator();
-//				while(keyPressIt.hasNext())
-//				{
-//					Entry<Integer, IPoolableKeyPressEvent> entry = keyPressIt.next();
-//					if(entry.getKey().intValue() == keycode)
-//					{
-//						keyPressIt.remove();
-//					}
-//				}
-//			}
 		}
 	}
 }

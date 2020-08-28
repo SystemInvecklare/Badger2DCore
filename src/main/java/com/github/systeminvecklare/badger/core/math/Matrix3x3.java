@@ -3,7 +3,7 @@ package com.github.systeminvecklare.badger.core.math;
 import com.github.systeminvecklare.badger.core.pooling.IPool;
 import com.github.systeminvecklare.badger.core.pooling.IPoolable;
 
-public class Matrix3x3 implements IPoolable, IReadableMatrix3x3 {
+public class Matrix3x3 extends AbstractMatrix3x3 implements IPoolable {
 	private IPool<Matrix3x3> pool;
 	
 	public static final int M11 = 0;
@@ -86,18 +86,8 @@ public class Matrix3x3 implements IPoolable, IReadableMatrix3x3 {
 	}
 	
 	@Override
-	public IPool<Matrix3x3> getPool() {
-		return pool;
-	}
-
-	@Override
 	public float getData(int coordinate) {
 		return data[coordinate];
-	}
-	
-	@Override
-	public void getData(float[] result) {
-		getData(result, 0);
 	}
 	
 	@Override
@@ -147,11 +137,6 @@ public class Matrix3x3 implements IPoolable, IReadableMatrix3x3 {
 		data[M33] = (oldM11*oldM22 - oldM12*oldM21)/determinant;
 
 		return this;
-	}
-
-	@Override
-	public void transformAffinely(Position argumentAndResult) {
-		transformAffinely(this, argumentAndResult);
 	}
 	
 	public static void transformAffinely(IReadableMatrix3x3 mat, Position argumentAndResult)

@@ -17,11 +17,6 @@ public class PoolableArrayOf16Floats implements IPoolable {
 		pool.free(this);
 	}
 
-	@Override
-	public IPool<PoolableArrayOf16Floats> getPool() {
-		return pool;
-	}
-	
 	public PoolableArrayOf16Floats clear()
 	{
 		for(int i = 0; i < 16; ++i)

@@ -3,7 +3,7 @@ package com.github.systeminvecklare.badger.core.math;
 import com.github.systeminvecklare.badger.core.pooling.IPool;
 import com.github.systeminvecklare.badger.core.pooling.IPoolable;
 
-public class Vector implements IPoolable, IReadableVector {
+public class Vector extends AbstractVector implements IPoolable {
 	private float x;
 	private float y;
 	
@@ -52,21 +52,14 @@ public class Vector implements IPoolable, IReadableVector {
 		return this;
 	}
 	
-	@Override
-	public float dot(IReadableVector other)
-	{
-		return dot(this, other);
-	}
-	
-	@Override
-	public float cross(IReadableVector other)
-	{
-		return cross(this, other);
-	}
-	
 	public Vector add(IReadableVector other)
 	{
 		return setTo(this.getX()+other.getX(),this.getY()+other.getY());
+	}
+	
+	
+	public Vector addScaled(IReadableVector other, float scale) {
+		return add(other.getX()*scale, other.getY()*scale); 
 	}
 	
 	public Vector sub(IReadableVector other)
@@ -76,23 +69,12 @@ public class Vector implements IPoolable, IReadableVector {
 	
 	public Vector hadamardMult(IReadableVector other)
 	{
-//		return setTo(this.getX()*other.getX(),this.getY()*other.getY());
 		return hadamardMult(other.getX(), other.getY());
 	}
 	
 	public Vector hadamardMult(float otherX, float otherY)
 	{
 		return setTo(this.getX()*otherX,this.getY()*otherY);
-	}
-	
-	@Override
-	public float length() {
-		return Mathf.sqrt(length2());
-	}
-	
-	@Override
-	public float length2() {
-		return dot(this);
 	}
 
 	public Vector rotate(IReadableDeltaRotation deltaRotation) {
@@ -120,11 +102,6 @@ public class Vector implements IPoolable, IReadableVector {
 	}
 	
 	@Override
-	public IPool<Vector> getPool() {
-		return pool;
-	}
-	
-	@Override
 	public int hashCode() {
 		return Float.valueOf(x).hashCode() ^ Float.valueOf(y).hashCode();
 	}
@@ -144,11 +121,6 @@ public class Vector implements IPoolable, IReadableVector {
 
 	public Vector setToUnitVector(IReadableRotation rotation) {
 		return setToUnitVector(rotation.getTheta());
-	}
-
-	@Override
-	public float getRotationTheta() {
-		return getRotationTheta(this);
 	}
 	
 	public static float getRotationTheta(IReadableVector vector)

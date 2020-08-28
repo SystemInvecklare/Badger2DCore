@@ -91,11 +91,6 @@ public class ClickEvent implements IPoolableClickEvent {
 	}
 	
 	@Override
-	public IPool<IPoolableClickEvent> getPool() {
-		return pool;
-	}
-	
-	@Override
 	public ClickEvent init(IReadablePosition position, int button, int pointer) {
 		this.position.setTo(position);
 		this.button = button;

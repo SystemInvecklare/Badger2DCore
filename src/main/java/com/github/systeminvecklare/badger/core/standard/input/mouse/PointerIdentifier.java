@@ -24,11 +24,6 @@ public class PointerIdentifier implements IPoolable {
 		pool.free(this);
 	}
 	
-	@Override
-	public IPool<PointerIdentifier> getPool() {
-		return pool;
-	}
-	
 	public int getPointer() {
 		return pointer;
 	}

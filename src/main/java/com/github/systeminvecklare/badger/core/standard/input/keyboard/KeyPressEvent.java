@@ -43,11 +43,6 @@ public class KeyPressEvent implements IPoolableKeyPressEvent {
 	}
 
 	@Override
-	public IPool<IPoolableKeyPressEvent> getPool() {
-		return pool;
-	}
-
-	@Override
 	public KeyPressEvent init(int keyCode) {
 		if(!listeners.isEmpty()) listeners.clear();
 		this.keyCode = keyCode;

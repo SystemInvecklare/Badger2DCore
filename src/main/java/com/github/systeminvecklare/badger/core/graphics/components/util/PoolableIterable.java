@@ -40,12 +40,6 @@ public class PoolableIterable<T> implements Iterable<T>, IPoolable {
 		pool.free(this);
 	}
 
-	@SuppressWarnings("rawtypes")
-	@Override
-	public IPool<PoolableIterable> getPool() {
-		return pool;
-	}
-
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static <T> PoolableIterable<T> obtain(Class<T> iteratedType)
 	{

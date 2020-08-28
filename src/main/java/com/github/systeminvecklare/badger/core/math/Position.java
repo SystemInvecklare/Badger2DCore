@@ -69,6 +69,10 @@ public class Position extends AbstractPosition implements IPoolable, IReadablePo
 		return this;
 	}
 	
+	public Position addScaled(IReadableVector other, float scale) {
+		return add(other.getX()*scale, other.getY()*scale); 
+	}
+	
 	public static Vector vectorTo(IReadablePosition from, IReadablePosition to, Vector result)
 	{
 		return result.setTo(to.getX()-from.getX(), to.getY()-from.getY());
@@ -86,10 +90,5 @@ public class Position extends AbstractPosition implements IPoolable, IReadablePo
 	@Override
 	public int hashCode() {
 		return Float.valueOf(x).hashCode() ^ Float.valueOf(y).hashCode(); 
-	}
-
-	@Override
-	public IPool<Position> getPool() {
-		return pool;
 	}
 }

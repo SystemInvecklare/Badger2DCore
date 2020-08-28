@@ -82,6 +82,11 @@ public class Rotation extends AbstractRotation implements IPoolable, IReadableRo
 		return setTo(getTheta()+delta.getTheta());
 	}
 	
+	public Rotation addScaled(IReadableDeltaRotation delta, float scale)
+	{
+		return add(delta.getTheta()*scale);
+	}
+	
 	public Rotation add(float deltaTheta)
 	{
 		return setTo(getTheta()+deltaTheta);
@@ -96,11 +101,6 @@ public class Rotation extends AbstractRotation implements IPoolable, IReadableRo
 	@Override
 	public void free() {
 		pool.free(this);
-	}
-	
-	@Override
-	public IPool<Rotation> getPool() {
-		return pool;
 	}
 	
 	@Override

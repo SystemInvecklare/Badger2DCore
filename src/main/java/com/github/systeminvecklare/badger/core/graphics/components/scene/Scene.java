@@ -71,6 +71,11 @@ public class Scene implements IScene {
 	}
 	
 	@Override
+	public void removeKeyPressListener(IKeyPressListener listener) {
+		delegate.removeKeyPressListener(listener);
+	}
+	
+	@Override
 	public IShader getShader() {
 		return delegate.getShader();
 	}

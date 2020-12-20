@@ -27,6 +27,7 @@ public class SceneDelegate implements ISceneDelegate {
 
 	private IPool<List<IKeyPressListener>> keyPressListenersInitPool;
 	private List<IKeyPressListener> keyPressListeners;
+	private List<IKeyPressListener> onKeyPressUtilList;
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public SceneDelegate(Scene wrapper) {
@@ -36,6 +37,7 @@ public class SceneDelegate implements ISceneDelegate {
 		
 		this.keyPressListenersInitPool = (IPool<List<IKeyPressListener>>) (IPool) FlashyEngine.get().getPoolManager().getPool(ArrayList.class);
 		this.keyPressListeners = keyPressListenersInitPool.obtain();
+		this.onKeyPressUtilList = keyPressListenersInitPool.obtain();
 		this.layers.clear();
 	}
 	
@@ -123,6 +125,11 @@ public class SceneDelegate implements ISceneDelegate {
 			keyPressListeners.clear();
 			keyPressListenersInitPool.free(keyPressListeners);
 			keyPressListeners = null;
+			
+			onKeyPressUtilList.clear();
+			keyPressListenersInitPool.free(onKeyPressUtilList);
+			onKeyPressUtilList = null;
+			
 			keyPressListenersInitPool = null;
 			
 			fullyDisposed = true;
@@ -136,12 +143,18 @@ public class SceneDelegate implements ISceneDelegate {
 	}
 	
 	@Override
+	public void removeKeyPressListener(IKeyPressListener listener) {
+		this.keyPressListeners.remove(listener);
+	}
+	
+	@Override
 	public void onKeyPress(IKeyPressEvent event) {
-		for(IKeyPressListener listener : this.keyPressListeners)
-		{
+		onKeyPressUtilList.clear();
+		onKeyPressUtilList.addAll(keyPressListeners);
+		for(IKeyPressListener listener : onKeyPressUtilList) {
 			listener.onKeyPress(event);
 		}
-		// TODO add method removeKeyPressListener(IKeyPressListener listener)
+		onKeyPressUtilList.clear();
 	}
 	
 	@Override

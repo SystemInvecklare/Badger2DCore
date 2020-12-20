@@ -13,6 +13,7 @@ public interface IScene extends IDrawable, IThinker, ILifecycleOwner, IKeyPressL
 	public ILayer getLayer(String name);
 	public void visitLayers(ILayerVisitor visitor);
 	public void addKeyPressListener(IKeyPressListener listener);
+	public void removeKeyPressListener(IKeyPressListener listener);
 	
 	public IShader getShader();
 }

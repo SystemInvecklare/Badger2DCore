@@ -10,6 +10,7 @@ import com.github.systeminvecklare.badger.core.graphics.components.movieclip.beh
 import com.github.systeminvecklare.badger.core.graphics.components.moviecliplayer.IMovieClipLayer;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.IReadableTransform;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.ITransform;
+import com.github.systeminvecklare.badger.core.graphics.components.transform.ITransformOperation;
 
 public interface IMovieClip extends IMovieClipContainer, IHittable, IDrawable, IClickable, IThinker, ILifecycleOwner {
 	public IMovieClipContainer getParent();
@@ -20,6 +21,8 @@ public interface IMovieClip extends IMovieClipContainer, IHittable, IDrawable, I
 	
 	public void setTransform(IReadableTransform transform);
 	public void setTransformBypassBehaviors(IReadableTransform transform);
+	
+	public void modifyTransform(ITransformOperation operation, boolean byPassBehaviorsOnGet, boolean byPassBehaviorsOnSet);
 	
 	public void drawWithoutTransform(IDrawCycle drawCycle);
 	

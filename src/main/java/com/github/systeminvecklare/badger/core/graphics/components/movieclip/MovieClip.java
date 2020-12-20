@@ -10,6 +10,7 @@ import com.github.systeminvecklare.badger.core.graphics.components.scene.IScene;
 import com.github.systeminvecklare.badger.core.graphics.components.shader.IShader;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.IReadableTransform;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.ITransform;
+import com.github.systeminvecklare.badger.core.graphics.components.transform.ITransformOperation;
 import com.github.systeminvecklare.badger.core.graphics.framework.engine.click.IClickEvent;
 import com.github.systeminvecklare.badger.core.math.IReadablePosition;
 
@@ -138,6 +139,12 @@ public class MovieClip implements IMovieClip {
 	@Override
 	public void setTransformBypassBehaviors(IReadableTransform transform) {
 		delegate.setTransformBypassBehaviors(transform);
+	}
+	
+	@Override
+	public void modifyTransform(ITransformOperation operation, boolean byPassBehaviorsOnGet,
+			boolean byPassBehaviorsOnSet) {
+		delegate.modifyTransform(operation, byPassBehaviorsOnGet, byPassBehaviorsOnSet);
 	}
 	
 	@Override

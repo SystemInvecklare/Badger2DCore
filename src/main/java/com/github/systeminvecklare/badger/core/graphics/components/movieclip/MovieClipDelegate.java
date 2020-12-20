@@ -10,6 +10,7 @@ import com.github.systeminvecklare.badger.core.graphics.components.scene.IScene;
 import com.github.systeminvecklare.badger.core.graphics.components.shader.IShader;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.IReadableTransform;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.ITransform;
+import com.github.systeminvecklare.badger.core.graphics.components.transform.ITransformOperation;
 import com.github.systeminvecklare.badger.core.graphics.framework.engine.click.IClickEvent;
 import com.github.systeminvecklare.badger.core.math.IReadablePosition;
 import com.github.systeminvecklare.badger.core.math.Position;
@@ -172,6 +173,28 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 		finally
 		{
 			mutableTransform.free();
+		}
+	}
+	
+	@Override
+	public void modifyTransform(ITransformOperation operation, boolean byPassBehaviorsOnGet,
+			boolean byPassBehaviorsOnSet) {
+		EasyPooler ep = EasyPooler.obtainFresh();
+		try {
+			ITransform transform;
+			if(byPassBehaviorsOnGet) {
+				transform = getWrapper().getTransformBypassBehaviors().copy(ep);
+			} else {
+				transform = getWrapper().getTransform(ep.obtain(ITransform.class));
+			}
+			transform = operation.execute(transform);
+			if(byPassBehaviorsOnSet) {
+				getWrapper().setTransformBypassBehaviors(transform);
+			} else {
+				getWrapper().setTransform(transform);
+			}
+		} finally {
+			ep.freeAllAndSelf();
 		}
 	}
 	

@@ -36,4 +36,26 @@ public abstract class AbstractPosition implements IReadablePosition {
 	public Position copy(IPool<Position> pool) {
 		return pool.obtain().setTo(this);
 	}
+	
+	@Override
+	public float distance2(IReadablePosition other) {
+		return distance2(other.getX(), other.getY());
+	}
+	
+	@Override
+	public float distance(IReadablePosition other) {
+		return distance(other.getX(), other.getY());
+	}
+	
+	@Override
+	public float distance2(float x, float y) {
+		float dx = this.getX()-x;
+		float dy = this.getY()-y;
+		return dx*dx+dy*dy;
+	}
+	
+	@Override
+	public float distance(float x, float y) {
+		return Mathf.sqrt(distance2(x, y));
+	}
 }

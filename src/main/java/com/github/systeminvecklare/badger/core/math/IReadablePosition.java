@@ -8,4 +8,8 @@ public interface IReadablePosition extends ICopyablePoolable<Position> {
 	public Vector vectorTo(IReadablePosition other, Vector result);
 	public float length2();
 	public float length();
+	public float distance2(IReadablePosition other);
+	public float distance(IReadablePosition other);
+	public float distance2(float x, float y);
+	public float distance(float x, float y);
 }

@@ -4,6 +4,7 @@ import com.github.systeminvecklare.badger.core.graphics.components.scene.IScene;
 
 public interface ISceneManager {
 	public void changeScene(IScene newScene);
+	public void changeScene(IScene newScene, boolean initScene);
 	public float getWidth();
 	public float getHeight();
 	public void sendToTrashCan(IScene sceneToBeDisposed);

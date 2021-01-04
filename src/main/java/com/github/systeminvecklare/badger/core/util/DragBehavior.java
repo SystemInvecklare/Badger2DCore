@@ -85,12 +85,14 @@ public class DragBehavior extends Behavior {
 		}
 		cancelDragAndReleaseListeners();
 		
-		updateTentativeOffset();
-		dragging = false;
-		positionOffset.add(tentativeOffset);
-		tentativeOffset.setToOrigin();
-		
-		onStopDrag(lastMeaningfulMousePos);
+		if(dragging) {
+			updateTentativeOffset();
+			dragging = false;
+			positionOffset.add(tentativeOffset);
+			tentativeOffset.setToOrigin();
+			
+			onStopDrag(lastMeaningfulMousePos);
+		}
 	}
 	
 	protected void onStartDrag(IReadablePosition globalPosition) {

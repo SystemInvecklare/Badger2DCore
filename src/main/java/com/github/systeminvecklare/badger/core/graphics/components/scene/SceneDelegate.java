@@ -61,41 +61,47 @@ public class SceneDelegate implements ISceneDelegate {
 	@Override
 	public void draw(IDrawCycle drawCycle) {
 		drawCycle.setShader(getWrapper().getShader());
-		for(ILayer layer : this.layers)
-		{
-			layer.draw(drawCycle);
+		if(!layers.isEmpty()) {
+			for(ILayer layer : this.layers)
+			{
+				layer.draw(drawCycle);
+			}
 		}
 	}
 
 	@Override
 	public void think(ITic tic) {
-		PoolableIterable<ILayer> layersLoop = PoolableIterable.obtain(ILayer.class);
-		try
-		{
-			for(ILayer layer : layersLoop.setToCopy(this.layers))
+		if(!layers.isEmpty()) {
+			PoolableIterable<ILayer> layersLoop = PoolableIterable.obtain(ILayer.class);
+			try
 			{
-				layer.think(tic);
+				for(ILayer layer : layersLoop.setToCopy(this.layers))
+				{
+					layer.think(tic);
+				}
 			}
-		}
-		finally
-		{
-			layersLoop.free();
+			finally
+			{
+				layersLoop.free();
+			}
 		}
 	}
 
 	@Override
 	public void init() {
-		PoolableIterable<ILayer> layersLoop = PoolableIterable.obtain(ILayer.class);
-		try
-		{
-			for(ILayer layer : layersLoop.setToCopy(this.layers))
+		if(!layers.isEmpty()) {
+			PoolableIterable<ILayer> layersLoop = PoolableIterable.obtain(ILayer.class);
+			try
 			{
-				layer.init();
+				for(ILayer layer : layersLoop.setToCopy(this.layers))
+				{
+					layer.init();
+				}
 			}
-		}
-		finally
-		{
-			layersLoop.free();
+			finally
+			{
+				layersLoop.free();
+			}
 		}
 	}
 
@@ -103,17 +109,19 @@ public class SceneDelegate implements ISceneDelegate {
 	public void dispose() {
 		if(!fullyDisposed)
 		{
-			PoolableIterable<ILayer> layersLoop = PoolableIterable.obtain(ILayer.class);
-			try
-			{
-				for(ILayer layer : layersLoop.setToCopy(this.layers))
+			if(!layers.isEmpty()) {
+				PoolableIterable<ILayer> layersLoop = PoolableIterable.obtain(ILayer.class);
+				try
 				{
-					layer.dispose();
+					for(ILayer layer : layersLoop.setToCopy(this.layers))
+					{
+						layer.dispose();
+					}
 				}
-			}
-			finally
-			{
-				layersLoop.free();
+				finally
+				{
+					layersLoop.free();
+				}
 			}
 			layerNames.clear();
 			layerNames = null;
@@ -149,16 +157,21 @@ public class SceneDelegate implements ISceneDelegate {
 	
 	@Override
 	public void onKeyPress(IKeyPressEvent event) {
-		onKeyPressUtilList.clear();
-		onKeyPressUtilList.addAll(keyPressListeners);
-		for(IKeyPressListener listener : onKeyPressUtilList) {
-			listener.onKeyPress(event);
+		if(!keyPressListeners.isEmpty()) {
+			onKeyPressUtilList.clear();
+			onKeyPressUtilList.addAll(keyPressListeners);
+			for(IKeyPressListener listener : onKeyPressUtilList) {
+				listener.onKeyPress(event);
+			}
+			onKeyPressUtilList.clear();
 		}
-		onKeyPressUtilList.clear();
 	}
 	
 	@Override
 	public void visitLayers(ILayerVisitor visitor) {
+		if(layers.isEmpty()) {
+			return;
+		}
 		PoolableIterable<ILayer> layerLoop = PoolableIterable.obtain(ILayer.class);
 		try
 		{

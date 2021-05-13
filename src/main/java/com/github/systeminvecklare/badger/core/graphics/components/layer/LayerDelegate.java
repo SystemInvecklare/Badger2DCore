@@ -61,17 +61,19 @@ public class LayerDelegate implements ILayerDelegate {
 			ITransform drawCycleTransform = drawCycle.getTransform();
 			drawCycle.setShader(getWrapper().resolveShader());
 			
-			ITransform original = ep.obtain(ITransform.class).setTo(drawCycleTransform);
-			drawCycleTransform.mult(getWrapper().getTransform());
-			ITransform drawTransformCopy = ep.obtain(ITransform.class).setTo(drawCycleTransform);
-			
-			for(IMovieClip movieClip : movieClips)
-			{
-				drawCycleTransform.setTo(drawTransformCopy);
-				movieClip.draw(drawCycle);
+			if(!movieClips.isEmpty()) {
+				ITransform original = ep.obtain(ITransform.class).setTo(drawCycleTransform);
+				drawCycleTransform.mult(getWrapper().getTransform());
+				ITransform drawTransformCopy = ep.obtain(ITransform.class).setTo(drawCycleTransform);
+				
+				for(IMovieClip movieClip : movieClips)
+				{
+					drawCycleTransform.setTo(drawTransformCopy);
+					movieClip.draw(drawCycle);
+				}
+				
+				drawCycleTransform.setTo(original);
 			}
-			
-			drawCycleTransform.setTo(original);
 		}
 		finally
 		{
@@ -81,6 +83,9 @@ public class LayerDelegate implements ILayerDelegate {
 
 	@Override
 	public boolean hitTest(IReadablePosition p) {
+		if(movieClips.isEmpty()) {
+			return false;
+		}
 		EasyPooler ep = EasyPooler.obtainFresh();
 		try
 		{
@@ -108,50 +113,56 @@ public class LayerDelegate implements ILayerDelegate {
 
 	@Override
 	public void think(ITic tic) {
-		PoolableIterable<IMovieClip> movieClipsLoop = PoolableIterable.obtain(IMovieClip.class);
-		try
-		{
-			for(IMovieClip movieClip : movieClipsLoop.setToCopy(movieClips))
+		if(!movieClips.isEmpty()) {
+			PoolableIterable<IMovieClip> movieClipsLoop = PoolableIterable.obtain(IMovieClip.class);
+			try
 			{
-				movieClip.think(tic);
+				for(IMovieClip movieClip : movieClipsLoop.setToCopy(movieClips))
+				{
+					movieClip.think(tic);
+				}
 			}
-		}
-		finally
-		{
-			movieClipsLoop.free();
+			finally
+			{
+				movieClipsLoop.free();
+			}
 		}
 	}
 
 	@Override
 	public void init() {
 		transform = FlashyEngine.get().getPoolManager().getPool(ITransform.class).obtain().setToIdentity();
-		PoolableIterable<IMovieClip> movieClipsLoop = PoolableIterable.obtain(IMovieClip.class);
-		try
-		{
-			for(IMovieClip movieClip : movieClipsLoop.setToCopy(movieClips))
+		if(!movieClips.isEmpty()) {
+			PoolableIterable<IMovieClip> movieClipsLoop = PoolableIterable.obtain(IMovieClip.class);
+			try
 			{
-				movieClip.init();
+				for(IMovieClip movieClip : movieClipsLoop.setToCopy(movieClips))
+				{
+					movieClip.init();
+				}
 			}
-		}
-		finally
-		{
-			movieClipsLoop.free();
+			finally
+			{
+				movieClipsLoop.free();
+			}
 		}
 	}
 
 	@Override
 	public void dispose() {
-		PoolableIterable<IMovieClip> movieClipsLoop = PoolableIterable.obtain(IMovieClip.class);
-		try
-		{
-			for(IMovieClip movieClip : movieClipsLoop.setToCopy(movieClips))
+		if(!movieClips.isEmpty()) {
+			PoolableIterable<IMovieClip> movieClipsLoop = PoolableIterable.obtain(IMovieClip.class);
+			try
 			{
-				movieClip.dispose();
+				for(IMovieClip movieClip : movieClipsLoop.setToCopy(movieClips))
+				{
+					movieClip.dispose();
+				}
 			}
-		}
-		finally
-		{
-			movieClipsLoop.free();
+			finally
+			{
+				movieClipsLoop.free();
+			}
 		}
 		transform.free();
 		transform = null;
@@ -190,6 +201,9 @@ public class LayerDelegate implements ILayerDelegate {
 
 	@Override
 	public void visitChildrenMovieClips(IMovieClipVisitor visitor) {
+		if(movieClips.isEmpty()) {
+			return;
+		}
 		PoolableIterable<IMovieClip> movieClipsLoop = PoolableIterable.obtain(IMovieClip.class);
 		try
 		{

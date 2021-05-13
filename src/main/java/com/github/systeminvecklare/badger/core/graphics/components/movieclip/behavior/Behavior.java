@@ -11,7 +11,7 @@ public class Behavior implements IBehavior {
 	private IMovieClip bound;
 
 	@Override
-	public void onClick(IClickEvent clickEvent) {
+	public void onClick(IClickEvent clickEvent, boolean consumedBeforeBehaviors) {
 	}
 
 	@Override

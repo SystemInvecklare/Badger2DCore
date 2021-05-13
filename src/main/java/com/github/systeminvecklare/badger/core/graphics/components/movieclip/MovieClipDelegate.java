@@ -5,6 +5,7 @@ import com.github.systeminvecklare.badger.core.graphics.components.core.IDrawCyc
 import com.github.systeminvecklare.badger.core.graphics.components.core.ITic;
 import com.github.systeminvecklare.badger.core.graphics.components.layer.ILayer;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.behavior.IBehavior;
+import com.github.systeminvecklare.badger.core.graphics.components.movieclip.behavior.IBehaviorVisitor;
 import com.github.systeminvecklare.badger.core.graphics.components.moviecliplayer.IMovieClipLayer;
 import com.github.systeminvecklare.badger.core.graphics.components.scene.IScene;
 import com.github.systeminvecklare.badger.core.graphics.components.shader.IShader;
@@ -73,6 +74,9 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 	
 	@Override
 	public void visitChildrenMovieClips(IMovieClipVisitor visitor) {
+		if(children.isEmpty()) {
+			return;
+		}
 		if(visitor instanceof ITransformDependentMovieClipVisitor)
 		{
 			ITransformDependentMovieClipVisitor transVisitor = ((ITransformDependentMovieClipVisitor) visitor);
@@ -124,55 +128,63 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 	
 	@Override
 	public ITransform getTransform(ITransform result) {
-		IPool<ITransform> transformPool = FlashyEngine.get().getPoolManager().getPool(ITransform.class);
-		
-		ITransform mutableTrans =  transformPool.obtain().setTo(getWrapper().getTransformBypassBehaviors());
-		ITransform loopResult = transformPool.obtain().setTo(mutableTrans);
-		
-		try
-		{
-			QuickArray<IBehavior> array = behaviours.getUpdatedArray();
-			for(int i = 0; i < array.getSize(); ++i)
+		if(!behaviours.isEmpty()) {
+			IPool<ITransform> transformPool = FlashyEngine.get().getPoolManager().getPool(ITransform.class);
+			
+			ITransform mutableTrans =  transformPool.obtain().setTo(getWrapper().getTransformBypassBehaviors());
+			ITransform loopResult = transformPool.obtain().setTo(mutableTrans);
+			
+			try
 			{
-				ITransform returned = array.get(i).getTransform(mutableTrans, loopResult.setTo(mutableTrans));
-				
-				if(returned != null && !(returned == loopResult))
+				QuickArray<IBehavior> array = behaviours.getUpdatedArray();
+				for(int i = 0; i < array.getSize(); ++i)
 				{
-					loopResult.setTo(returned);
+					ITransform returned = array.get(i).getTransform(mutableTrans, loopResult.setTo(mutableTrans));
+					
+					if(returned != null && !(returned == loopResult))
+					{
+						loopResult.setTo(returned);
+					}
+					
+					mutableTrans.setTo(loopResult);
 				}
 				
-				mutableTrans.setTo(loopResult);
+				return result.setTo(loopResult);
 			}
-			
-			return result.setTo(loopResult);
-		}
-		finally
-		{
-			mutableTrans.free();
-			loopResult.free();
+			finally
+			{
+				mutableTrans.free();
+				loopResult.free();
+			}
+		} else {
+			return result.setTo(getWrapper().getTransformBypassBehaviors());
 		}
 	}
 	
 	@Override
 	public void setTransform(IReadableTransform transform) {
-		ITransform mutableTransform = FlashyEngine.get().getPoolManager().getPool(ITransform.class).obtain();
-		try
-		{
-			mutableTransform.setTo(transform);
-			QuickArray<IBehavior> array = behaviours.getUpdatedArray();
-			for(int i = 0; i < array.getSize(); ++i)
+		if(!behaviours.isEmpty()) {
+			ITransform mutableTransform = FlashyEngine.get().getPoolManager().getPool(ITransform.class).obtain();
+			try
 			{
-				ITransform returned = array.get(i).setTransform(mutableTransform);
-				if(returned != mutableTransform)
+				mutableTransform.setTo(transform);
+				QuickArray<IBehavior> array = behaviours.getUpdatedArray();
+				for(int i = 0; i < array.getSize(); ++i)
 				{
-					mutableTransform.setTo(returned);
+					ITransform returned = array.get(i).setTransform(mutableTransform);
+					if(returned != mutableTransform)
+					{
+						mutableTransform.setTo(returned);
+					}
 				}
+				getWrapper().setTransformBypassBehaviors(mutableTransform);
 			}
-			getWrapper().setTransformBypassBehaviors(mutableTransform);
-		}
-		finally
-		{
-			mutableTransform.free();
+			finally
+			{
+				mutableTransform.free();
+			}
+		} else {
+			getWrapper().setTransformBypassBehaviors(transform);
 		}
 	}
 	
@@ -276,20 +288,24 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 			
 			getWrapper().getTransform(trans).invert().transform(ptDst.setTo(p));
 			
-			QuickArray<IMovieClipLayer> graphicsArray = graphics.getUpdatedArray();
-			for(int i = 0; i < graphicsArray.getSize(); ++i)
-			{
-				if(graphicsArray.get(i).hitTest(ptDstCopy.setTo(ptDst)))
+			if(!graphics.isEmpty()) {
+				QuickArray<IMovieClipLayer> graphicsArray = graphics.getUpdatedArray();
+				for(int i = 0; i < graphicsArray.getSize(); ++i)
 				{
-					return true;
+					if(graphicsArray.get(i).hitTest(ptDstCopy.setTo(ptDst)))
+					{
+						return true;
+					}
 				}
 			}
-			QuickArray<IMovieClip> childrenArray = children.getUpdatedArray();
-			for(int i = 0; i < childrenArray.getSize(); ++i)
-			{
-				if(childrenArray.get(i).hitTest(ptDstCopy.setTo(ptDst)))
+			if(!children.isEmpty()) {
+				QuickArray<IMovieClip> childrenArray = children.getUpdatedArray();
+				for(int i = 0; i < childrenArray.getSize(); ++i)
 				{
-					return true;
+					if(childrenArray.get(i).hitTest(ptDstCopy.setTo(ptDst)))
+					{
+						return true;
+					}
 				}
 			}
 			return false;
@@ -342,17 +358,21 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 			ITransform originalTransform = transformPool.obtain().setTo(drawCycle.getTransform());
 			try
 			{
-				QuickArray<IMovieClipLayer> graphicsArray = graphics.getUpdatedArray();
-				for(int i = 0; i < graphicsArray.getSize(); ++i)
-				{
-					graphicsArray.get(i).draw(drawCycle);
-					drawCycle.getTransform().setTo(originalTransform);
+				if(!graphics.isEmpty()) {
+					QuickArray<IMovieClipLayer> graphicsArray = graphics.getUpdatedArray();
+					for(int i = 0; i < graphicsArray.getSize(); ++i)
+					{
+						graphicsArray.get(i).draw(drawCycle);
+						drawCycle.getTransform().setTo(originalTransform);
+					}
 				}
-				QuickArray<IMovieClip> childrenArray = children.getUpdatedArray();
-				for(int i = 0; i < childrenArray.getSize(); ++i)
-				{
-					childrenArray.get(i).draw(drawCycle);
-					drawCycle.getTransform().setTo(originalTransform);
+				if(!children.isEmpty()) {
+					QuickArray<IMovieClip> childrenArray = children.getUpdatedArray();
+					for(int i = 0; i < childrenArray.getSize(); ++i)
+					{
+						childrenArray.get(i).draw(drawCycle);
+						drawCycle.getTransform().setTo(originalTransform);
+					}
 				}
 			}
 			finally
@@ -364,10 +384,13 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 
 	@Override
 	public void onClick(IClickEvent clickEvent) {
-		QuickArray<IBehavior> behaviourArray = behaviours.getUpdatedArray();
-		for(int i = 0; i < behaviourArray.getSize(); ++i)
-		{
-			behaviourArray.get(i).onClick(clickEvent);
+		if(!behaviours.isEmpty()) {
+			boolean consumedBeforeBehaviors = clickEvent.isConsumed();
+			QuickArray<IBehavior> behaviourArray = behaviours.getUpdatedArray();
+			for(int i = 0; i < behaviourArray.getSize(); ++i)
+			{
+				behaviourArray.get(i).onClick(clickEvent, consumedBeforeBehaviors);
+			}
 		}
 	}
 
@@ -375,16 +398,20 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 	public void think(ITic tic) {
 		if(!disposed)
 		{
-			QuickArray<IMovieClip> childrenArray = children.getUpdatedArray();
-			for(int i = 0; i < childrenArray.getSize(); ++i)
-			{
-				childrenArray.get(i).think(tic);
+			if(!children.isEmpty()) {
+				QuickArray<IMovieClip> childrenArray = children.getUpdatedArray();
+				for(int i = 0; i < childrenArray.getSize(); ++i)
+				{
+					childrenArray.get(i).think(tic);
+				}
 			}
 			
-			QuickArray<IBehavior> behaviourArray = behaviours.getUpdatedArray();
-			for(int i = 0; i < behaviourArray.getSize(); ++i)
-			{
-				behaviourArray.get(i).think(tic);
+			if(!behaviours.isEmpty()) {
+				QuickArray<IBehavior> behaviourArray = behaviours.getUpdatedArray();
+				for(int i = 0; i < behaviourArray.getSize(); ++i)
+				{
+					behaviourArray.get(i).think(tic);
+				}
 			}
 		}
 	}
@@ -394,24 +421,30 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 		transform = FlashyEngine.get().getPoolManager().getPool(ITransform.class).obtain().setToIdentity();
 		
 		//Init movieClipLayers
-		QuickArray<IMovieClipLayer> graphicsArray = graphics.getUpdatedArray();
-		for(int i = 0; i < graphicsArray.getSize(); ++i)
-		{
-			graphicsArray.get(i).init();
+		if(!graphics.isEmpty()) {
+			QuickArray<IMovieClipLayer> graphicsArray = graphics.getUpdatedArray();
+			for(int i = 0; i < graphicsArray.getSize(); ++i)
+			{
+				graphicsArray.get(i).init();
+			}
 		}
 		
 		//Init children
-		QuickArray<IMovieClip> childrenArray = children.getUpdatedArray();
-		for(int i = 0; i < childrenArray.getSize(); ++i)
-		{
-			childrenArray.get(i).init();
+		if(!children.isEmpty()) {
+			QuickArray<IMovieClip> childrenArray = children.getUpdatedArray();
+			for(int i = 0; i < childrenArray.getSize(); ++i)
+			{
+				childrenArray.get(i).init();
+			}
 		}
 		
 		//Init behaviours
-		QuickArray<IBehavior> behaviourArray = behaviours.getUpdatedArray();
-		for(int i = 0; i < behaviourArray.getSize(); ++i)
-		{
-			behaviourArray.get(i).init();
+		if(!behaviours.isEmpty()) {
+			QuickArray<IBehavior> behaviourArray = behaviours.getUpdatedArray();
+			for(int i = 0; i < behaviourArray.getSize(); ++i)
+			{
+				behaviourArray.get(i).init();
+			}
 		}
 	}
 	
@@ -428,6 +461,17 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 	}
 	
 	@Override
+	public void visitBehaviors(IBehaviorVisitor visitor) {
+		if(behaviours.isEmpty()) {
+			return;
+		}
+		QuickArray<IBehavior> array = behaviours.getUpdatedArray();
+		for(int i = 0; i < array.getSize(); ++i) {
+			visitor.visit(array.get(i));
+		}
+	}
+	
+	@Override
 	public void addGraphics(IMovieClipLayer movieClipLayer) {
 		graphics.addToBirthList(movieClipLayer);
 	}
@@ -441,10 +485,12 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 	public IShader resolveShader() {
 		IShader shader = getWrapper().getShader();
 		
-		QuickArray<IBehavior> behaviourArray = behaviours.getUpdatedArray();
-		for(int i = 0; i < behaviourArray.getSize(); ++i)
-		{
-			shader = behaviourArray.get(i).getShader(shader);
+		if(!behaviours.isEmpty()) {
+			QuickArray<IBehavior> behaviourArray = behaviours.getUpdatedArray();
+			for(int i = 0; i < behaviourArray.getSize(); ++i)
+			{
+				shader = behaviourArray.get(i).getShader(shader);
+			}
 		}
 		
 		if(shader != null)
@@ -466,24 +512,30 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 	@Override
 	public void dispose() {
 		//Dispose behaviours 
-		QuickArray<IBehavior> behaviourArray = behaviours.getUpdatedArray();
-		for(int i = 0; i < behaviourArray.getSize(); ++i)
-		{
-			behaviourArray.get(i).dispose();
+		if(!behaviours.isEmpty()) {
+			QuickArray<IBehavior> behaviourArray = behaviours.getUpdatedArray();
+			for(int i = 0; i < behaviourArray.getSize(); ++i)
+			{
+				behaviourArray.get(i).dispose();
+			}
 		}
 
 		//Dispose children
-		QuickArray<IMovieClip> childrenArray = children.getUpdatedArray();
-		for(int i = 0; i < childrenArray.getSize(); ++i)
-		{
-			childrenArray.get(i).dispose();
+		if(!children.isEmpty()) {
+			QuickArray<IMovieClip> childrenArray = children.getUpdatedArray();
+			for(int i = 0; i < childrenArray.getSize(); ++i)
+			{
+				childrenArray.get(i).dispose();
+			}
 		}
 
 		//Dispose movieClipLayers
-		QuickArray<IMovieClipLayer> graphicsArray = graphics.getUpdatedArray();
-		for(int i = 0; i < graphicsArray.getSize(); ++i)
-		{
-			graphicsArray.get(i).dispose();
+		if(!graphics.isEmpty()) {
+			QuickArray<IMovieClipLayer> graphicsArray = graphics.getUpdatedArray();
+			for(int i = 0; i < graphicsArray.getSize(); ++i)
+			{
+				graphicsArray.get(i).dispose();
+			}
 		}
 		
 		transform.free();

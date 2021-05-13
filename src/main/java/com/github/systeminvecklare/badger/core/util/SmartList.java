@@ -122,6 +122,14 @@ public class SmartList<T> implements ISmartList<T> {
 		}
 	}
 	
+	@Override
+	public boolean isEmpty() {
+		if(updates != null && updates.getSize() != 0) {
+			update();
+		}
+		return array == null || array.getSize() == 0;
+	}
+	
 	private class QueuedUpdate {
 		public QuickArray<T> list = new QuickArray<T>();
 		public boolean birth;

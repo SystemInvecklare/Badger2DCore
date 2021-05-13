@@ -5,6 +5,7 @@ import com.github.systeminvecklare.badger.core.graphics.components.core.IDrawCyc
 import com.github.systeminvecklare.badger.core.graphics.components.core.ITic;
 import com.github.systeminvecklare.badger.core.graphics.components.layer.ILayer;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.behavior.IBehavior;
+import com.github.systeminvecklare.badger.core.graphics.components.movieclip.behavior.IBehaviorVisitor;
 import com.github.systeminvecklare.badger.core.graphics.components.moviecliplayer.IMovieClipLayer;
 import com.github.systeminvecklare.badger.core.graphics.components.scene.IScene;
 import com.github.systeminvecklare.badger.core.graphics.components.shader.IShader;
@@ -155,6 +156,11 @@ public class MovieClip implements IMovieClip {
 	@Override
 	public void removeBehavior(IBehavior behavior) {
 		delegate.removeBehavior(behavior);
+	}
+	
+	@Override
+	public void visitBehaviors(IBehaviorVisitor visitor) {
+		delegate.visitBehaviors(visitor);
 	}
 	
 	@Override

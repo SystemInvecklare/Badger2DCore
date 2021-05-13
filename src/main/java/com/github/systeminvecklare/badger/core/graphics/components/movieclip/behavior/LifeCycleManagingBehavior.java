@@ -16,7 +16,7 @@ public class LifeCycleManagingBehavior implements IBehavior {
 	}
 
 	@Override
-	public void onClick(IClickEvent clickEvent) {
+	public void onClick(IClickEvent clickEvent, boolean consumedBeforeBehaviors) {
 	}
 
 	@Override

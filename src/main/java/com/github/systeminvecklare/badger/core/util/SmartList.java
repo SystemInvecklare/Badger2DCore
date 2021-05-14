@@ -2,9 +2,9 @@ package com.github.systeminvecklare.badger.core.util;
 
 
 public class SmartList<T> implements ISmartList<T> {
-	private QuickArray<QueuedUpdate> updates = null;
+	private IQuickArray<QueuedUpdate> updates = null;
 	private QueuedUpdate latestUpdate = null;
-	private QuickArray<T> array = null;
+	private IQuickArray<T> array = null;
 	
 	@SuppressWarnings("rawtypes")
 	private static QuickArray STATIC_NULL_ARRAY = new QuickArray()
@@ -14,24 +14,20 @@ public class SmartList<T> implements ISmartList<T> {
 			throw new UnsupportedOperationException();
 		}
 		@Override
-		public void add(Object[] objects) {
-			throw new UnsupportedOperationException();
-		}
-		@Override
-		public void addAllFrom(QuickArray other) {
+		public void addAllFrom(IQuickArray other) {
 			throw new UnsupportedOperationException();
 		}
 		@Override
 		public void clear() {
 		}
 		
+//		@Override
+//		public Object get(int index)
+//		{
+//			return null;
+//		}
 		@Override
-		public Object get(int index)
-		{
-			return null;
-		}
-		@Override
-		public void removeAllIn(QuickArray other) {
+		public void removeAllIn(IQuickArray other) {
 			throw new UnsupportedOperationException();
 		}
 		public int getSize() {
@@ -45,10 +41,14 @@ public class SmartList<T> implements ISmartList<T> {
 		addToUpdate(true, object);
 	}
 	
+	protected <U> IQuickArray<U> newQuickArray() {
+		return new QuickArray<U>();
+	}
+	
 	private void addToUpdate(boolean birth, T object) {
 		if(updates == null)
 		{
-			updates = new QuickArray<QueuedUpdate>();
+			updates = this.<QueuedUpdate>newQuickArray();
 		}
 		if(latestUpdate != null)
 		{
@@ -78,10 +78,11 @@ public class SmartList<T> implements ISmartList<T> {
 		{
 			if(array == null)
 			{
-				array = new QuickArray<T>();
+				array = this.<T>newQuickArray();
 			}
 			
-			for(int i = 0; i < updates.getSize(); ++i)
+			int updatesSize = updates.getSize();
+			for(int i = 0; i < updatesSize; ++i)
 			{
 				QueuedUpdate update = updates.get(i);
 				if(update.birth)
@@ -101,7 +102,7 @@ public class SmartList<T> implements ISmartList<T> {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public QuickArray<T> getUpdatedArray() {
+	public IQuickArray<T> getUpdatedArray() {
 		update();
 		if(array == null)
 		{
@@ -131,7 +132,7 @@ public class SmartList<T> implements ISmartList<T> {
 	}
 	
 	private class QueuedUpdate {
-		public QuickArray<T> list = new QuickArray<T>();
+		public IQuickArray<T> list = SmartList.this.<T>newQuickArray();
 		public boolean birth;
 
 		public QueuedUpdate(boolean birth) {

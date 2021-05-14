@@ -18,8 +18,8 @@ import com.github.systeminvecklare.badger.core.pooling.SimplePool;
 import com.github.systeminvecklare.badger.core.standard.input.keyboard.IPoolableKeyPressEvent;
 import com.github.systeminvecklare.badger.core.standard.input.mouse.IPoolableClickEvent;
 import com.github.systeminvecklare.badger.core.standard.input.mouse.PointerIdentifier;
+import com.github.systeminvecklare.badger.core.util.IQuickArray;
 import com.github.systeminvecklare.badger.core.util.ISmartList;
-import com.github.systeminvecklare.badger.core.util.QuickArray;
 
 public class FlashyInputHandler implements IInputHandler {
 	private ISmartList<IQueuedInput> inputEvents = FlashyEngine.get().newSmartList();
@@ -155,8 +155,9 @@ public class FlashyInputHandler implements IInputHandler {
 
 	@Override
 	public void handleInputs(IScene scene) {
-		QuickArray<IQueuedInput> array = inputEvents.getUpdatedArray();
-		for(int i = 0; i < array.getSize(); ++i)
+		IQuickArray<IQueuedInput> array = inputEvents.getUpdatedArray();
+		int size = array.getSize();
+		for(int i = 0; i < size; ++i)
 		{
 			array.get(i).execute(scene);
 		}

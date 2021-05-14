@@ -1,13 +1,14 @@
 package com.github.systeminvecklare.badger.core.util;
 
 
-public class QuickArray<T> {
+public class QuickArray<T> implements IQuickArray<T> {
 //	private static final int INCREASE = 10;
 	private static final int INCREASE = 2; //Seems like most only get's it's increase called one or twice with this value...
 	@SuppressWarnings("unchecked")
 	private T[] array = (T[]) new Object[0];
 	private int size = 0;
 	
+	@Override
 	public void add(T object)
 	{
 		if(array.length <= size)
@@ -21,12 +22,12 @@ public class QuickArray<T> {
 		size++;
 	}
 	
-	public void add(T[] objects)
-	{
-		makeRoomFor(objects.length);
-		System.arraycopy(objects, 0, array, size, objects.length);
-		size+=objects.length;
-	}
+//	public void add(T[] objects)
+//	{
+//		makeRoomFor(objects.length);
+//		System.arraycopy(objects, 0, array, size, objects.length);
+//		size+=objects.length;
+//	}
 	
 	private void makeRoomFor(int more)
 	{
@@ -44,58 +45,50 @@ public class QuickArray<T> {
 		}
 	}
 	
-	public void addAllFrom(QuickArray<T> other)
-	{
-		makeRoomFor(other.size);
-		System.arraycopy(other.array, 0, array, size, other.size);
-		size+= other.size;
+	@Override
+	public void copyToArray(T[] target, int offset, int length) {
+		System.arraycopy(this.array, 0, target, offset, length);
 	}
 	
-	public void removeAllIn(QuickArray<T> other)
-	{
-		boolean atLeastOneHit = false;
-		int it = -1;
-		if(other.size > 0)
-		{
-			while((++it)<size)
-			{
-				findMatch: for(int otherIt = 0; otherIt < other.size; ++otherIt)
-				{
-					if(equal(array[it],other.array[otherIt]))
-					{
-						array[it] = null;
-						atLeastOneHit = true;
-						break findMatch;
+	@Override
+	public void addAllFrom(IQuickArray<T> other) {
+		int otherSize = other.getSize();
+		if(otherSize > 0 ) {
+			makeRoomFor(otherSize);
+			other.copyToArray(array, size, otherSize);
+			size+= otherSize;
+		}
+	}
+	
+	@Override
+	public void removeAllIn(IQuickArray<T> other) {
+		final int otherSize = other.getSize();
+		if(otherSize > 0) {
+			final int mySize = size;
+			int newSize = mySize;
+			for(int i = 0; i < mySize; ++i) {
+				jLoop: for(int j = 0; j < otherSize; ++j) {
+					if(equal(this.array[i], other.get(j))) {
+						this.array[i] = null;
+						--newSize;
+						break jLoop;
 					}
 				}
 			}
-		}
-		if(atLeastOneHit)
-		{
-			@SuppressWarnings("unchecked")
-			T[] newArray = (T[]) new Object[array.length]; //TODO reuse arrays here also (keep 2 arrays of same size)
-			int newArrayInsert = 0;
-			int nulls = 0;
-			it = -1;
-			int nonNullLength = 0;
-			int lastStart = 0;
-			while((++it)<=size)
-			{
-				if(it == size || array[it] == null)
-				{
-					System.arraycopy(array, lastStart, newArray, newArrayInsert, nonNullLength);
-					newArrayInsert+=nonNullLength;
-					nonNullLength = 0;
-					lastStart = it+1;
-					nulls++;
+			if(newSize != mySize) {
+				for(int i = 0; i < newSize; ++i) {
+					if(this.array[i] == null) {
+						jLoop: for(int j = i+1; j < mySize; ++j) {
+							if(this.array[j] != null) {
+								this.array[i] = this.array[j];
+								this.array[j] = null;
+								break jLoop;
+							}
+						}
+					}
 				}
-				else
-				{
-					nonNullLength++;
-				}
+				this.size = newSize;
 			}
-			array = newArray;
-			size -= (nulls-1);//one added from end of list
 		}
 	}
 	
@@ -103,24 +96,25 @@ public class QuickArray<T> {
 		return t == t2;
 	}
 
+	@Override
 	public int getSize()
 	{
 		return size;
 	}
 	
-	public void clear()
-	{
-		Object[] nulls = new Object[size];
-		System.arraycopy(nulls, 0, array, 0, size);
-		size = 0;
-	}
-	
-	public T get(int index)
-	{
-		if(index >= size)
-		{
+	@Override
+	public T get(int index) {
+		if(index >= size) {
 			throw new IndexOutOfBoundsException();
 		}
 		return array[index];
+	}
+	
+	@Override
+	public void clear() {
+		for(int i = 0; i < size; ++i) {
+			array[i] = null;
+		}
+		size = 0;
 	}
 }

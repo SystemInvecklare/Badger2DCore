@@ -12,10 +12,11 @@ import com.github.systeminvecklare.badger.core.graphics.framework.engine.click.I
 import com.github.systeminvecklare.badger.core.math.IReadablePosition;
 import com.github.systeminvecklare.badger.core.math.Position;
 import com.github.systeminvecklare.badger.core.pooling.IPool;
+import com.github.systeminvecklare.badger.core.util.IQuickArray;
 import com.github.systeminvecklare.badger.core.util.QuickArray;
 
 public class HitCollector implements ITransformDependentLayerVisitor, ITransformDependentMovieClipVisitor, IMovieClipCollector<IReadablePosition> {
-	private QuickArray<IMovieClip> movieClips;
+	private IQuickArray<IMovieClip> movieClips;
 	private Position clickPos;
 	private ITransform currentTransform;
 	
@@ -103,13 +104,17 @@ public class HitCollector implements ITransformDependentLayerVisitor, ITransform
 		return this;
 	}
 
-	public QuickArray<IMovieClip> getMovieClips() {
+	public IQuickArray<IMovieClip> getMovieClips() {
 		return movieClips;
+	}
+	
+	protected <T> IQuickArray<T> newQuickArray() {
+		return new QuickArray<T>();
 	}
 
 	@Override
 	public void init() {
-		this.movieClips = new QuickArray<IMovieClip>();
+		this.movieClips = this.<IMovieClip>newQuickArray();
 		this.clickPos = FlashyEngine.get().getPoolManager().getPool(Position.class).obtain();
 		this.currentTransform = FlashyEngine.get().getPoolManager().getPool(ITransform.class).obtain();
 	}

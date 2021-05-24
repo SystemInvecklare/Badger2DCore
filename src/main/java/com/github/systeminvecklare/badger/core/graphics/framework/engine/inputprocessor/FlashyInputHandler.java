@@ -9,6 +9,8 @@ import java.util.Map.Entry;
 import com.github.systeminvecklare.badger.core.graphics.components.FlashyEngine;
 import com.github.systeminvecklare.badger.core.graphics.components.core.IIntSource;
 import com.github.systeminvecklare.badger.core.graphics.components.scene.IScene;
+import com.github.systeminvecklare.badger.core.graphics.framework.smartlist.ILoopAction;
+import com.github.systeminvecklare.badger.core.graphics.framework.smartlist.ISmartList;
 import com.github.systeminvecklare.badger.core.math.IReadablePosition;
 import com.github.systeminvecklare.badger.core.math.Position;
 import com.github.systeminvecklare.badger.core.pooling.IPool;
@@ -18,8 +20,6 @@ import com.github.systeminvecklare.badger.core.pooling.SimplePool;
 import com.github.systeminvecklare.badger.core.standard.input.keyboard.IPoolableKeyPressEvent;
 import com.github.systeminvecklare.badger.core.standard.input.mouse.IPoolableClickEvent;
 import com.github.systeminvecklare.badger.core.standard.input.mouse.PointerIdentifier;
-import com.github.systeminvecklare.badger.core.util.IQuickArray;
-import com.github.systeminvecklare.badger.core.util.ISmartList;
 
 public class FlashyInputHandler implements IInputHandler {
 	private ISmartList<IQueuedInput> inputEvents = FlashyEngine.get().newSmartList();
@@ -155,12 +155,7 @@ public class FlashyInputHandler implements IInputHandler {
 
 	@Override
 	public void handleInputs(IScene scene) {
-		IQuickArray<IQueuedInput> array = inputEvents.getUpdatedArray();
-		int size = array.getSize();
-		for(int i = 0; i < size; ++i)
-		{
-			array.get(i).execute(scene);
-		}
+		inputEvents.forEach(new ExecuteQueuedInput(scene));
 		inputEvents.clear();
 	}
 	
@@ -413,6 +408,20 @@ public class FlashyInputHandler implements IInputHandler {
 					keyPressIt.remove();
 				}
 			}
+		}
+	}
+	
+	private static class ExecuteQueuedInput implements ILoopAction<IQueuedInput> {
+		private final IScene scene;
+
+		public ExecuteQueuedInput(IScene scene) {
+			this.scene = scene;
+		}
+
+		@Override
+		public boolean onIteration(IQueuedInput queuedInput) {
+			queuedInput.execute(scene);
+			return true;
 		}
 	}
 }

@@ -2,6 +2,8 @@ package com.github.systeminvecklare.badger.core.graphics.components.movieclip;
 
 import com.github.systeminvecklare.badger.core.graphics.components.FlashyEngine;
 import com.github.systeminvecklare.badger.core.graphics.components.core.IDrawCycle;
+import com.github.systeminvecklare.badger.core.graphics.components.core.IDrawable;
+import com.github.systeminvecklare.badger.core.graphics.components.core.IHittable;
 import com.github.systeminvecklare.badger.core.graphics.components.core.ITic;
 import com.github.systeminvecklare.badger.core.graphics.components.layer.ILayer;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.behavior.IBehavior;
@@ -13,12 +15,14 @@ import com.github.systeminvecklare.badger.core.graphics.components.transform.IRe
 import com.github.systeminvecklare.badger.core.graphics.components.transform.ITransform;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.ITransformOperation;
 import com.github.systeminvecklare.badger.core.graphics.framework.engine.click.IClickEvent;
+import com.github.systeminvecklare.badger.core.graphics.framework.smartlist.ILoopAction;
+import com.github.systeminvecklare.badger.core.graphics.framework.smartlist.ISmartList;
+import com.github.systeminvecklare.badger.core.graphics.framework.smartlist.LoopAction;
+import com.github.systeminvecklare.badger.core.graphics.framework.smartlist.ThinkAction;
 import com.github.systeminvecklare.badger.core.math.IReadablePosition;
 import com.github.systeminvecklare.badger.core.math.Position;
 import com.github.systeminvecklare.badger.core.pooling.EasyPooler;
 import com.github.systeminvecklare.badger.core.pooling.IPool;
-import com.github.systeminvecklare.badger.core.util.IQuickArray;
-import com.github.systeminvecklare.badger.core.util.ISmartList;
 
 public class MovieClipDelegate implements IMovieClipDelegate {
 	private MovieClip wrapper;
@@ -32,6 +36,8 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 	private ITransform transform;
 	
 	private boolean disposed = false;
+	
+	private final ThinkAction thinkAction = new ThinkAction(null);
 	
 	public MovieClipDelegate(MovieClip wrapper) {
 		this.wrapper = wrapper;
@@ -89,12 +95,7 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 				try
 				{
 					transVisitor.transform().mult(getWrapper().getTransform(temp));
-					IQuickArray<IMovieClip> array = children.getUpdatedArray();
-					final int arraySize = array.getSize();
-					for(int i = 0; i < arraySize; ++i)
-					{
-						visitor.visit(array.get(i));
-					}
+					children.forEach(new VisitClipAction(visitor));
 				}
 				finally
 				{
@@ -109,12 +110,7 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 		}
 		else
 		{
-			IQuickArray<IMovieClip> array = children.getUpdatedArray();
-			final int arraySize = array.getSize();
-			for(int i = 0; i < arraySize; ++i)
-			{
-				visitor.visit(array.get(i));
-			}
+			children.forEach(new VisitClipAction(visitor));
 		}
 	}
 	
@@ -138,20 +134,7 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 			
 			try
 			{
-				IQuickArray<IBehavior> array = behaviours.getUpdatedArray();
-				final int arraySize = array.getSize();
-				for(int i = 0; i < arraySize; ++i)
-				{
-					ITransform returned = array.get(i).getTransform(mutableTrans, loopResult.setTo(mutableTrans));
-					
-					if(returned != null && !(returned == loopResult))
-					{
-						loopResult.setTo(returned);
-					}
-					
-					mutableTrans.setTo(loopResult);
-				}
-				
+				behaviours.forEach(new GetTransformBehaviorAction(mutableTrans, loopResult));
 				return result.setTo(loopResult);
 			}
 			finally
@@ -171,16 +154,7 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 			try
 			{
 				mutableTransform.setTo(transform);
-				IQuickArray<IBehavior> array = behaviours.getUpdatedArray();
-				final int arraySize = array.getSize();
-				for(int i = 0; i < arraySize; ++i)
-				{
-					ITransform returned = array.get(i).setTransform(mutableTransform);
-					if(returned != mutableTransform)
-					{
-						mutableTransform.setTo(returned);
-					}
-				}
+				behaviours.forEach(new SetTransformBehaviorAction(mutableTransform));
 				getWrapper().setTransformBypassBehaviors(mutableTransform);
 			}
 			finally
@@ -292,26 +266,20 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 			
 			getWrapper().getTransform(trans).invert().transform(ptDst.setTo(p));
 			
+			HitTestAction hitTestAction = new HitTestAction();
+			
 			if(!graphics.isEmpty()) {
-				IQuickArray<IMovieClipLayer> graphicsArray = graphics.getUpdatedArray();
-				final int graphicsArraySize = graphicsArray.getSize();
-				for(int i = 0; i < graphicsArraySize; ++i)
-				{
-					if(graphicsArray.get(i).hitTest(ptDstCopy.setTo(ptDst)))
-					{
-						return true;
-					}
+				hitTestAction.reset(ptDst, ptDstCopy);
+				graphics.forEach(hitTestAction);
+				if(hitTestAction.hit) {
+					return true;
 				}
 			}
 			if(!children.isEmpty()) {
-				IQuickArray<IMovieClip> childrenArray = children.getUpdatedArray();
-				final int childrenArraySize = childrenArray.getSize();
-				for(int i = 0; i < childrenArraySize; ++i)
-				{
-					if(childrenArray.get(i).hitTest(ptDstCopy.setTo(ptDst)))
-					{
-						return true;
-					}
+				hitTestAction.reset(ptDst, ptDstCopy);
+				children.forEach(hitTestAction);
+				if(hitTestAction.hit) {
+					return true;
 				}
 			}
 			return false;
@@ -365,22 +333,10 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 			try
 			{
 				if(!graphics.isEmpty()) {
-					IQuickArray<IMovieClipLayer> graphicsArray = graphics.getUpdatedArray();
-					final int graphicsArraySize = graphicsArray.getSize();
-					for(int i = 0; i < graphicsArraySize; ++i)
-					{
-						graphicsArray.get(i).draw(drawCycle);
-						drawCycle.getTransform().setTo(originalTransform);
-					}
+					graphics.forEach(new DrawAction(drawCycle, originalTransform));
 				}
 				if(!children.isEmpty()) {
-					IQuickArray<IMovieClip> childrenArray = children.getUpdatedArray();
-					final int childrenArraySize = childrenArray.getSize();
-					for(int i = 0; i < childrenArraySize; ++i)
-					{
-						childrenArray.get(i).draw(drawCycle);
-						drawCycle.getTransform().setTo(originalTransform);
-					}
+					children.forEach(new DrawAction(drawCycle, originalTransform));
 				}
 			}
 			finally
@@ -394,35 +350,21 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 	public void onClick(IClickEvent clickEvent) {
 		if(!behaviours.isEmpty()) {
 			boolean consumedBeforeBehaviors = clickEvent.isConsumed();
-			IQuickArray<IBehavior> behaviourArray = behaviours.getUpdatedArray();
-			final int behaviourArraySize = behaviourArray.getSize();
-			for(int i = 0; i < behaviourArraySize; ++i)
-			{
-				behaviourArray.get(i).onClick(clickEvent, consumedBeforeBehaviors);
-			}
+			behaviours.forEach(new BehaviorClickAction(clickEvent, consumedBeforeBehaviors));
 		}
 	}
 
 	@Override
 	public void think(ITic tic) {
+		this.thinkAction.setTic(tic);
 		if(!disposed)
 		{
 			if(!children.isEmpty()) {
-				IQuickArray<IMovieClip> childrenArray = children.getUpdatedArray();
-				final int childrenArraySize = childrenArray.getSize();
-				for(int i = 0; i < childrenArraySize; ++i)
-				{
-					childrenArray.get(i).think(tic);
-				}
+				children.forEach(this.thinkAction);
 			}
 			
 			if(!behaviours.isEmpty()) {
-				IQuickArray<IBehavior> behaviourArray = behaviours.getUpdatedArray();
-				final int behaviourArraySize = behaviourArray.getSize();
-				for(int i = 0; i < behaviourArraySize; ++i)
-				{
-					behaviourArray.get(i).think(tic);
-				}
+				behaviours.forEach(this.thinkAction);
 			}
 		}
 	}
@@ -433,32 +375,17 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 		
 		//Init movieClipLayers
 		if(!graphics.isEmpty()) {
-			IQuickArray<IMovieClipLayer> graphicsArray = graphics.getUpdatedArray();
-			final int graphicsArraySize = graphicsArray.getSize();
-			for(int i = 0; i < graphicsArraySize; ++i)
-			{
-				graphicsArray.get(i).init();
-			}
+			graphics.forEach(LoopAction.INIT);
 		}
 		
 		//Init children
 		if(!children.isEmpty()) {
-			IQuickArray<IMovieClip> childrenArray = children.getUpdatedArray();
-			final int childrenArraySize = childrenArray.getSize();
-			for(int i = 0; i < childrenArraySize; ++i)
-			{
-				childrenArray.get(i).init();
-			}
+			children.forEach(LoopAction.INIT);
 		}
 		
 		//Init behaviours
 		if(!behaviours.isEmpty()) {
-			IQuickArray<IBehavior> behaviourArray = behaviours.getUpdatedArray();
-			final int behaviourArraySize = behaviourArray.getSize();
-			for(int i = 0; i < behaviourArraySize; ++i)
-			{
-				behaviourArray.get(i).init();
-			}
+			behaviours.forEach(LoopAction.INIT);
 		}
 	}
 	
@@ -479,11 +406,7 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 		if(behaviours.isEmpty()) {
 			return;
 		}
-		IQuickArray<IBehavior> array = behaviours.getUpdatedArray();
-		final int arraySize = array.getSize();
-		for(int i = 0; i < arraySize; ++i) {
-			visitor.visit(array.get(i));
-		}
+		behaviours.forEach(new VisitBehaviorAction(visitor));
 	}
 	
 	@Override
@@ -501,12 +424,9 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 		IShader shader = getWrapper().getShader();
 		
 		if(!behaviours.isEmpty()) {
-			IQuickArray<IBehavior> behaviourArray = behaviours.getUpdatedArray();
-			final int behaviourArraySize = behaviourArray.getSize();
-			for(int i = 0; i < behaviourArraySize; ++i)
-			{
-				shader = behaviourArray.get(i).getShader(shader);
-			}
+			ShaderFinderAction shaderFinder = new ShaderFinderAction(shader);
+			behaviours.forEach(shaderFinder);
+			shader = shaderFinder.shader;
 		}
 		
 		if(shader != null)
@@ -529,32 +449,17 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 	public void dispose() {
 		//Dispose behaviours 
 		if(!behaviours.isEmpty()) {
-			IQuickArray<IBehavior> behaviourArray = behaviours.getUpdatedArray();
-			final int behaviourArraySize = behaviourArray.getSize();
-			for(int i = 0; i < behaviourArraySize; ++i)
-			{
-				behaviourArray.get(i).dispose();
-			}
+			behaviours.forEach(LoopAction.DISPOSE);
 		}
 
 		//Dispose children
 		if(!children.isEmpty()) {
-			IQuickArray<IMovieClip> childrenArray = children.getUpdatedArray();
-			final int childrenArraySize = childrenArray.getSize();
-			for(int i = 0; i < childrenArraySize; ++i)
-			{
-				childrenArray.get(i).dispose();
-			}
+			children.forEach(LoopAction.DISPOSE);
 		}
 
 		//Dispose movieClipLayers
 		if(!graphics.isEmpty()) {
-			IQuickArray<IMovieClipLayer> graphicsArray = graphics.getUpdatedArray();
-			final int graphicsArraySize = graphicsArray.getSize();
-			for(int i = 0; i < graphicsArraySize; ++i)
-			{
-				graphicsArray.get(i).dispose();
-			}
+			graphics.forEach(LoopAction.DISPOSE);
 		}
 		
 		transform.free();
@@ -579,4 +484,143 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 		return wrapper;
 	}
 
+	private static class VisitClipAction implements ILoopAction<IMovieClip> {
+		private final IMovieClipVisitor visitor;
+
+		public VisitClipAction(IMovieClipVisitor visitor) {
+			this.visitor = visitor;
+		}
+
+		@Override
+		public boolean onIteration(IMovieClip value) {
+			visitor.visit(value);
+			return true;
+		}
+	}
+	
+	private static class VisitBehaviorAction implements ILoopAction<IBehavior> {
+		private final IBehaviorVisitor visitor;
+
+		public VisitBehaviorAction(IBehaviorVisitor visitor) {
+			this.visitor = visitor;
+		}
+
+		@Override
+		public boolean onIteration(IBehavior value) {
+			visitor.visit(value);
+			return true;
+		}
+	}
+	
+	private static class GetTransformBehaviorAction implements ILoopAction<IBehavior> {
+		private final ITransform mutableTrans;
+		private final ITransform loopResult;
+		
+		public GetTransformBehaviorAction(ITransform mutableTrans, ITransform loopResult) {
+			this.mutableTrans = mutableTrans;
+			this.loopResult = loopResult;
+		}
+
+
+		@Override
+		public boolean onIteration(IBehavior behavior) {
+			ITransform returned = behavior.getTransform(mutableTrans, loopResult.setTo(mutableTrans));
+			
+			if(returned != null && !(returned == loopResult))
+			{
+				loopResult.setTo(returned);
+			}
+			
+			mutableTrans.setTo(loopResult);
+			return true;
+		}
+	}
+	
+	private static class ShaderFinderAction implements ILoopAction<IBehavior> {
+		private IShader shader;
+		
+		public ShaderFinderAction(IShader shader) {
+			this.shader = shader;
+		}
+
+		@Override
+		public boolean onIteration(IBehavior behavior) {
+			shader = behavior.getShader(shader);
+			return true;
+		}
+	}
+	
+	private static class SetTransformBehaviorAction implements ILoopAction<IBehavior> {
+		private final ITransform mutableTransform;
+		
+		public SetTransformBehaviorAction(ITransform mutableTransform) {
+			this.mutableTransform = mutableTransform;
+		}
+
+
+		@Override
+		public boolean onIteration(IBehavior behavior) {
+			ITransform returned = behavior.setTransform(mutableTransform);
+			if(returned != mutableTransform)
+			{
+				mutableTransform.setTo(returned);
+			}
+			return true;
+		}
+	}
+	
+	private static class HitTestAction implements ILoopAction<IHittable> {
+		public boolean hit = false;
+		private Position ptDst;
+		private Position ptDstCopy;
+		
+		public HitTestAction reset(Position ptDst, Position ptDstCopy) {
+			this.ptDst = ptDst;
+			this.ptDstCopy = ptDstCopy;
+			this.hit = false;
+			return this;
+		}
+
+		@Override
+		public boolean onIteration(IHittable hittable) {
+			if(hittable.hitTest(ptDstCopy.setTo(ptDst))) {
+				hit = true;
+				return false; //Return
+			}
+			return true;
+		}
+	}
+	
+	private static class DrawAction implements ILoopAction<IDrawable> {
+		private final IDrawCycle drawCycle;
+		private final ITransform originalTransform;
+
+		public DrawAction(IDrawCycle drawCycle, ITransform originalTransform) {
+			this.drawCycle = drawCycle;
+			this.originalTransform = originalTransform;
+		}
+
+		@Override
+		public boolean onIteration(IDrawable drawable) {
+			drawable.draw(drawCycle);
+			drawCycle.getTransform().setTo(originalTransform);
+			return true;
+		}
+	}
+	
+	private static class BehaviorClickAction implements ILoopAction<IBehavior> {
+		private final IClickEvent clickEvent;
+		private final boolean consumedBeforeBehaviors;
+
+		public BehaviorClickAction(IClickEvent clickEvent, boolean consumedBeforeBehaviors) {
+			this.clickEvent = clickEvent;
+			this.consumedBeforeBehaviors = consumedBeforeBehaviors;
+		}
+
+		@Override
+		public boolean onIteration(IBehavior behavior) {
+			behavior.onClick(clickEvent, consumedBeforeBehaviors);
+			return true;
+		}
+	}
 }

@@ -6,8 +6,8 @@ import com.github.systeminvecklare.badger.core.graphics.components.movieclip.IMo
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.MovieClip;
 import com.github.systeminvecklare.badger.core.graphics.components.scene.ISceneDelegate;
 import com.github.systeminvecklare.badger.core.graphics.components.scene.Scene;
+import com.github.systeminvecklare.badger.core.graphics.framework.smartlist.ISmartList;
 import com.github.systeminvecklare.badger.core.pooling.IPoolManager;
-import com.github.systeminvecklare.badger.core.util.ISmartList;
 
 
 public interface IFlashyEngine {

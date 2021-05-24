@@ -1,10 +1,10 @@
-package com.github.systeminvecklare.badger.core.util;
+package com.github.systeminvecklare.badger.core.graphics.framework.smartlist;
 
 
 public interface ISmartList<T> {
 	void addToBirthList(T object);
 	void addToDeathList(T object);
-	IQuickArray<T> getUpdatedArray();
 	void clear();
 	boolean isEmpty();
+	void forEach(ILoopAction<? super T> loopAction);
 }

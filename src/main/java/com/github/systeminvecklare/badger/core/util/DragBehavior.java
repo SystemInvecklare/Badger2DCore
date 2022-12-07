@@ -28,13 +28,17 @@ public class DragBehavior extends Behavior {
 	
 	@Override
 	public void onClick(IClickEvent clickEvent, boolean consumedBeforeBehaviors) {
-		if(!dragging && !consideredConsumed(clickEvent, consumedBeforeBehaviors) && isValidClick(clickEvent)) {
-			clickEvent.consume();
-			startDragging(clickEvent);
+		if(!consideredConsumed(clickEvent, consumedBeforeBehaviors) && isValidClick(clickEvent)) {
+			if(startDragging(clickEvent)) {
+				clickEvent.consume();
+			}
 		}
 	}
 	
-	public final void startDragging(IClickEvent clickEvent) {
+	public final boolean startDragging(IClickEvent clickEvent) {
+		if(dragging) {
+			return false;
+		}
 		dragging = true;
 		
 		onStartDrag(clickEvent.getPosition());
@@ -70,6 +74,8 @@ public class DragBehavior extends Behavior {
 		};
 		clickEvent.addDragListener(currentDragEventListener);
 		clickEvent.addReleaseListener(currentReleaseEventListener);
+		
+		return true;
 	}
 
 	protected boolean consideredConsumed(IClickEvent clickEvent, boolean consumedBeforeBehaviors) {

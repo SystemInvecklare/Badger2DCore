@@ -30,44 +30,48 @@ public class DragBehavior extends Behavior {
 	public void onClick(IClickEvent clickEvent, boolean consumedBeforeBehaviors) {
 		if(!dragging && !consideredConsumed(clickEvent, consumedBeforeBehaviors) && isValidClick(clickEvent)) {
 			clickEvent.consume();
-			dragging = true;
-			
-			onStartDrag(clickEvent.getPosition());
-			
-			convertPosition(clickEvent.getPosition(), dragStart); // Global pos right?
-			lastMeaningfulMousePos.setTo(clickEvent.getPosition());
-			
-			
-			
-			cancelDragAndReleaseListeners();
-			currentDragEventListener = new CancellableDragEventListener() {
-				@Override
-				protected void onDragNotCancelled(IPointerStateEvent e) {
-					if(disposed) {
-						return;
-					}
-					
-					onDragged(e.getPosition(), true);
-					
-					lastMeaningfulMousePos.setTo(e.getPosition());
-				}
-			};
-			currentReleaseEventListener = new CancellableReleaseEventListener() {
-				@Override
-				protected void onReleaseNotCancelled(IPointerStateEvent e) {
-					if(disposed) {
-						return;
-					}
-					lastMeaningfulMousePos.setTo(e.getPosition());
-					
-					forceRelease();
-				}
-			};
-			clickEvent.addDragListener(currentDragEventListener);
-			clickEvent.addReleaseListener(currentReleaseEventListener);
+			startDragging(clickEvent);
 		}
 	}
 	
+	public final void startDragging(IClickEvent clickEvent) {
+		dragging = true;
+		
+		onStartDrag(clickEvent.getPosition());
+		
+		convertPosition(clickEvent.getPosition(), dragStart); // Global pos right?
+		lastMeaningfulMousePos.setTo(clickEvent.getPosition());
+		
+		
+		
+		cancelDragAndReleaseListeners();
+		currentDragEventListener = new CancellableDragEventListener() {
+			@Override
+			protected void onDragNotCancelled(IPointerStateEvent e) {
+				if(disposed) {
+					return;
+				}
+				
+				onDragged(e.getPosition(), true);
+				
+				lastMeaningfulMousePos.setTo(e.getPosition());
+			}
+		};
+		currentReleaseEventListener = new CancellableReleaseEventListener() {
+			@Override
+			protected void onReleaseNotCancelled(IPointerStateEvent e) {
+				if(disposed) {
+					return;
+				}
+				lastMeaningfulMousePos.setTo(e.getPosition());
+				
+				forceRelease();
+			}
+		};
+		clickEvent.addDragListener(currentDragEventListener);
+		clickEvent.addReleaseListener(currentReleaseEventListener);
+	}
+
 	protected boolean consideredConsumed(IClickEvent clickEvent, boolean consumedBeforeBehaviors) {
 		return clickEvent.isConsumed();
 	}

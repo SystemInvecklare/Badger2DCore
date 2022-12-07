@@ -5,6 +5,7 @@ import com.github.systeminvecklare.badger.core.graphics.components.layer.ILayer;
 import com.github.systeminvecklare.badger.core.graphics.components.layer.ITransformDependentLayerVisitor;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.IMovieClip;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.IMovieClipVisitor;
+import com.github.systeminvecklare.badger.core.graphics.components.movieclip.IPositionalMovieClipVisitor;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.ITransformDependentMovieClipVisitor;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.MovieClipVisitorWithObject;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.ITransform;
@@ -15,7 +16,7 @@ import com.github.systeminvecklare.badger.core.pooling.IPool;
 import com.github.systeminvecklare.badger.core.util.IQuickArray;
 import com.github.systeminvecklare.badger.core.util.QuickArray;
 
-public class HitCollector implements ITransformDependentLayerVisitor, ITransformDependentMovieClipVisitor, IMovieClipCollector<IReadablePosition> {
+public class HitCollector implements ITransformDependentLayerVisitor, ITransformDependentMovieClipVisitor, IMovieClipCollector<IReadablePosition>, IPositionalMovieClipVisitor {
 	private IQuickArray<IMovieClip> movieClips;
 	private Position clickPos;
 	private ITransform currentTransform;
@@ -136,5 +137,10 @@ public class HitCollector implements ITransformDependentLayerVisitor, ITransform
 			this.currentTransform.free();
 			this.currentTransform = null;
 		}
+	}
+	
+	@Override
+	public IReadablePosition getGlobalPosition() {
+		return clickPos;
 	}
 }

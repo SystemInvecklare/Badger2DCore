@@ -2,6 +2,7 @@ package com.github.systeminvecklare.badger.core.math;
 
 import com.github.systeminvecklare.badger.core.pooling.EasyPooler;
 import com.github.systeminvecklare.badger.core.pooling.IPool;
+import com.github.systeminvecklare.badger.core.pooling.IPoolManager;
 
 public abstract class AbstractPosition implements IReadablePosition {
 
@@ -35,6 +36,11 @@ public abstract class AbstractPosition implements IReadablePosition {
 	@Override
 	public Position copy(IPool<Position> pool) {
 		return pool.obtain().setTo(this);
+	}
+	
+	@Override
+	public Position copy(IPoolManager poolManager) {
+		return copy(poolManager.getPool(Position.class));
 	}
 	
 	@Override

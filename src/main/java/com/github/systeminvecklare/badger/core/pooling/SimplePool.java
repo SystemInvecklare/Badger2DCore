@@ -34,9 +34,11 @@ public abstract class SimplePool<T> implements IPool<T> {
 
 	@Override
 	public void free(T poolable) {
-		if(pool.size() < maxSize)
-		{
-			pool.add(poolable);
+		if(poolable != null) {
+			if(pool.size() < maxSize)
+			{
+				pool.add(poolable);
+			}
 		}
 	}
 

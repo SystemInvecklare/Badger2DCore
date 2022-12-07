@@ -31,6 +31,9 @@ public class EasyPooler {
 	{
 		IPool<T> pool = poolmanager.getPool(type);
 		T poolable = pool.obtain();
+		if(poolable == null) {
+			throw new NullPointerException("Pool "+pool+" returned null from IPool::obtain(). This is not allowed.");
+		}
 		try
 		{
 			poolables.add(poolable);

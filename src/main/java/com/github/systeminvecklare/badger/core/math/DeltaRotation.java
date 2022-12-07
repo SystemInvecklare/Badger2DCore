@@ -2,6 +2,7 @@ package com.github.systeminvecklare.badger.core.math;
 
 import com.github.systeminvecklare.badger.core.pooling.EasyPooler;
 import com.github.systeminvecklare.badger.core.pooling.IPool;
+import com.github.systeminvecklare.badger.core.pooling.IPoolManager;
 import com.github.systeminvecklare.badger.core.pooling.IPoolable;
 
 public class DeltaRotation implements IPoolable, IReadableDeltaRotation {
@@ -90,6 +91,11 @@ public class DeltaRotation implements IPoolable, IReadableDeltaRotation {
 	@Override
 	public DeltaRotation copy(IPool<DeltaRotation> pool) {
 		return pool.obtain().setTo(this);
+	}
+	
+	@Override
+	public DeltaRotation copy(IPoolManager poolManager) {
+		return copy(poolManager.getPool(DeltaRotation.class));
 	}
 	
 	@Override

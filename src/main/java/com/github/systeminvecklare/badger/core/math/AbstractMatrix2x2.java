@@ -2,6 +2,7 @@ package com.github.systeminvecklare.badger.core.math;
 
 import com.github.systeminvecklare.badger.core.pooling.EasyPooler;
 import com.github.systeminvecklare.badger.core.pooling.IPool;
+import com.github.systeminvecklare.badger.core.pooling.IPoolManager;
 
 public abstract class AbstractMatrix2x2 implements IReadableMatrix2x2 {
 	@Override
@@ -17,6 +18,11 @@ public abstract class AbstractMatrix2x2 implements IReadableMatrix2x2 {
 	@Override
 	public Matrix2x2 copy(EasyPooler ep) {
 		return ep.obtain(Matrix2x2.class).setTo(this);
+	}
+	
+	@Override
+	public Matrix2x2 copy(IPoolManager poolManager) {
+		return copy(poolManager.getPool(Matrix2x2.class));
 	}
 
 	@Override

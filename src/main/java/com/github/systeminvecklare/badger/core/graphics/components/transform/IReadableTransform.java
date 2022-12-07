@@ -4,10 +4,9 @@ import com.github.systeminvecklare.badger.core.math.IReadablePosition;
 import com.github.systeminvecklare.badger.core.math.IReadableRotation;
 import com.github.systeminvecklare.badger.core.math.IReadableVector;
 import com.github.systeminvecklare.badger.core.math.Position;
-import com.github.systeminvecklare.badger.core.pooling.EasyPooler;
-import com.github.systeminvecklare.badger.core.pooling.IPool;
+import com.github.systeminvecklare.badger.core.pooling.ICopyablePoolable;
 
-public interface IReadableTransform {
+public interface IReadableTransform extends ICopyablePoolable<ITransform> {
 	public IReadablePosition getPosition();
 	public IReadableRotation getRotation();
 	public IReadableVector getScale();
@@ -19,7 +18,4 @@ public interface IReadableTransform {
 	 * @param argumentAndResult
 	 */
 	public void transform(Position argumentAndResult);
-	
-	public ITransform copy(IPool<ITransform> pool);
-	public ITransform copy(EasyPooler ep);
 }

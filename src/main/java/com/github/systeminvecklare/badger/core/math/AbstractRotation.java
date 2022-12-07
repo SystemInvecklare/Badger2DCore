@@ -2,6 +2,7 @@ package com.github.systeminvecklare.badger.core.math;
 
 import com.github.systeminvecklare.badger.core.pooling.EasyPooler;
 import com.github.systeminvecklare.badger.core.pooling.IPool;
+import com.github.systeminvecklare.badger.core.pooling.IPoolManager;
 
 public abstract class AbstractRotation implements IReadableRotation {
 
@@ -28,6 +29,11 @@ public abstract class AbstractRotation implements IReadableRotation {
 	@Override
 	public Rotation copy(IPool<Rotation> pool) {
 		return pool.obtain().setTo(this);
+	}
+	
+	@Override
+	public Rotation copy(IPoolManager poolManager) {
+		return copy(poolManager.getPool(Rotation.class));
 	}
 	
 	@Override

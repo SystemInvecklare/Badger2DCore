@@ -2,6 +2,7 @@ package com.github.systeminvecklare.badger.core.graphics.components.transform;
 
 import com.github.systeminvecklare.badger.core.pooling.EasyPooler;
 import com.github.systeminvecklare.badger.core.pooling.IPool;
+import com.github.systeminvecklare.badger.core.pooling.IPoolManager;
 
 public abstract class AbstractTransform implements ITransform {
 	@Override
@@ -12,5 +13,10 @@ public abstract class AbstractTransform implements ITransform {
 	@Override
 	public ITransform copy(EasyPooler ep) {
 		return ep.obtain(ITransform.class).setTo(this);
+	}
+	
+	@Override
+	public ITransform copy(IPoolManager poolManager) {
+		return copy(poolManager.getPool(ITransform.class));
 	}
 }

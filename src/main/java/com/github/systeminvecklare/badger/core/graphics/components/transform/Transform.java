@@ -291,4 +291,9 @@ public class Transform extends AbstractTransform {
 	public ITransform multiplyScale(IReadableVector dscale) {
 		return this.multiplyScale(dscale.getX(), dscale.getY());
 	}
+	
+	@Override
+	public ITransform copy() {
+		return new Transform(null).setTo(this);
+	}
 }

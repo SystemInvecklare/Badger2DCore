@@ -2,6 +2,7 @@ package com.github.systeminvecklare.badger.core.math;
 
 import com.github.systeminvecklare.badger.core.pooling.EasyPooler;
 import com.github.systeminvecklare.badger.core.pooling.IPool;
+import com.github.systeminvecklare.badger.core.pooling.IPoolManager;
 
 public abstract class AbstractVector implements IReadableVector {
 
@@ -18,6 +19,11 @@ public abstract class AbstractVector implements IReadableVector {
 	@Override
 	public Vector copy(EasyPooler ep) {
 		return ep.obtain(Vector.class).setTo(this);
+	}
+	
+	@Override
+	public Vector copy(IPoolManager poolManager) {
+		return copy(poolManager.getPool(Vector.class));
 	}
 
 	@Override

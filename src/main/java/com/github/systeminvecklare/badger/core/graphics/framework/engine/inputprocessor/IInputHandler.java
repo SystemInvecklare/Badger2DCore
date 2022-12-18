@@ -3,10 +3,11 @@ package com.github.systeminvecklare.badger.core.graphics.framework.engine.inputp
 import com.github.systeminvecklare.badger.core.graphics.components.scene.IScene;
 
 public interface IInputHandler {
-	public boolean registerKeyDown(int keycode);
-	public boolean registerKeyUp(int keycode);
-	public boolean registerPointerDown(int screenX, int screenY, int pointer, int button);
-	public boolean registerPointerUp(int screenX, int screenY, int pointer, int button);
-	public boolean registerPointerDragged(int screenX, int screenY, int pointer);
-	public void handleInputs(IScene scene);
+	boolean registerKeyDown(int keycode);
+	boolean registerKeyUp(int keycode);
+	boolean registerKeyTyped(char c);
+	boolean registerPointerDown(int screenX, int screenY, int pointer, int button);
+	boolean registerPointerUp(int screenX, int screenY, int pointer, int button);
+	boolean registerPointerDragged(int screenX, int screenY, int pointer);
+	void handleInputs(IScene scene);
 }

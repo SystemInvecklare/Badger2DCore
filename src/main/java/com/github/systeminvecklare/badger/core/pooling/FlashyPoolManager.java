@@ -82,12 +82,21 @@ public class FlashyPoolManager implements IPoolManager {
 					}
 				}));
 		registerPool(EasyPooler.class, EasyPooler.newEasyPoolerPool(3,getPoolSizeForType(EasyPooler.class)));
-		registerPool(ArrayList.class, newPool(0, getPoolSizeForType(ArrayList.class), new IFactory<ArrayList>() {
+		registerPool(ArrayList.class, new SimplePool<ArrayList>(0, getPoolSizeForType(ArrayList.class)) {
 			@Override
-			public ArrayList newObject(IPool<ArrayList> pool) {
+			public ArrayList newObject() {
 				return new ArrayList();
 			}
-		}));
+			
+			@Override
+			public ArrayList obtain() {
+				ArrayList arrayList = super.obtain();
+				if(arrayList != null && !arrayList.isEmpty()) {
+					arrayList.clear();
+				}
+				return arrayList;
+			}
+		});
 		registerPool(IPoolableClickEvent.class, new SimplePool<IPoolableClickEvent>(10,20) {
 			@Override
 			public IPoolableClickEvent newObject() {

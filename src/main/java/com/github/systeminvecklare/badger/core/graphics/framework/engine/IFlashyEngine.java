@@ -18,4 +18,7 @@ public interface IFlashyEngine {
 	public IMovieClipDelegate newMovieClipDelegate(MovieClip wrapper);
 	
 	public <T> ISmartList<T> newSmartList();
+
+	public void copyToClipboard(CharSequence text);
+	public String pasteFromClipboard(); //Might return null
 }

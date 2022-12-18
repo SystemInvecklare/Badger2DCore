@@ -8,6 +8,7 @@ import java.util.Map;
 import com.github.systeminvecklare.badger.core.graphics.components.FlashyEngine;
 import com.github.systeminvecklare.badger.core.graphics.components.core.IDrawCycle;
 import com.github.systeminvecklare.badger.core.graphics.components.core.IKeyPressListener;
+import com.github.systeminvecklare.badger.core.graphics.components.core.IKeyTypedListener;
 import com.github.systeminvecklare.badger.core.graphics.components.core.ITic;
 import com.github.systeminvecklare.badger.core.graphics.components.layer.ILayer;
 import com.github.systeminvecklare.badger.core.graphics.components.layer.ILayerVisitor;
@@ -25,9 +26,8 @@ public class SceneDelegate implements ISceneDelegate {
 	private List<ILayer> layers;
 	private boolean fullyDisposed = false;
 
-	private IPool<List<IKeyPressListener>> keyPressListenersInitPool;
-	private List<IKeyPressListener> keyPressListeners;
-	private List<IKeyPressListener> onKeyPressUtilList;
+	private DoubleList<IKeyPressListener> keyPressListeners;
+	private DoubleList<IKeyTypedListener> keyTypedListeners;
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public SceneDelegate(Scene wrapper) {
@@ -35,9 +35,8 @@ public class SceneDelegate implements ISceneDelegate {
 		this.layersInitPool = (IPool<List<ILayer>>) (IPool) FlashyEngine.get().getPoolManager().getPool(ArrayList.class);
 		this.layers = layersInitPool.obtain();
 		
-		this.keyPressListenersInitPool = (IPool<List<IKeyPressListener>>) (IPool) FlashyEngine.get().getPoolManager().getPool(ArrayList.class);
-		this.keyPressListeners = keyPressListenersInitPool.obtain();
-		this.onKeyPressUtilList = keyPressListenersInitPool.obtain();
+		this.keyPressListeners = new DoubleList<IKeyPressListener>();
+		this.keyTypedListeners = new DoubleList<IKeyTypedListener>();
 		this.layers.clear();
 	}
 	
@@ -130,15 +129,11 @@ public class SceneDelegate implements ISceneDelegate {
 			layers = null;
 			layersInitPool = null;
 			
-			keyPressListeners.clear();
-			keyPressListenersInitPool.free(keyPressListeners);
+			keyPressListeners.free();
 			keyPressListeners = null;
 			
-			onKeyPressUtilList.clear();
-			keyPressListenersInitPool.free(onKeyPressUtilList);
-			onKeyPressUtilList = null;
-			
-			keyPressListenersInitPool = null;
+			keyTypedListeners.free();
+			keyPressListeners = null;
 			
 			fullyDisposed = true;
 		}
@@ -157,13 +152,32 @@ public class SceneDelegate implements ISceneDelegate {
 	
 	@Override
 	public void onKeyPress(IKeyPressEvent event) {
-		if(!keyPressListeners.isEmpty()) {
-			onKeyPressUtilList.clear();
-			onKeyPressUtilList.addAll(keyPressListeners);
-			for(IKeyPressListener listener : onKeyPressUtilList) {
+		if(keyPressListeners.prepareUtilList()) {
+			for(IKeyPressListener listener : keyPressListeners.utilList) {
 				listener.onKeyPress(event);
 			}
-			onKeyPressUtilList.clear();
+			keyPressListeners.resetUtilList();
+		}
+	}
+	
+
+	@Override
+	public void addKeyTypedListener(IKeyTypedListener listener) {
+		this.keyTypedListeners.add(listener);
+	}
+
+	@Override
+	public void removeKeyTypedListener(IKeyTypedListener listener) {
+		this.keyTypedListeners.remove(listener);
+	}
+
+	@Override
+	public void onKeyTyped(char c) {
+		if(keyTypedListeners.prepareUtilList()) {
+			for(IKeyTypedListener listener : keyTypedListeners.utilList) {
+				listener.onKeyTyped(c);
+			}
+			keyTypedListeners.resetUtilList();
 		}
 	}
 	
@@ -194,5 +208,61 @@ public class SceneDelegate implements ISceneDelegate {
 	@Override
 	public Scene getWrapper() {
 		return wrapper;
+	}
+	
+	private static class DoubleList<T> {
+		private boolean disposed = false;
+		@SuppressWarnings("rawtypes")
+		private final IPool<ArrayList> pool;
+		private final ArrayList<T> main;
+		private final ArrayList<T> utilList;
+		
+		@SuppressWarnings("unchecked")
+		public DoubleList() {
+			this.pool = FlashyEngine.get().getPoolManager().getPool(ArrayList.class);
+			main = pool.obtain();
+			utilList = pool.obtain();
+		}
+		
+		public void remove(T listener) {
+			if(!disposed) {
+				main.remove(listener);
+			}
+		}
+
+		public void add(T object) {
+			if(!disposed) {
+				main.add(object);
+			}
+		}
+
+		public void free() {
+			if(!disposed) {
+				disposed = true;
+				main.clear();
+				utilList.clear();
+				pool.free(main);
+				pool.free(utilList);
+			}
+		}
+		
+		public boolean prepareUtilList() {
+			if(disposed) {
+				return false;
+			}
+			if(!main.isEmpty()) {
+				utilList.clear();
+				utilList.addAll(main);
+				return true;
+			} else {
+				return false;
+			}
+		}
+		
+		public void resetUtilList() {
+			if(!disposed) {
+				utilList.clear();
+			}
+		}
 	}
 }

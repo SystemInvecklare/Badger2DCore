@@ -3,6 +3,7 @@ package com.github.systeminvecklare.badger.core.graphics.components.scene;
 import com.github.systeminvecklare.badger.core.graphics.components.FlashyEngine;
 import com.github.systeminvecklare.badger.core.graphics.components.core.IDrawCycle;
 import com.github.systeminvecklare.badger.core.graphics.components.core.IKeyPressListener;
+import com.github.systeminvecklare.badger.core.graphics.components.core.IKeyTypedListener;
 import com.github.systeminvecklare.badger.core.graphics.components.core.ITic;
 import com.github.systeminvecklare.badger.core.graphics.components.layer.ILayer;
 import com.github.systeminvecklare.badger.core.graphics.components.layer.ILayerVisitor;
@@ -76,7 +77,22 @@ public class Scene implements IScene {
 	}
 	
 	@Override
+	public void addKeyTypedListener(IKeyTypedListener listener) {
+		delegate.addKeyTypedListener(listener);
+	}
+	
+	@Override
+	public void removeKeyTypedListener(IKeyTypedListener listener) {
+		delegate.removeKeyTypedListener(listener);
+	}
+	
+	@Override
 	public IShader getShader() {
 		return delegate.getShader();
+	}
+
+	@Override
+	public void onKeyTyped(char c) {
+		delegate.onKeyTyped(c);
 	}
 }

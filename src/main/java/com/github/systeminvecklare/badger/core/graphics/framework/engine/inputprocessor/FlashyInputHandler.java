@@ -28,19 +28,19 @@ public class FlashyInputHandler implements IInputHandler {
 	private IPool<QueuedPress> queuedPressPool = new SimplePool<QueuedPress>(5,10) {
 		@Override
 		public QueuedPress newObject() {
-			return new QueuedPress();
+			return new QueuedPress(this);
 		}
 	};
 	private IPool<QueuedRelease> queuedReleasePool = new SimplePool<QueuedRelease>(5,10) {
 		@Override
 		public QueuedRelease newObject() {
-			return new QueuedRelease();
+			return new QueuedRelease(this);
 		}
 	};
 	private IPool<QueuedDrag> queuedDragPool = new SimplePool<QueuedDrag>(20,40) {
 		@Override
 		public QueuedDrag newObject() {
-			return new QueuedDrag();
+			return new QueuedDrag(this);
 		}
 	};
 	
@@ -70,13 +70,19 @@ public class FlashyInputHandler implements IInputHandler {
 	private IPool<QueuedKeyPressEvent> queuedKeyPressPool = new SimplePool<QueuedKeyPressEvent>(5,10) {
 		@Override
 		public QueuedKeyPressEvent newObject() {
-			return new QueuedKeyPressEvent();
+			return new QueuedKeyPressEvent(this);
 		}
 	};
 	private IPool<QueuedKeyRelease> queuedKeyReleasePool = new SimplePool<QueuedKeyRelease>(5,10) {
 		@Override
 		public QueuedKeyRelease newObject() {
-			return new QueuedKeyRelease();
+			return new QueuedKeyRelease(this);
+		}
+	};
+	private IPool<QueuedKeyTypedEvent> queuedKeyTypedPool = new SimplePool<QueuedKeyTypedEvent>(10,30) {
+		@Override
+		public QueuedKeyTypedEvent newObject() {
+			return new QueuedKeyTypedEvent(this);
 		}
 	};
 	
@@ -98,6 +104,12 @@ public class FlashyInputHandler implements IInputHandler {
 	@Override
 	public boolean registerKeyUp(int keycode) {
 		inputEvents.addToBirthList(queuedKeyReleasePool.obtain().setTo(keycode));
+		return true;
+	}
+	
+	@Override
+	public boolean registerKeyTyped(char c) {
+		inputEvents.addToBirthList(queuedKeyTypedPool.obtain().setTo(c));
 		return true;
 	}
 	
@@ -217,17 +229,37 @@ public class FlashyInputHandler implements IInputHandler {
 		public void execute(IScene scene);
 	}
 	
-	private class QueuedPress implements IQueuedInput {
+	private static abstract class AbstractQueuedInput<SELF extends AbstractQueuedInput<?>> implements IQueuedInput {
+		private final IPool<SELF> pool;
+		
+		public AbstractQueuedInput(IPool<SELF> pool) {
+			this.pool = pool;
+		}
+
+		@Override
+		public void free() {
+			pool.free(self());
+		}
+
+		protected SELF self() {
+			return (SELF) this;
+		}		
+	}
+	
+	private class QueuedPress extends AbstractQueuedInput<QueuedPress> {
 		private IPoolableClickEvent clickEvent;
+		
+		public QueuedPress(IPool<QueuedPress> pool) {
+			super(pool);
+		}
 
 		@Override
 		public void free() {
 			this.clickEvent = null;
-			queuedPressPool.free(this);
+			super.free();
 		}
 
-		public QueuedPress setEvent(IPoolableClickEvent event)
-		{
+		public QueuedPress setEvent(IPoolableClickEvent event) {
 			this.clickEvent = event;
 			return this;
 		}
@@ -240,15 +272,14 @@ public class FlashyInputHandler implements IInputHandler {
 		}
 	}
 	
-	private class QueuedRelease implements IQueuedInput {
+	private class QueuedRelease extends AbstractQueuedInput<QueuedRelease> {
 		private int screenX;
 		private int screenY;
 		private int pointer;
 		private int button;
-
-		@Override
-		public void free() {
-			queuedReleasePool.free(this);
+		
+		public QueuedRelease(IPool<QueuedRelease> pool) {
+			super(pool);
 		}
 
 		public QueuedRelease setTo(int screenX, int screenY, int pointer, int button) {
@@ -295,14 +326,13 @@ public class FlashyInputHandler implements IInputHandler {
 		}
 	}
 	
-	private class QueuedDrag implements IQueuedInput {
+	private class QueuedDrag extends AbstractQueuedInput<QueuedDrag> {
 		private int screenX;
 		private int screenY;
 		private int pointer;
 
-		@Override
-		public void free() {
-			queuedDragPool.free(this);
+		public QueuedDrag(IPool<QueuedDrag> pool) {
+			super(pool);
 		}
 
 		public QueuedDrag setTo(int screenX, int screenY, int pointer) {
@@ -346,20 +376,16 @@ public class FlashyInputHandler implements IInputHandler {
 		}
 	}
 	
-	private class QueuedKeyPressEvent implements IQueuedInput {
+	private class QueuedKeyPressEvent extends AbstractQueuedInput<QueuedKeyPressEvent> {
 		private IPoolableKeyPressEvent pressEvent;
 
-		public QueuedKeyPressEvent() {
+		public QueuedKeyPressEvent(IPool<QueuedKeyPressEvent> pool) {
+			super(pool);
 		}
-		
+
 		public QueuedKeyPressEvent setKeyPressEvent(IPoolableKeyPressEvent pressEvent) {
 			this.pressEvent = pressEvent;
 			return this;
-		}
-
-		@Override
-		public void free() {
-			queuedKeyPressPool.free(this);
 		}
 
 		@Override
@@ -369,20 +395,16 @@ public class FlashyInputHandler implements IInputHandler {
 		}
 	}
 	
-	private class QueuedKeyRelease implements IQueuedInput {
+	private class QueuedKeyRelease extends AbstractQueuedInput<QueuedKeyRelease> {
 		private int keycode;
 
-		public QueuedKeyRelease() {
+		public QueuedKeyRelease(IPool<QueuedKeyRelease> pool) {
+			super(pool);
 		}
 
 		public QueuedKeyRelease setTo(int keycode) {
 			this.keycode = keycode;
 			return this;
-		}
-
-		@Override
-		public void free() {
-			queuedKeyReleasePool.free(this);
 		}
 
 		@Override
@@ -408,6 +430,24 @@ public class FlashyInputHandler implements IInputHandler {
 					keyPressIt.remove();
 				}
 			}
+		}
+	}
+	
+	private class QueuedKeyTypedEvent extends AbstractQueuedInput<QueuedKeyTypedEvent> {
+		private char c;
+
+		public QueuedKeyTypedEvent(IPool<QueuedKeyTypedEvent> pool) {
+			super(pool);
+		}
+
+		public QueuedKeyTypedEvent setTo(char c) {
+			this.c = c;
+			return this;
+		}
+
+		@Override
+		public void execute(IScene scene) {
+			scene.onKeyTyped(c);
 		}
 	}
 	

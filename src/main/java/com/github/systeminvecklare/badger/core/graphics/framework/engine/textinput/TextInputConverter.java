@@ -68,7 +68,7 @@ public class TextInputConverter {
 				//TODO add support for up (38) and down (40)
 				//     Should change row, keep offset from row left, and clamp caret position
 				
-				System.out.println(keyCode);
+//				System.out.println(keyCode);
 			}
 			
 			state.sendChangeEvents(listeners);

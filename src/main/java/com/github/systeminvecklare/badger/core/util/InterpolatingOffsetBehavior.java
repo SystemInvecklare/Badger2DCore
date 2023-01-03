@@ -39,6 +39,7 @@ public class InterpolatingOffsetBehavior extends OffsetBehavior {
 		this.duration = duration;
 		this.state = initialState ? 1 : 0;
 		this.targetState = initialTargetState;
+		updateOffsets();
 	}
 	
 	public InterpolatingOffsetBehavior removeOnCompletion() {

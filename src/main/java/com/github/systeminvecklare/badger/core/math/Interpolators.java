@@ -7,7 +7,7 @@ public class Interpolators {
 			return t;
 		}
 	};
-	private static final ExtensibleInterpolator SINE = new ExtensibleInterpolator() {
+	private static final ExtensibleInterpolator SINE_IN_OUT = new ExtensibleInterpolator() {
 		@Override
 		protected float evalOpen(float t) {
 			return (1f-Mathf.cos(t*Mathf.PI))/2;
@@ -22,7 +22,7 @@ public class Interpolators {
 	private static final ExtensibleInterpolator SINE_OUT = new ExtensibleInterpolator() {
 		@Override
 		protected float evalOpen(float t) {
-			return Mathf.sin(t*Mathf.PI/2);
+			return 1f-Mathf.cos(t*Mathf.PI/2);
 		}
 	};
 	private static final ExtensibleInterpolator EASE = sympower(2);
@@ -90,8 +90,8 @@ public class Interpolators {
 	 *  -
 	 * </code></pre>
 	 */
-	public static ExtensibleInterpolator sine() {
-		return SINE;
+	public static ExtensibleInterpolator sineInOut() {
+		return SINE_IN_OUT;
 	}
 	
 	/**

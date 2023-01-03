@@ -71,6 +71,14 @@ public class InterpolatingOffsetBehavior extends OffsetBehavior {
 		setTargetOffsetY(targetOffsetY);
 	}
 	
+	public float getState() {
+		return state;
+	}
+	
+	public boolean getTargetState() {
+		return targetState;
+	}
+	
 	@Override
 	public void think(ITic tic) {
 		if(targetState && state < 1) {

@@ -9,16 +9,19 @@ import com.github.systeminvecklare.badger.core.graphics.components.FlashyEngine;
 import com.github.systeminvecklare.badger.core.graphics.components.core.IDrawCycle;
 import com.github.systeminvecklare.badger.core.graphics.components.core.IKeyPressListener;
 import com.github.systeminvecklare.badger.core.graphics.components.core.IKeyTypedListener;
+import com.github.systeminvecklare.badger.core.graphics.components.core.ILifecycleOwner;
 import com.github.systeminvecklare.badger.core.graphics.components.core.ITic;
 import com.github.systeminvecklare.badger.core.graphics.components.layer.ILayer;
 import com.github.systeminvecklare.badger.core.graphics.components.layer.ILayerVisitor;
 import com.github.systeminvecklare.badger.core.graphics.components.shader.IShader;
+import com.github.systeminvecklare.badger.core.graphics.components.util.LifecycleManagerComponent;
 import com.github.systeminvecklare.badger.core.graphics.components.util.PoolableIterable;
 import com.github.systeminvecklare.badger.core.pooling.IPool;
 import com.github.systeminvecklare.badger.core.standard.input.keyboard.IKeyPressEvent;
 
 
 public class SceneDelegate implements ISceneDelegate {
+	private final LifecycleManagerComponent managerComponent = new LifecycleManagerComponent();
 	private Scene wrapper;
 	
 	private Map<String, ILayer> layerNames = new HashMap<String, ILayer>();
@@ -88,24 +91,28 @@ public class SceneDelegate implements ISceneDelegate {
 
 	@Override
 	public void init() {
-		if(!layers.isEmpty()) {
-			PoolableIterable<ILayer> layersLoop = PoolableIterable.obtain(ILayer.class);
-			try
-			{
-				for(ILayer layer : layersLoop.setToCopy(this.layers))
+		if(!getWrapper().isInitialized() && !getWrapper().isDisposed()) {
+			if(!layers.isEmpty()) {
+				PoolableIterable<ILayer> layersLoop = PoolableIterable.obtain(ILayer.class);
+				try
 				{
-					layer.init();
+					for(ILayer layer : layersLoop.setToCopy(this.layers))
+					{
+						layer.init();
+					}
+				}
+				finally
+				{
+					layersLoop.free();
 				}
 			}
-			finally
-			{
-				layersLoop.free();
-			}
+			managerComponent.init();
 		}
 	}
 
 	@Override
 	public void dispose() {
+		managerComponent.dispose();
 		if(!fullyDisposed)
 		{
 			if(!layers.isEmpty()) {
@@ -208,6 +215,26 @@ public class SceneDelegate implements ISceneDelegate {
 	@Override
 	public Scene getWrapper() {
 		return wrapper;
+	}
+	
+	@Override
+	public void addManagedLifecycle(ILifecycleOwner lifecycleOwner) {
+		this.managerComponent.addManagedLifecycle(lifecycleOwner);
+	}
+	
+	@Override
+	public void removeManagedLifecycle(ILifecycleOwner lifecycleOwner) {
+		this.managerComponent.removeManagedLifecycle(lifecycleOwner);
+	}
+	
+	@Override
+	public boolean isInitialized() {
+		return managerComponent.isInitialized();
+	}
+	
+	@Override
+	public boolean isDisposed() {
+		return managerComponent.isDisposed();
 	}
 	
 	private static class DoubleList<T> {

@@ -4,6 +4,7 @@ import com.github.systeminvecklare.badger.core.graphics.components.core.IClickab
 import com.github.systeminvecklare.badger.core.graphics.components.core.IDrawCycle;
 import com.github.systeminvecklare.badger.core.graphics.components.core.IDrawable;
 import com.github.systeminvecklare.badger.core.graphics.components.core.IHittable;
+import com.github.systeminvecklare.badger.core.graphics.components.core.ILifecycleManager;
 import com.github.systeminvecklare.badger.core.graphics.components.core.ILifecycleOwner;
 import com.github.systeminvecklare.badger.core.graphics.components.core.IThinker;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.behavior.IBehavior;
@@ -13,7 +14,7 @@ import com.github.systeminvecklare.badger.core.graphics.components.transform.IRe
 import com.github.systeminvecklare.badger.core.graphics.components.transform.ITransform;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.ITransformOperation;
 
-public interface IMovieClip extends IMovieClipContainer, IHittable, IDrawable, IClickable, IThinker, ILifecycleOwner {
+public interface IMovieClip extends IMovieClipContainer, IHittable, IDrawable, IClickable, IThinker, ILifecycleOwner, ILifecycleManager {
 	public IMovieClipContainer getParent();
 	public void setParent(IMovieClipContainer parent);
 	

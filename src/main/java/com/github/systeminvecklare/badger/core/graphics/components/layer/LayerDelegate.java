@@ -5,6 +5,7 @@ import java.util.Collection;
 
 import com.github.systeminvecklare.badger.core.graphics.components.FlashyEngine;
 import com.github.systeminvecklare.badger.core.graphics.components.core.IDrawCycle;
+import com.github.systeminvecklare.badger.core.graphics.components.core.ILifecycleOwner;
 import com.github.systeminvecklare.badger.core.graphics.components.core.ITic;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.IMovieClip;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.IMovieClipContainer;
@@ -14,6 +15,7 @@ import com.github.systeminvecklare.badger.core.graphics.components.scene.IScene;
 import com.github.systeminvecklare.badger.core.graphics.components.shader.IShader;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.IReadableTransform;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.ITransform;
+import com.github.systeminvecklare.badger.core.graphics.components.util.LifecycleManagerComponent;
 import com.github.systeminvecklare.badger.core.graphics.components.util.PoolableIterable;
 import com.github.systeminvecklare.badger.core.math.IReadablePosition;
 import com.github.systeminvecklare.badger.core.math.Position;
@@ -22,6 +24,7 @@ import com.github.systeminvecklare.badger.core.pooling.IPool;
 
 
 public class LayerDelegate implements ILayerDelegate {
+	private final LifecycleManagerComponent managerComponent = new LifecycleManagerComponent();
 	private Layer wrapper;
 	
 	private IScene scene;
@@ -131,25 +134,29 @@ public class LayerDelegate implements ILayerDelegate {
 
 	@Override
 	public void init() {
-		transform = FlashyEngine.get().getPoolManager().getPool(ITransform.class).obtain().setToIdentity();
-		if(!movieClips.isEmpty()) {
-			PoolableIterable<IMovieClip> movieClipsLoop = PoolableIterable.obtain(IMovieClip.class);
-			try
-			{
-				for(IMovieClip movieClip : movieClipsLoop.setToCopy(movieClips))
+		if(!getWrapper().isInitialized() && !getWrapper().isDisposed()) {
+			transform = FlashyEngine.get().getPoolManager().getPool(ITransform.class).obtain().setToIdentity();
+			if(!movieClips.isEmpty()) {
+				PoolableIterable<IMovieClip> movieClipsLoop = PoolableIterable.obtain(IMovieClip.class);
+				try
 				{
-					movieClip.init();
+					for(IMovieClip movieClip : movieClipsLoop.setToCopy(movieClips))
+					{
+						movieClip.init();
+					}
+				}
+				finally
+				{
+					movieClipsLoop.free();
 				}
 			}
-			finally
-			{
-				movieClipsLoop.free();
-			}
+			managerComponent.init();
 		}
 	}
 
 	@Override
 	public void dispose() {
+		managerComponent.dispose();
 		if(!movieClips.isEmpty()) {
 			PoolableIterable<IMovieClip> movieClipsLoop = PoolableIterable.obtain(IMovieClip.class);
 			try
@@ -172,6 +179,26 @@ public class LayerDelegate implements ILayerDelegate {
 		movieClipsInitPool = null;
 		
 		scene = null;
+	}
+	
+	@Override
+	public void addManagedLifecycle(ILifecycleOwner lifecycleOwner) {
+		managerComponent.addManagedLifecycle(lifecycleOwner);
+	}
+	
+	@Override
+	public void removeManagedLifecycle(ILifecycleOwner lifecycleOwner) {
+		managerComponent.removeManagedLifecycle(lifecycleOwner);
+	}
+	
+	@Override
+	public boolean isInitialized() {
+		return managerComponent.isInitialized();
+	}
+	
+	@Override
+	public boolean isDisposed() {
+		return managerComponent.isDisposed();
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package com.github.systeminvecklare.badger.core.graphics.components.layer;
 
 import com.github.systeminvecklare.badger.core.graphics.components.FlashyEngine;
 import com.github.systeminvecklare.badger.core.graphics.components.core.IDrawCycle;
+import com.github.systeminvecklare.badger.core.graphics.components.core.ILifecycleOwner;
 import com.github.systeminvecklare.badger.core.graphics.components.core.ITic;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.IMovieClip;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.IMovieClipVisitor;
@@ -114,5 +115,25 @@ public class Layer implements ILayer {
 	@Override
 	public IShader resolveShader() {
 		return delegate.resolveShader();
+	}
+	
+	@Override
+	public void addManagedLifecycle(ILifecycleOwner lifecycleOwner) {
+		delegate.addManagedLifecycle(lifecycleOwner);
+	}
+	
+	@Override
+	public void removeManagedLifecycle(ILifecycleOwner lifecycleOwner) {
+		delegate.removeManagedLifecycle(lifecycleOwner);
+	}
+	
+	@Override
+	public boolean isInitialized() {
+		return delegate.isInitialized();
+	}
+	
+	@Override
+	public boolean isDisposed() {
+		return delegate.isDisposed();
 	}
 }

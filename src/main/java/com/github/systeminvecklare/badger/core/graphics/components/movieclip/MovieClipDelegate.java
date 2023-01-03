@@ -4,6 +4,7 @@ import com.github.systeminvecklare.badger.core.graphics.components.FlashyEngine;
 import com.github.systeminvecklare.badger.core.graphics.components.core.IDrawCycle;
 import com.github.systeminvecklare.badger.core.graphics.components.core.IDrawable;
 import com.github.systeminvecklare.badger.core.graphics.components.core.IHittable;
+import com.github.systeminvecklare.badger.core.graphics.components.core.ILifecycleOwner;
 import com.github.systeminvecklare.badger.core.graphics.components.core.ITic;
 import com.github.systeminvecklare.badger.core.graphics.components.layer.ILayer;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.behavior.IBehavior;
@@ -14,6 +15,7 @@ import com.github.systeminvecklare.badger.core.graphics.components.shader.IShade
 import com.github.systeminvecklare.badger.core.graphics.components.transform.IReadableTransform;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.ITransform;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.ITransformOperation;
+import com.github.systeminvecklare.badger.core.graphics.components.util.LifecycleManagerComponent;
 import com.github.systeminvecklare.badger.core.graphics.framework.engine.click.IClickEvent;
 import com.github.systeminvecklare.badger.core.graphics.framework.smartlist.ILoopAction;
 import com.github.systeminvecklare.badger.core.graphics.framework.smartlist.ISmartList;
@@ -25,6 +27,7 @@ import com.github.systeminvecklare.badger.core.pooling.EasyPooler;
 import com.github.systeminvecklare.badger.core.pooling.IPool;
 
 public class MovieClipDelegate implements IMovieClipDelegate {
+	private final LifecycleManagerComponent managerComponent = new LifecycleManagerComponent();
 	private MovieClip wrapper;
 	
 	private IMovieClipContainer parent;
@@ -356,9 +359,9 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 
 	@Override
 	public void think(ITic tic) {
-		this.thinkAction.setTic(tic);
 		if(!disposed)
 		{
+			this.thinkAction.setTic(tic);
 			if(!children.isEmpty()) {
 				children.forEach(this.thinkAction);
 			}
@@ -371,21 +374,26 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 
 	@Override
 	public void init() {
-		transform = FlashyEngine.get().getPoolManager().getPool(ITransform.class).obtain().setToIdentity();
-		
-		//Init movieClipLayers
-		if(!graphics.isEmpty()) {
-			graphics.forEach(LoopAction.INIT);
-		}
-		
-		//Init children
-		if(!children.isEmpty()) {
-			children.forEach(LoopAction.INIT);
-		}
-		
-		//Init behaviours
-		if(!behaviours.isEmpty()) {
-			behaviours.forEach(LoopAction.INIT);
+		if(!getWrapper().isInitialized() && !getWrapper().isDisposed()) {
+			transform = FlashyEngine.get().getPoolManager().getPool(ITransform.class).obtain().setToIdentity();
+			
+			//Init movieClipLayers
+			if(!graphics.isEmpty()) {
+				graphics.forEach(LoopAction.INIT);
+			}
+			
+			//Init children
+			if(!children.isEmpty()) {
+				children.forEach(LoopAction.INIT);
+			}
+			
+			//Init behaviours
+			if(!behaviours.isEmpty()) {
+				behaviours.forEach(LoopAction.INIT);
+			}
+			
+			//Init managed
+			managerComponent.init();
 		}
 	}
 	
@@ -447,6 +455,9 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 
 	@Override
 	public void dispose() {
+		//Disposed managed
+		managerComponent.dispose();
+		
 		//Dispose behaviours 
 		if(!behaviours.isEmpty()) {
 			behaviours.forEach(LoopAction.DISPOSE);
@@ -477,6 +488,26 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 		parent = null;
 		
 		disposed = true;
+	}
+	
+	@Override
+	public void addManagedLifecycle(ILifecycleOwner lifecycleOwner) {
+		managerComponent.addManagedLifecycle(lifecycleOwner);
+	}
+	
+	@Override
+	public void removeManagedLifecycle(ILifecycleOwner lifecycleOwner) {
+		managerComponent.removeManagedLifecycle(lifecycleOwner);
+	}
+	
+	@Override
+	public boolean isInitialized() {
+		return managerComponent.isInitialized();
+	}
+	
+	@Override
+	public boolean isDisposed() {
+		return managerComponent.isDisposed();
 	}
 
 	@Override

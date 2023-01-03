@@ -47,9 +47,13 @@ public class InterpolatingOffsetBehavior extends OffsetBehavior {
 		return this;
 	}
 	
+	protected void onStateChanged(float newState) {
+	}
+	
 	public void setState(boolean currentState) {
 		this.state = currentState ? 1 : 0;
 		updateOffsets();
+		onStateChanged(state);
 	}
 	
 	public void setTargetState(boolean targetState) {
@@ -87,8 +91,10 @@ public class InterpolatingOffsetBehavior extends OffsetBehavior {
 				state = 1;
 			} else {
 				state += SceneManager.get().getStep()/currentDuration;
+				state = Mathf.clamp(state, 0, 1);
 			}
 			updateOffsets();
+			onStateChanged(state);
 			if(state >= 1) {
 				onNewStateReached(targetState);
 			}
@@ -98,8 +104,10 @@ public class InterpolatingOffsetBehavior extends OffsetBehavior {
 				state = 0;
 			} else {
 				state -= SceneManager.get().getStep()/currentDuration;
+				state = Mathf.clamp(state, 0, 1);
 			}
 			updateOffsets();
+			onStateChanged(state);
 			if(state <= 0) {
 				onNewStateReached(targetState);
 			}

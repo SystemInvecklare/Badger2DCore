@@ -241,6 +241,7 @@ public class FlashyInputHandler implements IInputHandler {
 			pool.free(self());
 		}
 
+		@SuppressWarnings("unchecked")
 		protected SELF self() {
 			return (SELF) this;
 		}		
@@ -266,7 +267,12 @@ public class FlashyInputHandler implements IInputHandler {
 
 		@Override
 		public void execute(IScene scene) {
-			downMap.put(newPointerIdentifier(clickEvent.getPointerID(), clickEvent.getButton()), clickEvent);
+			//PointerIdentifier freed in QueuedRelease::execute
+			PointerIdentifier pointerIdentifier = newPointerIdentifier(clickEvent.getPointerID(), clickEvent.getButton());
+			IPoolableClickEvent existingClickEvent = downMap.put(pointerIdentifier, clickEvent);
+			if(existingClickEvent != null) {
+				existingClickEvent.free(); //Need to free it here, otherwise it will never be free. The old pointer identifier is however lost forever. But it's ok. Happens rarely.
+			}
 			scene.visitLayers(hitCollector.reset(clickEvent.getPosition()));
 			hitCollector.doClick(clickEvent);
 		}
@@ -314,6 +320,7 @@ public class FlashyInputHandler implements IInputHandler {
 						Entry<PointerIdentifier, IPoolableClickEvent> entry = downMapIt.next();
 						if(entry.getKey().equals(temp))
 						{
+							entry.getKey().free();
 							downMapIt.remove();
 						}
 					}
@@ -461,6 +468,7 @@ public class FlashyInputHandler implements IInputHandler {
 		@Override
 		public boolean onIteration(IQueuedInput queuedInput) {
 			queuedInput.execute(scene);
+			queuedInput.free();
 			return true;
 		}
 	}

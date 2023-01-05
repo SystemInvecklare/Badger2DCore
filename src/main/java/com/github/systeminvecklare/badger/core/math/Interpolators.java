@@ -44,7 +44,7 @@ public class Interpolators {
 	}
 	
 
-	public static IInterpolator ease() {
+	public static ExtensibleInterpolator ease() {
 		return EASE;
 	}
 	

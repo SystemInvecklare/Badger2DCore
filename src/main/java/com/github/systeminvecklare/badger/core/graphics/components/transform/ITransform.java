@@ -27,4 +27,5 @@ public interface ITransform extends IPoolable, IReadableTransform {
 	public ITransform addToRotation(IReadableDeltaRotation drotation);
 	public ITransform multiplyScale(float sx, float sy);
 	public ITransform multiplyScale(IReadableVector dscale);
+	public ITransform multiplyScale(float s);
 }

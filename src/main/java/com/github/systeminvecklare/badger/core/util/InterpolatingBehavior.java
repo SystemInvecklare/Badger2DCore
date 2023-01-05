@@ -108,4 +108,8 @@ public class InterpolatingBehavior extends Behavior {
 	public IInterpolator getInterpolator() {
 		return interpolator;
 	}
+	
+	public float getValue() {
+		return getInterpolator().eval(Mathf.clamp(getState(), 0, 1));
+	}
 }

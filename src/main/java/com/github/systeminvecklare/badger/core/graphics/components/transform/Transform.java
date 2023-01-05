@@ -1,6 +1,5 @@
 package com.github.systeminvecklare.badger.core.graphics.components.transform;
 
-import com.github.systeminvecklare.badger.core.graphics.components.FlashyEngine;
 import com.github.systeminvecklare.badger.core.math.IReadableDeltaRotation;
 import com.github.systeminvecklare.badger.core.math.IReadablePosition;
 import com.github.systeminvecklare.badger.core.math.IReadableRotation;
@@ -17,9 +16,9 @@ import com.github.systeminvecklare.badger.core.pooling.IPool;
 public class Transform extends AbstractTransform {
 	private IPool<ITransform> pool;
 	
-	private Position position = new Position(FlashyEngine.get().getPoolManager().getPool(Position.class)); //This is how you should obtain objects that you have no intention of returning
-	private Vector scale = new Vector(FlashyEngine.get().getPoolManager().getPool(Vector.class));
-	private Rotation rotation = new Rotation(FlashyEngine.get().getPoolManager().getPool(Rotation.class));
+	private final Position position = new Position(null); //This is how you should obtain objects that you have no intention of returning
+	private final Vector scale = new Vector(null);
+	private final Rotation rotation = new Rotation(null);
 	/**
 	 * the <b>shx</b> value
 	 *   <br>[   1   shx   0   ]
@@ -290,6 +289,11 @@ public class Transform extends AbstractTransform {
 	@Override
 	public ITransform multiplyScale(IReadableVector dscale) {
 		return this.multiplyScale(dscale.getX(), dscale.getY());
+	}
+	
+	@Override
+	public ITransform multiplyScale(float s) {
+		return this.multiplyScale(s, s);
 	}
 	
 	@Override

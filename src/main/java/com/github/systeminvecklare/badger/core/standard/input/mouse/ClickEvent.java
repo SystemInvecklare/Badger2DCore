@@ -60,6 +60,7 @@ public class ClickEvent implements IPoolableClickEvent {
 		{
 			dragListener.onDrag(e);
 		}
+		listenerLoop.free();
 	}
 
 	@Override
@@ -71,6 +72,7 @@ public class ClickEvent implements IPoolableClickEvent {
 		}
 		listeners.clear();
 		dragListeners.clear();
+		listenerLoop.free();
 	}
 
 	@Override

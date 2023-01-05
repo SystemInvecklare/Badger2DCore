@@ -24,19 +24,24 @@ public abstract class SimplePool<T> implements IPool<T> {
 			catch(IndexOutOfBoundsException e)
 			{
 				return newObject();
+//				T object = newObject();
+//				System.out.println("New "+object.getClass().getSimpleName()+" created");
+//				return object;
 			}
 		}
 		else
 		{
 			return newObject();
+//			T object = newObject();
+//			System.out.println("New "+object.getClass().getSimpleName()+" created");
+//			return object;
 		}
 	}
 
 	@Override
 	public void free(T poolable) {
 		if(poolable != null) {
-			if(pool.size() < maxSize)
-			{
+			if(pool.size() < maxSize) {
 				pool.add(poolable);
 			}
 		}

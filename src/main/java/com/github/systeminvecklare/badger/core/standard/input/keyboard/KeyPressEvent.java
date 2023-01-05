@@ -29,6 +29,7 @@ public class KeyPressEvent implements IPoolableKeyPressEvent {
 			listener.onRelease(e);
 		}
 		listeners.clear();
+		listenerLoop.free();
 	}
 
 	@Override

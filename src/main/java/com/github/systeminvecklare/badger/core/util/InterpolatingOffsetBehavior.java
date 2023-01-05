@@ -141,9 +141,13 @@ public class InterpolatingOffsetBehavior extends OffsetBehavior {
 	}
 	
 	private void updateOffsets() {
-		final float value = getInterpolator().eval(Mathf.clamp(state, 0, 1));
+		final float value = getValue();
 		offsetX = getTargetOffsetX()*value;
 		offsetY = getTargetOffsetY()*value;
+	}
+
+	public float getValue() {
+		return getInterpolator().eval(Mathf.clamp(getState(), 0, 1));
 	}
 
 	public IInterpolator getInterpolator() {

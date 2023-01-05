@@ -1,24 +1,17 @@
 package com.github.systeminvecklare.badger.core.util;
 
-import com.github.systeminvecklare.badger.core.graphics.components.core.ITic;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.IMovieClip;
+import com.github.systeminvecklare.badger.core.graphics.components.transform.IReadableTransform;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.ITransform;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.ITransformOperation;
-import com.github.systeminvecklare.badger.core.graphics.framework.engine.SceneManager;
 import com.github.systeminvecklare.badger.core.math.IInterpolator;
 import com.github.systeminvecklare.badger.core.math.Interpolators;
-import com.github.systeminvecklare.badger.core.math.Mathf;
 
-public class InterpolatingOffsetBehavior extends OffsetBehavior {
-	private final IInterpolator interpolator;
+public class InterpolatingOffsetBehavior extends AbstractInterpolatingBehavior<InterpolatingOffsetBehavior> {
 	private float targetOffsetX;
 	private float targetOffsetY;
 	private float offsetX;
 	private float offsetY;
-	private boolean targetState;
-	private float state;
-	private float duration;
-	private boolean autoRemoveOnComplete = false;
 	
 	public InterpolatingOffsetBehavior(float offsetX, float offsetY, float duration) {
 		this(offsetX, offsetY, duration, Interpolators.linear());
@@ -33,31 +26,15 @@ public class InterpolatingOffsetBehavior extends OffsetBehavior {
 	}
 
 	public InterpolatingOffsetBehavior(float offsetX, float offsetY, float duration, IInterpolator interpolator, boolean initialState, boolean initialTargetState) {
-		this.interpolator = interpolator;
+		super(duration, interpolator, initialState, initialTargetState);
 		this.targetOffsetX = offsetX;
 		this.targetOffsetY = offsetY;
-		this.duration = duration;
-		this.state = initialState ? 1 : 0;
-		this.targetState = initialTargetState;
 		updateOffsets();
 	}
 	
-	public InterpolatingOffsetBehavior removeOnCompletion() {
-		this.autoRemoveOnComplete = true;
-		return this;
-	}
-	
-	protected void onStateChanged(float newState) {
-	}
-	
-	public void setState(boolean currentState) {
-		this.state = currentState ? 1 : 0;
-		updateOffsets();
-		onStateChanged(state);
-	}
-	
-	public void setTargetState(boolean targetState) {
-		this.targetState = targetState;
+	@Override
+	public ITransform getTransform(IReadableTransform transform, ITransform result) {
+		return result.setTo(transform).addToPosition(getOffsetX(), getOffsetY());
 	}
 	
 	public void setTargetOffsetX(float targetOffsetX) {
@@ -75,83 +52,30 @@ public class InterpolatingOffsetBehavior extends OffsetBehavior {
 		setTargetOffsetY(targetOffsetY);
 	}
 	
-	public float getState() {
-		return state;
-	}
-	
-	public boolean getTargetState() {
-		return targetState;
+	@Override
+	protected void onBeforeAutoRemove(IMovieClip bound) {
+		super.onBeforeAutoRemove(bound);
+		updateOffsets();
+		final float endOffsetX = offsetX;
+		final float endOffsetY = offsetY;
+		bound.modifyTransform(new ITransformOperation() {
+			@Override
+			public ITransform execute(ITransform transform) {
+				return transform.addToPosition(endOffsetX, endOffsetY);
+			}
+		}, true, true);
 	}
 	
 	@Override
-	public void think(ITic tic) {
-		if(targetState && state < 1) {
-			final float currentDuration = getDuration();
-			if(currentDuration <= 0) {
-				state = 1;
-			} else {
-				state += SceneManager.get().getStep()/currentDuration;
-				state = Mathf.clamp(state, 0, 1);
-			}
-			updateOffsets();
-			onStateChanged(state);
-			if(state >= 1) {
-				onNewStateReached(targetState);
-			}
-		} else if(!targetState && state > 0) {
-			final float currentDuration = getDuration();
-			if(currentDuration <= 0) {
-				state = 0;
-			} else {
-				state -= SceneManager.get().getStep()/currentDuration;
-				state = Mathf.clamp(state, 0, 1);
-			}
-			updateOffsets();
-			onStateChanged(state);
-			if(state <= 0) {
-				onNewStateReached(targetState);
-			}
-		}
-	}
-	
-	/**
-	 * @return true if the behavior was disposed.
-	 */
-	protected boolean onNewStateReached(boolean state) {
-		if(autoRemoveOnComplete) {
-			updateOffsets();
-			final float endOffsetX = offsetX;
-			final float endOffsetY = offsetY;
-			IMovieClip bound = getBound();
-			bound.removeBehavior(this);
-			this.dispose();
-			bound.modifyTransform(new ITransformOperation() {
-				@Override
-				public ITransform execute(ITransform transform) {
-					return transform.addToPosition(endOffsetX, endOffsetY);
-				}
-			}, true, true);
-			return true;
-		}
-		return false;
-	}
-	
-	public float getDuration() {
-		return duration;
+	protected void internalOnStateChanged() {
+		super.internalOnStateChanged();
+		updateOffsets();
 	}
 	
 	private void updateOffsets() {
 		final float value = getValue();
 		offsetX = getTargetOffsetX()*value;
 		offsetY = getTargetOffsetY()*value;
-	}
-
-	public float getValue() {
-		return getInterpolator().eval(Mathf.clamp(getState(), 0, 1));
-	}
-
-	public IInterpolator getInterpolator() {
-		return interpolator;
 	}
 
 	public float getTargetOffsetX() {
@@ -162,12 +86,10 @@ public class InterpolatingOffsetBehavior extends OffsetBehavior {
 		return targetOffsetY;
 	}
 
-	@Override
 	public float getOffsetX() {
 		return offsetX;
 	}
 	
-	@Override
 	public float getOffsetY() {
 		return offsetY;
 	}

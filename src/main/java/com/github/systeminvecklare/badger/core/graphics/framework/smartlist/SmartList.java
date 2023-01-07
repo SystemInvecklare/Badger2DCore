@@ -50,12 +50,27 @@ public class SmartList<T> implements ISmartList<T> {
 
 	@Override
 	public void clear() {
-		objects.clear();
+		if(loopDepth <= 0) {
+			objects.clear();
+		} else {
+			for(ObjectHolder objectHolder : objects) {
+				objectHolder.remove();
+			}
+		}
 	}
 
 	@Override
 	public boolean isEmpty() {
-		return objects.isEmpty();
+		if(loopDepth <= 0) {
+			return objects.isEmpty();
+		} else {
+			for(ObjectHolder objectHolder : objects) {
+				if(!objectHolder.removed) {
+					return false;
+				}
+			}
+			return true;
+		}
 	}
 	
 	private class ObjectHolder {

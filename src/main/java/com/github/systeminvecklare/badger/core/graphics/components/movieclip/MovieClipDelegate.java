@@ -5,6 +5,7 @@ import com.github.systeminvecklare.badger.core.graphics.components.core.IDrawCyc
 import com.github.systeminvecklare.badger.core.graphics.components.core.IDrawable;
 import com.github.systeminvecklare.badger.core.graphics.components.core.IHittable;
 import com.github.systeminvecklare.badger.core.graphics.components.core.ILifecycleOwner;
+import com.github.systeminvecklare.badger.core.graphics.components.core.IThinker;
 import com.github.systeminvecklare.badger.core.graphics.components.core.ITic;
 import com.github.systeminvecklare.badger.core.graphics.components.layer.ILayer;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.behavior.IBehavior;
@@ -20,7 +21,6 @@ import com.github.systeminvecklare.badger.core.graphics.framework.engine.click.I
 import com.github.systeminvecklare.badger.core.graphics.framework.smartlist.ILoopAction;
 import com.github.systeminvecklare.badger.core.graphics.framework.smartlist.ISmartList;
 import com.github.systeminvecklare.badger.core.graphics.framework.smartlist.LoopAction;
-import com.github.systeminvecklare.badger.core.graphics.framework.smartlist.ThinkAction;
 import com.github.systeminvecklare.badger.core.math.IReadablePosition;
 import com.github.systeminvecklare.badger.core.math.Position;
 import com.github.systeminvecklare.badger.core.pooling.EasyPooler;
@@ -40,7 +40,7 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 	
 	private boolean disposed = false;
 	
-	private final ThinkAction thinkAction = new ThinkAction(null);
+	private final LifeCycleAwareThinkAction thinkAction = new LifeCycleAwareThinkAction(null);
 	
 	public MovieClipDelegate(MovieClip wrapper) {
 		this.wrapper = wrapper;
@@ -362,11 +362,11 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 		if(!disposed)
 		{
 			this.thinkAction.setTic(tic);
-			if(!children.isEmpty()) {
+			if(!getWrapper().isDisposed() && !children.isEmpty()) {
 				children.forEach(this.thinkAction);
 			}
 			
-			if(!behaviours.isEmpty()) {
+			if(!getWrapper().isDisposed() && !behaviours.isEmpty()) {
 				behaviours.forEach(this.thinkAction);
 			}
 		}
@@ -651,6 +651,27 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 		@Override
 		public boolean onIteration(IBehavior behavior) {
 			behavior.onClick(clickEvent, consumedBeforeBehaviors);
+			return true;
+		}
+	}
+	
+	private class LifeCycleAwareThinkAction implements ILoopAction<IThinker> {
+		private ITic tic;
+		
+		public LifeCycleAwareThinkAction(ITic tic) {
+			this.tic = tic;
+		}
+
+		public void setTic(ITic tic) {
+			this.tic = tic;
+		}
+		
+		@Override
+		public boolean onIteration(IThinker value) {
+			if(getWrapper().isDisposed()) {
+				return false;
+			}
+			value.think(tic);
 			return true;
 		}
 	}

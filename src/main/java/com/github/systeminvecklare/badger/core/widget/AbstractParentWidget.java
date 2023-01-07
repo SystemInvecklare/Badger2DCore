@@ -6,14 +6,20 @@ import java.util.List;
 import java.util.Objects;
 
 /*package-protected*/ abstract class AbstractParentWidget<C extends AbstractParentWidget.Child<?>> implements IWidget {
-	protected int x;
-	protected int y;
-	protected int width;
-	protected int height;
+	private int x;
+	private int y;
+	private int width;
+	private int height;
 	
 	protected final List<C> children = new ArrayList<C>();
 	private final CellLayoutSettings defaultLayoutSettings = createDefaultLayoutSettings();
 	
+	public AbstractParentWidget(int x, int y, int width, int height) {
+		this.x = x;
+		this.y = y;
+		this.width = width;
+		this.height = height;
+	}
 
 	@Override
 	public int getWidth() {
@@ -23,6 +29,14 @@ import java.util.Objects;
 	@Override
 	public int getHeight() {
 		return height;
+	}
+	
+	/*package-protected*/ void internalSetWidth(int width) {
+		this.width = width;
+	}
+	
+	/*package-protected*/ void internalSetHeight(int height) {
+		this.height = height;
 	}
 	
 	@Override

@@ -14,11 +14,11 @@ public class GridWidget extends AbstractParentWidget<GridWidget.GridChild<?>> im
 	private final SpacingSettings columnSpacing = new SpacingSettings();
 
 	public GridWidget() {
+		this(0, 0);
 	}
 
 	public GridWidget(int x, int y) {
-		this.x = x;
-		this.y = y;
+		super(x, y, 0, 0);
 	}
 	
 	public <W extends IWidget> W addChild(W widget, int row, int column) {
@@ -119,8 +119,8 @@ public class GridWidget extends AbstractParentWidget<GridWidget.GridChild<?>> im
 		for(int row = maxRowIndex-1; row >= 0; --row) {
 			offsetY[row] = offsetY[row+1]+rowHeights[row+1]+rowSpacing.getSpacing(row);
 		}
-		this.width = offsetX[maxColumnIndex]+columnWidths[maxColumnIndex]-offsetX[0];
-		this.height = offsetY[0]+rowHeights[0]-offsetY[maxRowIndex];
+		internalSetWidth(offsetX[maxColumnIndex]+columnWidths[maxColumnIndex]-offsetX[0]);
+		internalSetHeight(offsetY[0]+rowHeights[0]-offsetY[maxRowIndex]);
 		for(GridChild<?> child : children) {
 			child.setPosition(offsetX[child.column], offsetY[child.getMaxRowIndex()], child.getAvailableSpaceX(columnWidths, columnSpacing), child.getAvailableSpaceY(rowHeights, rowSpacing));
 		}

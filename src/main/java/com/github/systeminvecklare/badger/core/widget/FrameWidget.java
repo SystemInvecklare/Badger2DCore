@@ -16,20 +16,48 @@ public class FrameWidget extends AbstractParentWidget<AbstractParentWidget.Child
 	}
 	
 	public FrameWidget(int x, int y, int width, int height) {
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
+		super(x, y, width, height);
+	}
+	
+	public FrameWidget(IRectangle rectangle) {
+		this(rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight());
+	}
+	
+	public <T> FrameWidget(T rectangle, IRectangleInterface<? super T> rectangleInterface) {
+		this(rectangleInterface.getX(rectangle), rectangleInterface.getY(rectangle), rectangleInterface.getWidth(rectangle), rectangleInterface.getHeight(rectangle));
+	}
+
+	public void setTo(IRectangle rectangle) {
+		setPosition(rectangle.getX(), rectangle.getY());
+		setSizeTo(rectangle);
+	}
+	
+	public void setSizeTo(IRectangle rectangle) {
+		setSize(rectangle.getWidth(), rectangle.getHeight());
+	}
+	
+	public <R> void setTo(R rectangle, IRectangleInterface<? super R> rectangleInterface) {
+		setPosition(rectangleInterface.getX(rectangle), rectangleInterface.getY(rectangle));
+		setSizeTo(rectangle, rectangleInterface);
+	}
+	
+	public <R> void setSizeTo(R rectangle, IRectangleInterface<? super R> rectangleInterface) {
+		setSize(rectangleInterface.getWidth(rectangle), rectangleInterface.getHeight(rectangle));
+	}
+	
+	public void setSize(int width, int height) {
+		setWidth(width);
+		setHeight(height);
 	}
 
 	@Override
 	public void setWidth(int width) {
-		this.width = width;
+		internalSetWidth(width);
 	}
 
 	@Override
 	public void setHeight(int height) {
-		this.height = height;
+		internalSetHeight(height);
 	}
 	
 	public <W extends IWidget> W addChild(W widget) {
@@ -60,12 +88,20 @@ public class FrameWidget extends AbstractParentWidget<AbstractParentWidget.Child
 	}
 	
 	public void pack() {
+		final int x = this.getX();
+		final int y = this.getY();
+		final int width = this.getWidth();
+		final int height = this.getHeight();
 		for(Child<?> child : children) {
-			child.setPosition(this.x, this.y, this.width, this.height);
+			child.setPosition(x, y, width, height);
 		}
 	}
 	
 	public static FrameWidget sceneSized() {
 		return new FrameWidget(SceneManager.get().getWidth(), SceneManager.get().getHeight());
+	}
+	
+	public static FrameWidget sizeOf(IRectangle rectangle) {
+		return new FrameWidget(rectangle.getWidth(), rectangle.getHeight());
 	}
 }

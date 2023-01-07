@@ -13,6 +13,14 @@ public class PlaceholderWidget implements IResizableWidget {
 		this.width = width;
 		this.height = height;
 	}
+	
+	public PlaceholderWidget(IRectangle rectangle) {
+		setTo(rectangle);
+	}
+	
+	public <R> PlaceholderWidget(R rectangle, IRectangleInterface<? super R> rectangleInterface) {
+		setTo(rectangle, rectangleInterface);
+	}
 
 	@Override
 	public void setPosition(int x, int y) {
@@ -22,7 +30,7 @@ public class PlaceholderWidget implements IResizableWidget {
 	
 	@Override
 	public void addToPosition(int dx, int dy) {
-		setPosition(this.x+dx, this.y+dy);
+		setPosition(getX()+dx, getY()+dy);
 	}
 	
 	@Override
@@ -53,5 +61,28 @@ public class PlaceholderWidget implements IResizableWidget {
 	@Override
 	public int getHeight() {
 		return height;
+	}
+	
+	public void setTo(IRectangle rectangle) {
+		setPosition(rectangle.getX(), rectangle.getY());
+		setSizeTo(rectangle);
+	}
+	
+	public void setSizeTo(IRectangle rectangle) {
+		setSize(rectangle.getWidth(), rectangle.getHeight());
+	}
+	
+	public <R> void setTo(R rectangle, IRectangleInterface<? super R> rectangleInterface) {
+		setPosition(rectangleInterface.getX(rectangle), rectangleInterface.getY(rectangle));
+		setSizeTo(rectangle, rectangleInterface);
+	}
+	
+	public <R> void setSizeTo(R rectangle, IRectangleInterface<? super R> rectangleInterface) {
+		setSize(rectangleInterface.getWidth(rectangle), rectangleInterface.getHeight(rectangle));
+	}
+	
+	public void setSize(int width, int height) {
+		setWidth(width);
+		setHeight(height);
 	}
 }

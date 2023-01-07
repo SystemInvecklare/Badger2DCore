@@ -29,7 +29,7 @@ public class SpacerWidget implements IWidget {
 
 	@Override
 	public void addToPosition(int dx, int dy) {
-		setPosition(this.x + dx, this.y + dy);
+		setPosition(getX() + dx, getY() + dy);
 	}
 	
 	@Override

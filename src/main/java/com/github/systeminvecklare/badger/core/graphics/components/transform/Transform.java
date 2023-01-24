@@ -1,6 +1,8 @@
 package com.github.systeminvecklare.badger.core.graphics.components.transform;
 
+import com.github.systeminvecklare.badger.core.graphics.components.FlashyEngine;
 import com.github.systeminvecklare.badger.core.math.IReadableDeltaRotation;
+import com.github.systeminvecklare.badger.core.math.IReadableMatrix3x3;
 import com.github.systeminvecklare.badger.core.math.IReadablePosition;
 import com.github.systeminvecklare.badger.core.math.IReadableRotation;
 import com.github.systeminvecklare.badger.core.math.IReadableVector;
@@ -12,6 +14,7 @@ import com.github.systeminvecklare.badger.core.math.Rotation;
 import com.github.systeminvecklare.badger.core.math.Vector;
 import com.github.systeminvecklare.badger.core.pooling.EasyPooler;
 import com.github.systeminvecklare.badger.core.pooling.IPool;
+import com.github.systeminvecklare.badger.core.util.PoolableArrayOf16Floats;
 
 public class Transform extends AbstractTransform {
 	private IPool<ITransform> pool;
@@ -94,32 +97,103 @@ public class Transform extends AbstractTransform {
 			thisMatrixTransform.mult(otherMatrixTransform);
 			
 			return setTo(thisMatrixTransform);
-			
-			//Parse out data and update this transform
-//			this.position.setTo(thisMatrixTransform.getData(Matrix3x3.M13),thisMatrixTransform.getData(Matrix3x3.M23));
-//			
-//			Matrix2x2 _2dmatrix = ep.obtain(Matrix2x2.class).setTo(thisMatrixTransform.getData(Matrix3x3.M11), thisMatrixTransform.getData(Matrix3x3.M12), thisMatrixTransform.getData(Matrix3x3.M21), thisMatrixTransform.getData(Matrix3x3.M22));
-//			
-//			Vector temp = ep.obtain(Vector.class);
-//			
-//			Vector u0 = ep.obtain(Vector.class).setTo(_2dmatrix.getColumn(0));
-//			Vector e0 = ep.obtain(Vector.class).setTo(u0).normalize();
-//			Vector u1 = ep.obtain(Vector.class).setTo(_2dmatrix.getColumn(1)).sub(temp.setTo(e0).scale(e0.dot(_2dmatrix.getColumn(1))));
-//			Vector e1 = ep.obtain(Vector.class).setTo(u1).normalize();
-//			
-//			double scaleX = e0.dot(_2dmatrix.getColumn(0));
-//			double scaleY = e1.dot(_2dmatrix.getColumn(1));
-//			double newShear = e0.dot(_2dmatrix.getColumn(1))/scaleY; 
-//			this.scale.setTo(scaleX, scaleY);
-//			this.shear = newShear;
-//			//e0.getX() == cos(theta), e0.getY() == sin(theta)
-//			this.rotation.setTo(e0);
-//			
-//			return this;
 		}
 		finally
 		{
 			ep.freeAllAndSelf();
+		}
+	}
+	
+	private static void decompose(IReadableMatrix3x3 matrix, Matrix3x3 rot, Matrix3x3 scaleShear) {
+		float m11 = matrix.getData(Matrix3x3.M11);
+		float m21 = matrix.getData(Matrix3x3.M21);
+		Vector v = FlashyEngine.get().getPoolManager().getPool(Vector.class).obtain();
+		try {
+			v.setTo(m11-Mathf.sqrt(m11*m11+m21*m21),m21);
+			if(v.length2() < 0.000001f) {
+				v.setTo(m11+Mathf.sqrt(m11*m11+m21*m21),m21);
+			}
+			v.normalize();
+			
+			rot.setToIdentity();
+			PoolableArrayOf16Floats rotDataHolder = FlashyEngine.get().getPoolManager().getPool(PoolableArrayOf16Floats.class).obtain();
+			try {
+				float[] rotData = rotDataHolder.getArray();
+				rot.getData(rotData);
+				rotData[Matrix3x3.M11] += -2*v.getX()*v.getX();
+				rotData[Matrix3x3.M12] += -2*v.getX()*v.getY();
+				rotData[Matrix3x3.M21] += -2*v.getX()*v.getY();
+				rotData[Matrix3x3.M22] += -2*v.getY()*v.getY();
+				rot.setTo(rotData[Matrix3x3.M11], rotData[Matrix3x3.M12], rotData[Matrix3x3.M13], rotData[Matrix3x3.M21], rotData[Matrix3x3.M22], rotData[Matrix3x3.M23], rotData[Matrix3x3.M31], rotData[Matrix3x3.M32], rotData[Matrix3x3.M33]);
+			} finally {
+				rotDataHolder.free();
+			}
+		} finally {
+			v.free();
+		}
+		
+		scaleShear.setTo(rot).mult(matrix);
+		
+		if(rot.getDeterminant() < 0) {
+			{
+				PoolableArrayOf16Floats rotDataHolder = FlashyEngine.get().getPoolManager().getPool(PoolableArrayOf16Floats.class).obtain();
+				try {
+					float[] rotData = rotDataHolder.getArray();
+					rot.getData(rotData);
+					rotData[Matrix3x3.M11] *= -1;
+					rotData[Matrix3x3.M21] *= -1;
+					rotData[Matrix3x3.M31] *= -1;
+					rot.setTo(rotData[Matrix3x3.M11], rotData[Matrix3x3.M12], rotData[Matrix3x3.M13], rotData[Matrix3x3.M21], rotData[Matrix3x3.M22], rotData[Matrix3x3.M23], rotData[Matrix3x3.M31], rotData[Matrix3x3.M32], rotData[Matrix3x3.M33]);
+				} finally {
+					rotDataHolder.free();
+				}
+			}
+			
+			{
+				PoolableArrayOf16Floats scaleShearDataHolder = FlashyEngine.get().getPoolManager().getPool(PoolableArrayOf16Floats.class).obtain();
+				try {
+					float[] scaleShearData = scaleShearDataHolder.getArray();
+					scaleShear.getData(scaleShearData);
+					scaleShearData[Matrix3x3.M11] *= -1;
+					scaleShearData[Matrix3x3.M12] *= -1;
+					scaleShearData[Matrix3x3.M13] *= -1;
+					scaleShear.setTo(scaleShearData[Matrix3x3.M11], scaleShearData[Matrix3x3.M12], scaleShearData[Matrix3x3.M13], scaleShearData[Matrix3x3.M21], scaleShearData[Matrix3x3.M22], scaleShearData[Matrix3x3.M23], scaleShearData[Matrix3x3.M31], scaleShearData[Matrix3x3.M32], scaleShearData[Matrix3x3.M33]);
+				} finally {
+					scaleShearDataHolder.free();
+				}
+			}
+		}
+		
+		if(scaleShear.getData(Matrix3x3.M11) < 0 && scaleShear.getData(Matrix3x3.M22) < 0) {
+			{
+				PoolableArrayOf16Floats rotDataHolder = FlashyEngine.get().getPoolManager().getPool(PoolableArrayOf16Floats.class).obtain();
+				try {
+					float[] rotData = rotDataHolder.getArray();
+					rot.getData(rotData);
+					rotData[Matrix3x3.M11] *= -1;
+					rotData[Matrix3x3.M21] *= -1;
+					rotData[Matrix3x3.M12] *= -1;
+					rotData[Matrix3x3.M22] *= -1;
+					rot.setTo(rotData[Matrix3x3.M11], rotData[Matrix3x3.M12], rotData[Matrix3x3.M13], rotData[Matrix3x3.M21], rotData[Matrix3x3.M22], rotData[Matrix3x3.M23], rotData[Matrix3x3.M31], rotData[Matrix3x3.M32], rotData[Matrix3x3.M33]);
+				} finally {
+					rotDataHolder.free();
+				}
+			}
+			
+			{
+				PoolableArrayOf16Floats scaleShearDataHolder = FlashyEngine.get().getPoolManager().getPool(PoolableArrayOf16Floats.class).obtain();
+				try {
+					float[] scaleShearData = scaleShearDataHolder.getArray();
+					scaleShear.getData(scaleShearData);
+					scaleShearData[Matrix3x3.M11] *= -1;
+					scaleShearData[Matrix3x3.M21] *= -1;
+					scaleShearData[Matrix3x3.M12] *= -1;
+					scaleShearData[Matrix3x3.M22] *= -1;
+					scaleShear.setTo(scaleShearData[Matrix3x3.M11], scaleShearData[Matrix3x3.M12], scaleShearData[Matrix3x3.M13], scaleShearData[Matrix3x3.M21], scaleShearData[Matrix3x3.M22], scaleShearData[Matrix3x3.M23], scaleShearData[Matrix3x3.M31], scaleShearData[Matrix3x3.M32], scaleShearData[Matrix3x3.M33]);
+				} finally {
+					scaleShearDataHolder.free();
+				}
+			}
 		}
 	}
 	
@@ -130,22 +204,14 @@ public class Transform extends AbstractTransform {
 		{
 			this.position.setTo(matrix3x3.getData(Matrix3x3.M13),matrix3x3.getData(Matrix3x3.M23));
 			
-			Matrix2x2 _2dmatrix = ep.obtain(Matrix2x2.class).setTo(matrix3x3.getData(Matrix3x3.M11), matrix3x3.getData(Matrix3x3.M12), matrix3x3.getData(Matrix3x3.M21), matrix3x3.getData(Matrix3x3.M22));
+			Matrix3x3 rotationMatrix = ep.obtain(Matrix3x3.class);
+			Matrix3x3 scaleShearMatrix = ep.obtain(Matrix3x3.class);
 			
-			Vector temp = ep.obtain(Vector.class);
+			decompose(matrix3x3, rotationMatrix, scaleShearMatrix);
 			
-			Vector u0 = ep.obtain(Vector.class).setTo(_2dmatrix.getColumn(0));
-			Vector e0 = ep.obtain(Vector.class).setTo(u0).normalize();
-			Vector u1 = ep.obtain(Vector.class).setTo(_2dmatrix.getColumn(1)).sub(temp.setTo(e0).scale(e0.dot(_2dmatrix.getColumn(1))));
-			Vector e1 = ep.obtain(Vector.class).setTo(u1).normalize();
-			
-			float scaleX = e0.dot(_2dmatrix.getColumn(0));
-			float scaleY = e1.dot(_2dmatrix.getColumn(1));
-			float newShear = e0.dot(_2dmatrix.getColumn(1))/scaleY; 
-			this.scale.setTo(scaleX, scaleY);
-			this.shear = newShear;
-			//e0.getX() == cos(theta), e0.getY() == sin(theta)
-			this.rotation.setTo(e0);
+			this.rotation.setTo(ep.obtain(Vector.class).setTo(rotationMatrix.getData(Matrix3x3.M11), rotationMatrix.getData(Matrix3x3.M21)));
+			this.scale.setTo(scaleShearMatrix.getData(Matrix3x3.M11), scaleShearMatrix.getData(Matrix3x3.M22));
+			this.shear = scaleShearMatrix.getData(Matrix3x3.M12);
 			
 			return this;
 		}

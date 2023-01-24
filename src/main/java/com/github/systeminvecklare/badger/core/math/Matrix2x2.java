@@ -6,11 +6,6 @@ import com.github.systeminvecklare.badger.core.pooling.IPoolable;
 public class Matrix2x2 extends AbstractMatrix2x2 implements IPoolable {
 	private IPool<Matrix2x2> pool;
 	
-	public static final int M11 = 0;
-	public static final int M12 = 1;
-	public static final int M21 = 2;
-	public static final int M22 = 3;
-	
 	private float[] data = new float[2*2];
 	private final ColumnVector[] columnVectors = new ColumnVector[]{new ColumnVector(M11, M21),new ColumnVector(M12, M22)}; 
 	
@@ -81,6 +76,31 @@ public class Matrix2x2 extends AbstractMatrix2x2 implements IPoolable {
 		data[M12] = oldM11*other.getData(M12)+data[M12]*other.getData(M22);
 		data[M21] = data[M21]*other.getData(M11)+data[M22]*other.getData(M21);
 		data[M22] = oldM21*other.getData(M12)+data[M22]*other.getData(M22);
+		return this;
+	}
+	
+	@Override
+	public float getDeterminant() {
+		return data[M11]*data[M22] - data[M12]*data[M21];
+	}
+	
+	public Matrix2x2 invert() {
+		float determinant = getDeterminant();
+		
+		float oldM11 = data[M11];
+		
+		data[M11] = data[M22]/determinant;
+		data[M12] = -data[M12]/determinant;
+		data[M21] = -data[M21]/determinant;
+		data[M22] = oldM11/determinant;
+		
+		return this;
+	}
+	
+	public Matrix2x2 transpose() {
+		float oldM12 = data[M12];
+		data[M12] = data[M21];
+		data[M21] = oldM12;
 		return this;
 	}
 

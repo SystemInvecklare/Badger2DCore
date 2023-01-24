@@ -17,8 +17,7 @@ public class PoolableArrayOf16Floats implements IPoolable {
 		pool.free(this);
 	}
 
-	public PoolableArrayOf16Floats clear()
-	{
+	public PoolableArrayOf16Floats clear() {
 		for(int i = 0; i < 16; ++i)
 		{
 			array[i] = 0f;

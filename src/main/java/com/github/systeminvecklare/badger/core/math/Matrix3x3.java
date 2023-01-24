@@ -6,16 +6,6 @@ import com.github.systeminvecklare.badger.core.pooling.IPoolable;
 public class Matrix3x3 extends AbstractMatrix3x3 implements IPoolable {
 	private IPool<Matrix3x3> pool;
 	
-	public static final int M11 = 0;
-	public static final int M12 = 1;
-	public static final int M13 = 2;
-	public static final int M21 = 3;
-	public static final int M22 = 4;
-	public static final int M23 = 5;
-	public static final int M31 = 6;
-	public static final int M32 = 7;
-	public static final int M33 = 8;
-	
 	private float[] data = new float[3*3];
 	
 	public Matrix3x3(IPool<Matrix3x3> pool) {
@@ -95,7 +85,7 @@ public class Matrix3x3 extends AbstractMatrix3x3 implements IPoolable {
 		System.arraycopy(data, 0, result, offset, data.length);
 	}
 	
-	public Matrix3x3 mult(Matrix3x3 other) {
+	public Matrix3x3 mult(IReadableMatrix3x3 other) {
 		float oldM11 = data[M11];
 		float oldM12 = data[M12];
 		data[M11] = data[M11]*other.getData(M11)+data[M12]*other.getData(M21)+data[M13]*other.getData(M31);
@@ -118,7 +108,7 @@ public class Matrix3x3 extends AbstractMatrix3x3 implements IPoolable {
 	}
 
 	public Matrix3x3 invert() {
-		float determinant = data[M11]*data[M22]*data[M33] + data[M12]*data[M23]*data[M31] + data[M13]*data[M21]*data[M32] - data[M11]*data[M23]*data[M32] - data[M12]*data[M21]*data[M33] - data[M13]*data[M22]*data[M31];
+		float determinant = getDeterminant();
 		
 		float oldM11 = data[M11];
 		float oldM12 = data[M12];
@@ -139,6 +129,24 @@ public class Matrix3x3 extends AbstractMatrix3x3 implements IPoolable {
 		return this;
 	}
 	
+	public Matrix3x3 transpose() {
+		float oldM12 = data[M12];
+		float oldM13 = data[M13];
+		float oldM23 = data[M23];
+		data[M12] = data[M21];
+		data[M13] = data[M31];
+		data[M21] = oldM12;
+		data[M23] = data[M32];
+		data[M31] = oldM13;
+		data[M32] = oldM23;
+		return this;
+	}
+	
+	@Override
+	public float getDeterminant() {
+		return data[M11]*data[M22]*data[M33] + data[M12]*data[M23]*data[M31] + data[M13]*data[M21]*data[M32] - data[M11]*data[M23]*data[M32] - data[M12]*data[M21]*data[M33] - data[M13]*data[M22]*data[M31];
+	}
+
 	public static void transformAffinely(IReadableMatrix3x3 mat, Position argumentAndResult)
 	{
 		float x = argumentAndResult.getX();

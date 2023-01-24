@@ -351,9 +351,11 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 
 	@Override
 	public void onClick(IClickEvent clickEvent) {
-		if(!behaviours.isEmpty()) {
-			boolean consumedBeforeBehaviors = clickEvent.isConsumed();
-			behaviours.forEach(new BehaviorClickAction(clickEvent, consumedBeforeBehaviors));
+		if(!disposed) {
+			if(!behaviours.isEmpty()) {
+				boolean consumedBeforeBehaviors = clickEvent.isConsumed();
+				behaviours.forEach(new BehaviorClickAction(clickEvent, consumedBeforeBehaviors));
+			}
 		}
 	}
 

@@ -15,6 +15,7 @@ import com.github.systeminvecklare.badger.core.graphics.components.transform.ITr
 import com.github.systeminvecklare.badger.core.graphics.components.transform.ITransformOperation;
 import com.github.systeminvecklare.badger.core.graphics.framework.engine.click.IClickEvent;
 import com.github.systeminvecklare.badger.core.math.IReadablePosition;
+import com.github.systeminvecklare.badger.core.math.Position;
 
 public class MovieClip implements IMovieClip {
 	protected IMovieClipDelegate delegate;
@@ -66,6 +67,26 @@ public class MovieClip implements IMovieClip {
 	@Override
 	public ITransform toLocalTransform(ITransform result) {
 		return delegate.toLocalTransform(result);
+	}
+	
+	@Override
+	public Position toGlobalPosition(IReadablePosition position, Position result) {
+		return delegate.toGlobalPosition(position, result);
+	}
+	
+	@Override
+	public Position toGlobalPosition(Position result) {
+		return delegate.toGlobalPosition(result);
+	}
+	
+	@Override
+	public Position toLocalPosition(IReadablePosition position, Position result) {
+		return delegate.toLocalPosition(position, result);
+	}
+	
+	@Override
+	public Position toLocalPosition(Position result) {
+		return delegate.toLocalPosition(result);
 	}
 
 	@Override

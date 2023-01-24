@@ -11,6 +11,7 @@ import com.github.systeminvecklare.badger.core.graphics.components.shader.IShade
 import com.github.systeminvecklare.badger.core.graphics.components.transform.IReadableTransform;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.ITransform;
 import com.github.systeminvecklare.badger.core.math.IReadablePosition;
+import com.github.systeminvecklare.badger.core.math.Position;
 
 public class Layer implements ILayer {
 	protected ILayerDelegate delegate;
@@ -105,6 +106,26 @@ public class Layer implements ILayer {
 	@Override
 	public ITransform toLocalTransform(ITransform result) {
 		return delegate.toLocalTransform(result);
+	}
+	
+	@Override
+	public Position toGlobalPosition(IReadablePosition position, Position result) {
+		return delegate.toGlobalPosition(position, result);
+	}
+	
+	@Override
+	public Position toGlobalPosition(Position result) {
+		return delegate.toGlobalPosition(result);
+	}
+	
+	@Override
+	public Position toLocalPosition(IReadablePosition position, Position result) {
+		return delegate.toLocalPosition(position, result);
+	}
+	
+	@Override
+	public Position toLocalPosition(Position result) {
+		return delegate.toLocalPosition(result);
 	}
 	
 	@Override

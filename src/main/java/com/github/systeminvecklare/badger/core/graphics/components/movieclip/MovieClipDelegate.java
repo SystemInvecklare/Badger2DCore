@@ -247,6 +247,38 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 			parentL.free();
 		}
 	}
+	
+	@Override
+	public Position toLocalPosition(IReadablePosition position, Position result) {
+		EasyPooler ep = EasyPooler.obtainFresh();
+		try {
+			result.setTo(getWrapper().toLocalTransform(ep.obtain(ITransform.class).setToIdentity().setPosition(position)).getPosition());
+		} finally {
+			ep.freeAllAndSelf();
+		}
+		return result;
+	}
+	
+	@Override
+	public Position toLocalPosition(Position result) {
+		return getWrapper().toLocalPosition(result, result);
+	}
+	
+	@Override
+	public Position toGlobalPosition(IReadablePosition position, Position result) {
+		EasyPooler ep = EasyPooler.obtainFresh();
+		try {
+			result.setTo(getWrapper().toGlobalTransform(ep.obtain(ITransform.class).setToIdentity().setPosition(position)).getPosition());
+		} finally {
+			ep.freeAllAndSelf();
+		}
+		return result;
+	}
+	
+	@Override
+	public Position toGlobalPosition(Position result) {
+		return getWrapper().toGlobalPosition(result, result);
+	}
 
 	@Override
 	public IScene getScene() {

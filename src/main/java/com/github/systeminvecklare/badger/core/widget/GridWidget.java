@@ -10,6 +10,11 @@ import com.github.systeminvecklare.badger.core.math.simplex.TabularMethodSimpleS
 import com.github.systeminvecklare.badger.core.math.simplex.exception.SimplexException;
 
 public class GridWidget extends AbstractParentWidget<GridWidget.GridChild<?>> implements IWidget {
+	private int outerPaddingLeft = 0;
+	private int outerPaddingRight = 0;
+	private int outerPaddingTop = 0;
+	private int outerPaddingBottom = 0;
+	
 	private final SpacingSettings rowSpacing = new SpacingSettings();
 	private final SpacingSettings columnSpacing = new SpacingSettings();
 
@@ -111,16 +116,16 @@ public class GridWidget extends AbstractParentWidget<GridWidget.GridChild<?>> im
 		
 		int[] offsetX = new int[maxColumnIndex+1];
 		int[] offsetY = new int[maxRowIndex+1];
-		offsetX[0] = this.getX();
-		offsetY[maxRowIndex] = this.getY();
+		offsetX[0] = this.getX() + outerPaddingLeft;
+		offsetY[maxRowIndex] = this.getY() + outerPaddingBottom;
 		for(int column = 1; column < maxColumnIndex+1; ++column) {
 			offsetX[column] = offsetX[column-1]+columnWidths[column-1]+columnSpacing.getSpacing(column-1);
 		}
 		for(int row = maxRowIndex-1; row >= 0; --row) {
 			offsetY[row] = offsetY[row+1]+rowHeights[row+1]+rowSpacing.getSpacing(row);
 		}
-		internalSetWidth(offsetX[maxColumnIndex]+columnWidths[maxColumnIndex]-offsetX[0]);
-		internalSetHeight(offsetY[0]+rowHeights[0]-offsetY[maxRowIndex]);
+		internalSetWidth(offsetX[maxColumnIndex]+columnWidths[maxColumnIndex]-offsetX[0] + outerPaddingLeft + outerPaddingRight);
+		internalSetHeight(offsetY[0]+rowHeights[0]-offsetY[maxRowIndex] + outerPaddingBottom + outerPaddingTop);
 		for(GridChild<?> child : children) {
 			child.setPosition(offsetX[child.column], offsetY[child.getMaxRowIndex()], child.getAvailableSpaceX(columnWidths, columnSpacing), child.getAvailableSpaceY(rowHeights, rowSpacing));
 		}
@@ -244,6 +249,55 @@ public class GridWidget extends AbstractParentWidget<GridWidget.GridChild<?>> im
 	
 	public ISpacingSettings rowSpacing() {
 		return rowSpacing;
+	}
+	
+	public void setOuterPadding(int padding) {
+		setOuterPadding(padding, padding, padding, padding);
+	}
+	
+	public void setOuterPadding(int horizontal, int vertical) {
+		setOuterPadding(horizontal, horizontal, vertical, vertical);
+	}
+	
+	public void setOuterPadding(int left, int right, int top, int bottom) {
+		setOuterPaddingLeft(left);
+		setOuterPaddingRight(right);
+		setOuterPaddingTop(top);
+		setOuterPaddingBottom(bottom);
+	}
+	
+	public void setOuterPaddingHorizontal(int padding) {
+		setOuterPaddingHorizontal(padding, padding);
+	}
+	
+	public void setOuterPaddingHorizontal(int left, int right) {
+		setOuterPaddingLeft(left);
+		setOuterPaddingRight(right);
+	}
+	
+	public void setOuterPaddingVertical(int padding) {
+		setOuterPaddingVertical(padding, padding);
+	}
+	
+	public void setOuterPaddingVertical(int top, int bottom) {
+		setOuterPaddingTop(top);
+		setOuterPaddingBottom(bottom);
+	}
+	
+	public void setOuterPaddingLeft(int left) {
+		this.outerPaddingLeft = left;
+	}
+	
+	public void setOuterPaddingRight(int right) {
+		this.outerPaddingRight = right;
+	}
+	
+	public void setOuterPaddingTop(int top) {
+		this.outerPaddingTop = top;
+	}
+	
+	public void setOuterPaddingBottom(int bottom) {
+		this.outerPaddingBottom = bottom;
 	}
 	
 	private static class SpacingSettings implements ISpacingSettings {

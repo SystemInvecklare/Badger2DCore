@@ -1,7 +1,12 @@
 package com.github.systeminvecklare.badger.core.util;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.IMovieClip;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.IMovieClipContainer;
+import com.github.systeminvecklare.badger.core.graphics.components.movieclip.IMovieClipVisitor;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.behavior.Behavior;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.behavior.IBehavior;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.behavior.IBehaviorVisitor;
@@ -155,6 +160,71 @@ public class MCUtil {
 			parent.removeMovieClip(movieClip);
 		}
 		movieClip.dispose();
+	}
+	
+	public static void moveUp(final IMovieClip movieClip) {
+		move(movieClip, 1);
+	}
+	
+	public static void moveDown(final IMovieClip movieClip) {
+		move(movieClip, -1);
+	}
+	
+	public static void moveToTop(final IMovieClip movieClip) {
+		IMovieClipContainer parent = movieClip.getParent();
+		if(parent != null) {
+			parent.removeMovieClip(movieClip);
+			parent.addMovieClip(movieClip);
+		}
+	}
+	
+	public static void moveToBottom(final IMovieClip movieClip) {
+		IMovieClipContainer parent = movieClip.getParent();
+		if(parent != null) {
+			rearrangeChildren(parent, new Consumer<List<IMovieClip>>() {
+				@Override
+				public void accept(List<IMovieClip> sibling) {
+					sibling.remove(movieClip);
+					sibling.add(0, movieClip);
+				}
+			});
+		}
+	}
+	
+	private static void move(final IMovieClip movieClip, final int dindex) {
+		IMovieClipContainer parent = movieClip.getParent();
+		if(parent != null) {
+			rearrangeChildren(parent, new Consumer<List<IMovieClip>>() {
+				@Override
+				public void accept(List<IMovieClip> siblings) {
+					int currentIndex = siblings.indexOf(movieClip);
+					int targetIndex = currentIndex+dindex;
+					if(targetIndex < siblings.size() && targetIndex >= 0) {
+						IMovieClip moved = siblings.remove(targetIndex);
+						siblings.add(targetIndex, movieClip);
+						siblings.remove(currentIndex);
+						siblings.add(currentIndex, moved);
+					}
+				}
+			});
+		}
+	}
+	
+	private static void rearrangeChildren(IMovieClipContainer parent, Consumer<List<IMovieClip>> rearranger) {
+		final List<IMovieClip> children = new ArrayList<IMovieClip>();
+		parent.visitChildrenMovieClips(new IMovieClipVisitor() {
+			@Override
+			public void visit(IMovieClip movieClip) {
+				children.add(movieClip);
+			}
+		});
+		for(IMovieClip child : children) {
+			parent.removeMovieClip(child);
+		}
+		rearranger.accept(children);
+		for(IMovieClip child : children) {
+			parent.addMovieClip(child);
+		}
 	}
 	
 	public static ITransform getTransform(IMovieClip movieClip, EasyPooler ep) {

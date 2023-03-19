@@ -337,7 +337,7 @@ public class Interpolators {
 	public static abstract class ExtensibleInterpolator implements IInterpolator {
 		@Override
 		public final float eval(float t) {
-			return t == 0 ? 0 : (t == 1 ? 1 : evalOpen(t));
+			return t <= 0 ? 0 : (t >= 1 ? 1 : evalOpen(t));
 		}
 		
 		protected abstract float evalOpen(float t);

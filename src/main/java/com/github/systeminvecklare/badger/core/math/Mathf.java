@@ -80,4 +80,16 @@ public class Mathf {
 		}
 		return result;
 	}
+
+	public static int randomInt(int min, int max) {
+		return (int) (Math.random()*(1+max-min)) + min;
+	}
+
+	public static float randomFloat(float min, float max) {
+		return Mathf.random()*(max-min) + min;
+	}
+
+	public static float randomAngle() {
+		return randomFloat(0, PI*2);
+	}
 }

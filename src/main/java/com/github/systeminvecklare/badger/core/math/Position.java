@@ -73,6 +73,10 @@ public class Position extends AbstractPosition implements IPoolable, IReadablePo
 		return add(other.getX()*scale, other.getY()*scale); 
 	}
 	
+	public Position addRadialVector(float theta, float scale) { 
+		return add(Mathf.cos(theta)*scale, Mathf.sin(theta)*scale);
+	}
+	
 	public static Vector vectorTo(IReadablePosition from, IReadablePosition to, Vector result)
 	{
 		return result.setTo(to.getX()-from.getX(), to.getY()-from.getY());

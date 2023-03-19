@@ -62,9 +62,18 @@ public class Vector extends AbstractVector implements IPoolable {
 		return add(other.getX()*scale, other.getY()*scale); 
 	}
 	
+	public Vector addRadialVector(float theta, float scale) { 
+		return add(Mathf.cos(theta)*scale, Mathf.sin(theta)*scale);
+	}
+	
 	public Vector sub(IReadableVector other)
 	{
 		return setTo(this.getX()-other.getX(),this.getY()-other.getY());
+	}
+	
+	public Vector sub(float x, float y)
+	{
+		return setTo(this.getX()-x,this.getY()-y);
 	}
 	
 	public Vector hadamardMult(IReadableVector other)
@@ -116,7 +125,8 @@ public class Vector extends AbstractVector implements IPoolable {
 	}
 
 	public Vector normalize() {
-		return scale(1f/length());
+		float factor = 1f/length();
+		return scale(Float.isFinite(factor) ? factor : 0);
 	}
 
 	public Vector setToUnitVector(IReadableRotation rotation) {
@@ -135,6 +145,29 @@ public class Vector extends AbstractVector implements IPoolable {
 	}
 
 	public Vector setToUnitVector(float theta) {
-		return setTo(Mathf.cos(theta), Mathf.sin(theta));
+		return setToRadialVector(theta, 1);
 	}
+	
+	public Vector setToRadialVector(float theta, float scale) {
+		return setTo(Mathf.cos(theta)*scale, Mathf.sin(theta)*scale);
+	}
+	
+    public Vector projectOnto(IReadableVector target) {
+    	float targetLengthSquared = target.length2();
+    	if(targetLengthSquared == 0f) {
+    		return setToOrigin();
+    	}
+    	float factor = this.dot(target)/targetLengthSquared;
+    	return setTo(target).scale(factor);
+    }
+
+    public Vector makeOrthogonalTo(IReadableVector other) {
+    	float targetLengthSquared = other.length2();
+    	if(targetLengthSquared == 0f) {
+    		return this;
+    	}
+    	float factor = this.dot(other)/targetLengthSquared;
+    	
+    	return addScaled(other, -factor);
+    }
 }

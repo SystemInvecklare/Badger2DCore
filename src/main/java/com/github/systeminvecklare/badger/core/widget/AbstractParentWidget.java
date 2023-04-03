@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 /*package-protected*/ abstract class AbstractParentWidget<C extends AbstractParentWidget.Child<?>> implements IWidget {
 	private int x;
@@ -71,6 +72,11 @@ import java.util.Objects;
 		}
 	}
 	
+
+	public void clear() {
+		children.clear();
+	}
+	
 	protected void getDefaultInterface(IWidget widget, IDefaultInterfaceHandler handler) {
 		if(widget instanceof IResizableWidget) {
 			handler.onWidget((IResizableWidget) widget, IResizableWidgetInterface.RESIZABLE_WIDGET_INTERFACE);
@@ -83,9 +89,16 @@ import java.util.Objects;
 		return new CellLayoutSettings(0, 0, 0, 0, 0, 0, false, false, 0, 0);
 	}
 	
+	protected ICellLayoutSettings newLayoutSettings(final Consumer<ICellLayoutSettings> layoutSettings) {
+		ICellLayoutSettings settings = newLayoutSettings();
+		layoutSettings.accept(settings);
+		return settings;
+	}
+	
 	public ICellLayoutSettings defaultLayoutSettings() {
 		return defaultLayoutSettings;
 	}
+	
 	
 	public ICellLayoutSettings newLayoutSettings() {
 		return defaultLayoutSettings.copy();

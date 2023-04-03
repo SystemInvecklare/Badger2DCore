@@ -1,5 +1,7 @@
 package com.github.systeminvecklare.badger.core.widget;
 
+import java.util.function.Consumer;
+
 import com.github.systeminvecklare.badger.core.graphics.framework.engine.SceneManager;
 
 public class FrameWidget extends AbstractParentWidget<AbstractParentWidget.Child<?>> implements IResizableWidget {
@@ -64,6 +66,10 @@ public class FrameWidget extends AbstractParentWidget<AbstractParentWidget.Child
 		return addChild(widget, defaultLayoutSettings());
 	}
 	
+	public <W extends IWidget> W addChild(W widget, Consumer<ICellLayoutSettings> layoutSettings) {
+		return addChild(widget, newLayoutSettings(layoutSettings));
+	}
+	
 	public <W extends IWidget> W addChild(W widget, final ICellLayoutSettings layoutSettings) {
 		getDefaultInterface(widget, new IDefaultInterfaceHandler() {
 			@Override
@@ -76,6 +82,10 @@ public class FrameWidget extends AbstractParentWidget<AbstractParentWidget.Child
 	
 	public <W> W addChild(W widget, IWidgetInterface<? super W> widgetInterface) {
 		return addChild(widget, widgetInterface, defaultLayoutSettings());
+	}
+	
+	public <W> W addChild(W widget, IWidgetInterface<? super W> widgetInterface, Consumer<ICellLayoutSettings> layoutSettings) {
+		return addChild(widget, widgetInterface, newLayoutSettings(layoutSettings));
 	}
 	
 	public <W> W addChild(W widget, IWidgetInterface<? super W> widgetInterface, ICellLayoutSettings layoutSettings) {

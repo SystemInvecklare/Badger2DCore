@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Consumer;
 
 import com.github.systeminvecklare.badger.core.math.simplex.StandardFormSimplexProblem;
 import com.github.systeminvecklare.badger.core.math.simplex.TabularMethodSimpleSolver;
@@ -30,6 +31,10 @@ public class GridWidget extends AbstractParentWidget<GridWidget.GridChild<?>> im
 		return addChild(widget, row, column, defaultLayoutSettings());
 	}
 	
+	public <W extends IWidget> W addChild(W widget, final int row, final int column, final Consumer<ICellLayoutSettings> layoutSettings) {
+		return addChild(widget, row, column, newLayoutSettings(layoutSettings));
+	}
+	
 	public <W extends IWidget> W addChild(W widget, final int row, final int column, final ICellLayoutSettings layoutSettings) {
 		getDefaultInterface(widget, new IDefaultInterfaceHandler() {
 			@Override
@@ -45,6 +50,10 @@ public class GridWidget extends AbstractParentWidget<GridWidget.GridChild<?>> im
 		return addChild(widget, widgetInterface, row, column, defaultLayoutSettings());
 	}
 	
+	public <W> W addChild(W widget, IWidgetInterface<? super W> widgetInterface, int row, int column, Consumer<ICellLayoutSettings> layoutSettings) {
+		return addChild(widget, widgetInterface, row, column, newLayoutSettings(layoutSettings));
+	}
+	
 	public <W> W addChild(W widget, IWidgetInterface<? super W> widgetInterface, int row, int column, ICellLayoutSettings layoutSettings) {
 		return addChild(widget, widgetInterface, row, column, 1, 1, layoutSettings);
 	}
@@ -52,6 +61,11 @@ public class GridWidget extends AbstractParentWidget<GridWidget.GridChild<?>> im
 	public <W extends IWidget> W addChild(W widget, int row, int column, int occupiedRows,
 			int occupiedColumns) {
 		return addChild(widget, row, column, occupiedRows, occupiedColumns, defaultLayoutSettings());
+	}
+	
+	public <W extends IWidget> W addChild(W widget, int row, int column, int occupiedRows,
+			int occupiedColumns, Consumer<ICellLayoutSettings> layoutSettings) {
+		return addChild(widget, row, column, occupiedRows, occupiedColumns, newLayoutSettings(layoutSettings));
 	}
 	
 	public <W extends IWidget> W addChild(W widget, final int row, final int column, final int occupiedRows,
@@ -69,6 +83,11 @@ public class GridWidget extends AbstractParentWidget<GridWidget.GridChild<?>> im
 	public <W> W addChild(W widget, IWidgetInterface<? super W> widgetInterface, int row, int column, int occupiedRows,
 			int occupiedColumns) {
 		return addChild(widget, widgetInterface, row, column, occupiedRows, occupiedColumns, defaultLayoutSettings());
+	}
+	
+	public <W> W addChild(W widget, IWidgetInterface<? super W> widgetInterface, int row, int column, int occupiedRows,
+			int occupiedColumns, Consumer<ICellLayoutSettings> layoutSettings) {
+		return addChild(widget, widgetInterface, row, column, occupiedRows, occupiedColumns, newLayoutSettings(layoutSettings));
 	}
 	
 	public <W> W addChild(W widget, IWidgetInterface<? super W> widgetInterface, int row, int column, int occupiedRows,

@@ -69,6 +69,9 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 		}
 		child.setParent(getWrapper());
 		children.addToBirthList(child);
+		if(isInitialized() && !child.isInitialized()) {
+			child.init();
+		}
 	}
 
 	@Override
@@ -435,6 +438,9 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 	public void addBehavior(IBehavior behavior) {
 		behaviours.addToBirthList(behavior);
 		behavior.onBind(getWrapper());
+		if(isInitialized()) {
+			behavior.init();
+		}
 	}
 	
 	@Override
@@ -454,6 +460,9 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 	@Override
 	public void addGraphics(IMovieClipLayer movieClipLayer) {
 		graphics.addToBirthList(movieClipLayer);
+		if(isInitialized()) {
+			movieClipLayer.init();
+		}
 	}
 	
 	@Override

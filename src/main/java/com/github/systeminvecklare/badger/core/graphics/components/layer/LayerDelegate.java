@@ -215,6 +215,9 @@ public class LayerDelegate implements ILayerDelegate {
 		}
 		child.setParent(getWrapper());
 		movieClips.add(child);
+		if(isInitialized() && !child.isInitialized()) {
+			child.init();
+		}
 	}
 
 	@Override

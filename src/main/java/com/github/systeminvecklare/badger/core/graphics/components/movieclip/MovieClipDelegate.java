@@ -498,39 +498,41 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 
 	@Override
 	public void dispose() {
-		//Disposed managed
-		managerComponent.dispose();
-		
-		//Dispose behaviours 
-		if(!behaviours.isEmpty()) {
-			behaviours.forEach(LoopAction.DISPOSE);
+		if(getWrapper().isInitialized() && !getWrapper().isDisposed()) {
+			//Disposed managed
+			managerComponent.dispose();
+			
+			//Dispose behaviours 
+			if(!behaviours.isEmpty()) {
+				behaviours.forEach(LoopAction.DISPOSE);
+			}
+			
+			//Dispose children
+			if(!children.isEmpty()) {
+				children.forEach(LoopAction.DISPOSE);
+			}
+			
+			//Dispose movieClipLayers
+			if(!graphics.isEmpty()) {
+				graphics.forEach(LoopAction.DISPOSE);
+			}
+			
+			transform.free();
+			transform = null;
+			
+			behaviours.clear();
+			behaviours = null;
+			
+			children.clear();
+			children = null;
+			
+			graphics.clear();
+			graphics = null;
+			
+			parent = null;
+			
+			disposed = true;
 		}
-
-		//Dispose children
-		if(!children.isEmpty()) {
-			children.forEach(LoopAction.DISPOSE);
-		}
-
-		//Dispose movieClipLayers
-		if(!graphics.isEmpty()) {
-			graphics.forEach(LoopAction.DISPOSE);
-		}
-		
-		transform.free();
-		transform = null;
-		
-		behaviours.clear();
-		behaviours = null;
-		
-		children.clear();
-		children = null;
-
-		graphics.clear();
-		graphics = null;
-		
-		parent = null;
-		
-		disposed = true;
 	}
 	
 	@Override

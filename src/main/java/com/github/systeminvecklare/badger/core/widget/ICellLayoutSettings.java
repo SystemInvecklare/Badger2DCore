@@ -1,5 +1,7 @@
 package com.github.systeminvecklare.badger.core.widget;
 
+import java.util.function.Consumer;
+
 public interface ICellLayoutSettings {
 	ICellLayoutSettings padding(int padding);
 	ICellLayoutSettings padding(int horizontal, int vertical);
@@ -22,4 +24,5 @@ public interface ICellLayoutSettings {
 	ICellLayoutSettings minHeight(int minHeight);
 	ICellLayoutSettings minSize(int minWidth, int minHeight);
 	ICellLayoutSettings reset();
+	ICellLayoutSettings also(Consumer<ICellLayoutSettings> extra);
 }

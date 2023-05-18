@@ -1,5 +1,7 @@
 package com.github.systeminvecklare.badger.core.widget;
 
+import java.util.function.Consumer;
+
 /*package-private*/ class CellLayoutSettings implements ICellLayoutSettings {
 	public int paddingLeft;
 	public int paddingRight;
@@ -158,6 +160,12 @@ package com.github.systeminvecklare.badger.core.widget;
 	@Override
 	public ICellLayoutSettings minSize(int minWidth, int minHeight) {
 		return minWidth(minWidth).minHeight(minHeight);
+	}
+	
+	@Override
+	public ICellLayoutSettings also(Consumer<ICellLayoutSettings> extra) {
+		extra.accept(this);
+		return this;
 	}
 	
 	public CellLayoutSettings copy() {

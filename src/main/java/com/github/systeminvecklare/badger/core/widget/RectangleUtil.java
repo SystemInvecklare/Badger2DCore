@@ -51,8 +51,8 @@ public class RectangleUtil {
 		};
 	}
 	
-	public static IRectangle outset(IRectangle source, int inset) {
-		return inset(source, -inset);
+	public static IRectangle outset(IRectangle source, int outset) {
+		return inset(source, -outset);
 	}
 	
 	public static IRectangle offset(final IRectangle source, final int offsetX, final int offsetY) {

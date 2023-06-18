@@ -21,7 +21,7 @@ import com.github.systeminvecklare.badger.core.standard.input.mouse.PointerIdent
 import com.github.systeminvecklare.badger.core.util.PoolableArrayOf16Floats;
 
 
-public class FlashyPoolManager implements IPoolManager {
+public class FlashyPoolManager implements IPoolManager, IPoolRegistry {
 	@SuppressWarnings("rawtypes")
 	private Map<Class, IPool> poolMap = new HashMap<Class, IPool>();
 	
@@ -128,6 +128,7 @@ public class FlashyPoolManager implements IPoolManager {
 		return 30;
 	}
 
+	@Override
 	public <T> void registerPool(Class<T> type, IPool<T> pool)
 	{
 		this.poolMap.put(type, pool);

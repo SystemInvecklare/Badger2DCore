@@ -116,4 +116,14 @@ public class Scene implements IScene {
 	public boolean isInitialized() {
 		return delegate.isInitialized();
 	}
+	
+	@Override
+	public void onForegrounded(IScene backgroundedScene, IScene foregroundedScene) {
+		delegate.onForegrounded(backgroundedScene, foregroundedScene);
+	}
+	
+	@Override
+	public void onBackgrounded(IScene backgroundedScene, IScene foregroundedScene) {
+		delegate.onBackgrounded(backgroundedScene, foregroundedScene);
+	}
 }

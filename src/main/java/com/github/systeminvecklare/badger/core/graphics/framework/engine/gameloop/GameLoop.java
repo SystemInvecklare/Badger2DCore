@@ -12,6 +12,7 @@ public abstract class GameLoop implements IGameLoop {
 	private float accum;
 	private boolean skipUpdates = false;
 	private IGameLoopHooks hooks;
+	private IScene scenePreviousLoop = null;
 	
 	
 	public GameLoop(IInputHandler inputHandler, IApplicationContext applicationContext, IGameLoopHooks hooks) {
@@ -26,8 +27,11 @@ public abstract class GameLoop implements IGameLoop {
 		hooks.onBeforeUpdates();
 		accum += deltaTime;
 		IScene scene = getCurrentScene();
-		if(scene != null)
-		{
+		if (scenePreviousLoop != scene) {
+			sendForegroundingEvents(scenePreviousLoop, scene);
+			scenePreviousLoop = scene;
+		}
+		if(scene != null) {
 			inputHandler.handleInputs(scene);
 		}
 		float currentStep = SceneManager.get().getStep();
@@ -41,8 +45,7 @@ public abstract class GameLoop implements IGameLoop {
 				
 				hooks.onBeforeThink();
 				applicationContext.think(null);
-				if(scene != null)
-				{
+				if(scene != null) {
 					scene.think(null);
 				}
 				hooks.onAfterThink();
@@ -55,16 +58,14 @@ public abstract class GameLoop implements IGameLoop {
 				accum -= currentStep;
 				hooks.onBeforeThink();
 				applicationContext.think(null);
-				if(scene != null)
-				{
+				if(scene != null) {
 					scene.think(null);
 				}
 				hooks.onAfterThink();
 			}
 		}
 		hooks.onBeforeDraw();
-		if(scene != null)
-		{
+		if(scene != null) {
 			scene.draw(this.newDrawCycle());
 			closeDrawCycle();
 			hooks.onAfterSceneDraw();
@@ -73,6 +74,15 @@ public abstract class GameLoop implements IGameLoop {
 		SceneManager.get().emptyTrashCan();
 	}
 	
+	private void sendForegroundingEvents(IScene backgroundedScene, IScene foregroundedScene) {
+		if(backgroundedScene != null) {
+			backgroundedScene.onBackgrounded(backgroundedScene, foregroundedScene);
+		}
+		if(foregroundedScene != null) {
+			foregroundedScene.onForegrounded(backgroundedScene, foregroundedScene);
+		}
+	}
+
 	@Override
 	public void skipQueuedUpdates() {
 		skipUpdates = true;

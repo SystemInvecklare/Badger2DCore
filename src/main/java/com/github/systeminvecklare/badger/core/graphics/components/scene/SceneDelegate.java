@@ -237,6 +237,14 @@ public class SceneDelegate implements ISceneDelegate {
 		return managerComponent.isDisposed();
 	}
 	
+	@Override
+	public void onForegrounded(IScene backgroundedScene, IScene foregroundedScene) {
+	}
+	
+	@Override
+	public void onBackgrounded(IScene backgroundedScene, IScene foregroundedScene) {
+	}
+	
 	private static class DoubleList<T> {
 		private boolean disposed = false;
 		@SuppressWarnings("rawtypes")

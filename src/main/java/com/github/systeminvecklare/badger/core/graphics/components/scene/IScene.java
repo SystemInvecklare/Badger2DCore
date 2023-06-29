@@ -1,6 +1,7 @@
 package com.github.systeminvecklare.badger.core.graphics.components.scene;
 
 import com.github.systeminvecklare.badger.core.graphics.components.core.IDrawable;
+import com.github.systeminvecklare.badger.core.graphics.components.core.IForegroundable;
 import com.github.systeminvecklare.badger.core.graphics.components.core.IKeyPressListener;
 import com.github.systeminvecklare.badger.core.graphics.components.core.IKeyTypedListener;
 import com.github.systeminvecklare.badger.core.graphics.components.core.ILifecycleManager;
@@ -10,7 +11,7 @@ import com.github.systeminvecklare.badger.core.graphics.components.layer.ILayer;
 import com.github.systeminvecklare.badger.core.graphics.components.layer.ILayerVisitor;
 import com.github.systeminvecklare.badger.core.graphics.components.shader.IShader;
 
-public interface IScene extends IDrawable, IThinker, ILifecycleOwner, ILifecycleManager, IKeyPressListener, IKeyTypedListener {
+public interface IScene extends IDrawable, IThinker, ILifecycleOwner, ILifecycleManager, IKeyPressListener, IKeyTypedListener, IForegroundable {
 	ILayer addLayer(String name, ILayer layer);
 	ILayer getLayer(String name);
 	void visitLayers(ILayerVisitor visitor);

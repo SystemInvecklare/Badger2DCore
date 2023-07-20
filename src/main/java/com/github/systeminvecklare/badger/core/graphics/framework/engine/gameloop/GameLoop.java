@@ -1,6 +1,7 @@
 package com.github.systeminvecklare.badger.core.graphics.framework.engine.gameloop;
 
 import com.github.systeminvecklare.badger.core.graphics.components.core.IDrawCycle;
+import com.github.systeminvecklare.badger.core.graphics.components.core.ITic;
 import com.github.systeminvecklare.badger.core.graphics.components.scene.IScene;
 import com.github.systeminvecklare.badger.core.graphics.framework.engine.IApplicationContext;
 import com.github.systeminvecklare.badger.core.graphics.framework.engine.SceneManager;
@@ -13,6 +14,8 @@ public abstract class GameLoop implements IGameLoop {
 	private boolean skipUpdates = false;
 	private IGameLoopHooks hooks;
 	private IScene scenePreviousLoop = null;
+	
+	private Tic immutableTick = null;
 	
 	
 	public GameLoop(IInputHandler inputHandler, IApplicationContext applicationContext, IGameLoopHooks hooks) {
@@ -34,7 +37,12 @@ public abstract class GameLoop implements IGameLoop {
 		if(scene != null) {
 			inputHandler.handleInputs(scene);
 		}
-		float currentStep = SceneManager.get().getStep();
+		final float currentStep = SceneManager.get().getStep();
+		if(immutableTick == null || currentStep != immutableTick.getStep()) {
+			immutableTick = new Tic(currentStep);
+		}
+		final ITic currentTick = immutableTick;
+		boolean atLeastOneThink = false;
 		if(skipUpdates)
 		{
 			if(accum >= currentStep)
@@ -49,6 +57,7 @@ public abstract class GameLoop implements IGameLoop {
 					scene.think(null);
 				}
 				hooks.onAfterThink();
+				atLeastOneThink = true;
 			}
 		}
 		else

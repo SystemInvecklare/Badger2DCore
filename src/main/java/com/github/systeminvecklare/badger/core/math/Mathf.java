@@ -92,4 +92,16 @@ public class Mathf {
 	public static float randomAngle() {
 		return randomFloat(0, PI*2);
 	}
+	
+	public static int mod(int x, int y) {
+		if(y < 0) {
+			return -mod(x, -y);
+		}
+		if(x >= 0) {
+			return x%y;
+		} else {
+			int res = y - (-x)%y;
+			return res == y ? 0 : res;
+		}
+	}
 }

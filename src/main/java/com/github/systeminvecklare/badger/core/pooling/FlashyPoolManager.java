@@ -147,7 +147,11 @@ public class FlashyPoolManager implements IPoolManager, IPoolRegistry {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> IPool<T> getPool(Class<T> poolableType) {
-		return poolMap.get(poolableType);
+		IPool<T> pool = poolMap.get(poolableType);
+		if(pool == null) {
+			throw new IllegalArgumentException("No pool found for "+(poolableType == null ? "null" : poolableType.getName()));
+		}
+		return pool;
 	}
 	
 	public static interface IFactory<T> {

@@ -4,6 +4,10 @@ public class GameLoopHooksAdapter implements IGameLoopHooks {
 	@Override
 	public void onBeforeUpdates() {
 	}
+	
+	@Override
+	public void onAfterUpdates() {
+	}
 
 	@Override
 	public void onBeforeThink() {

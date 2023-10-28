@@ -52,9 +52,9 @@ public abstract class GameLoop implements IGameLoop {
 				accum -= Math.floor(accum/currentStep)*currentStep;
 				
 				hooks.onBeforeThink();
-				applicationContext.think(null);
+				applicationContext.think(currentTick);
 				if(scene != null) {
-					scene.think(null);
+					scene.think(currentTick);
 				}
 				hooks.onAfterThink();
 				atLeastOneThink = true;
@@ -66,9 +66,9 @@ public abstract class GameLoop implements IGameLoop {
 			{
 				accum -= currentStep;
 				hooks.onBeforeThink();
-				applicationContext.think(null);
+				applicationContext.think(currentTick);
 				if(scene != null) {
-					scene.think(null);
+					scene.think(currentTick);
 				}
 				hooks.onAfterThink();
 			}
@@ -81,6 +81,7 @@ public abstract class GameLoop implements IGameLoop {
 		}
 		hooks.onAfterDraw();
 		SceneManager.get().emptyTrashCan();
+		hooks.onAfterUpdates();
 	}
 	
 	private void sendForegroundingEvents(IScene backgroundedScene, IScene foregroundedScene) {

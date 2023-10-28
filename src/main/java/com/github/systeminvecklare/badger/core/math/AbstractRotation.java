@@ -50,4 +50,21 @@ public abstract class AbstractRotation implements IReadableRotation {
 	public Vector toUnitVector(IPool<Vector> pool) {
 		return pool.obtain().setToUnitVector(this);
 	}
+	
+	@Override
+	public int quantize(float thetaZero, int steps, Rotation result) {
+		if(steps <= 0) {
+			throw new IllegalArgumentException("steps must be > 0");
+		}
+		float stepLength = Mathf.TWO_PI/steps;
+		float normalizedTheta = Mathf.mod(getTheta() - thetaZero + stepLength/2, Mathf.TWO_PI);
+		int q = (int) (normalizedTheta/stepLength);
+		if(q < 0 || q >= steps) {
+			q = Mathf.mod(q, steps);
+		}
+		if(result != null) {
+			result.setTo(thetaZero + stepLength*q);
+		}
+		return q;
+	}
 }

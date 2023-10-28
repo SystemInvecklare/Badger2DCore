@@ -2,6 +2,7 @@ package com.github.systeminvecklare.badger.core.graphics.framework.engine.gamelo
 
 public interface IGameLoopHooks {
 	public void onBeforeUpdates();
+	public void onAfterUpdates();
 	public void onBeforeThink();
 	public void onAfterThink();
 	public void onBeforeDraw();

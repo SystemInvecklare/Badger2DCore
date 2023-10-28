@@ -98,6 +98,11 @@ public class Rotation extends AbstractRotation implements IPoolable, IReadableRo
 		return result.setTo(Mathf.cos(thetaValue), Mathf.sin(thetaValue));
 	}
 	
+	public Rotation quantize(float thetaZero, int steps) {
+		quantize(thetaZero, steps, this);
+		return this;
+	}
+	
 	@Override
 	public void free() {
 		pool.free(this);

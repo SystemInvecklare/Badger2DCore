@@ -3,9 +3,11 @@ package com.github.systeminvecklare.badger.core.math;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Random;
 
 public class Mathf {
 	public static final float PI = (float) Math.PI;
+	public static final float TWO_PI = 2f*PI;
 
 	public static float sin(float theta)
 	{
@@ -87,6 +89,10 @@ public class Mathf {
 
 	public static float randomFloat(float min, float max) {
 		return Mathf.random()*(max-min) + min;
+	}
+	
+	public static float randomFloat(Random random, float min, float max) {
+		return random.nextFloat()*(max-min) + min;
 	}
 
 	public static float randomAngle() {

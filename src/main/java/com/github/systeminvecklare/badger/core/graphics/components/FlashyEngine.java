@@ -5,6 +5,9 @@ import com.github.systeminvecklare.badger.core.graphics.framework.engine.IFlashy
 public class FlashyEngine {
 	private static IFlashyEngine engine;
 	
+	private FlashyEngine() {
+	}
+	
 	public static synchronized IFlashyEngine get() {
 		return engine;
 	}

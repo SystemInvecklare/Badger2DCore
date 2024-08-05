@@ -17,6 +17,11 @@ public class GeometryUtil {
 		return isInRectangle(px, py, rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight());
 	}
 	
+	
+	public static boolean isInRectangle(float px, float py, IFloatRectangle rectangle) {
+		return isInRectangle(px, py, rectangle.getX(), rectangle.getY(), rectangle.getWidth(), rectangle.getHeight());
+	}
+	
 	public static boolean isInCircle(float px, float py, float x, float y, float radius)
 	{
 		float dx = px-x;

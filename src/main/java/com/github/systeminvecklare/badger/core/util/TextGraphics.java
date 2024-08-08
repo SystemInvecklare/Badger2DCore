@@ -1,6 +1,7 @@
 package com.github.systeminvecklare.badger.core.util;
 
 import com.github.systeminvecklare.badger.core.font.IFlashyFont;
+import com.github.systeminvecklare.badger.core.font.IFlashyText;
 import com.github.systeminvecklare.badger.core.graphics.components.core.IDrawCycle;
 import com.github.systeminvecklare.badger.core.graphics.components.moviecliplayer.IMovieClipLayer;
 import com.github.systeminvecklare.badger.core.math.IReadablePosition;
@@ -18,7 +19,7 @@ public class TextGraphics<C> implements IMovieClipLayer, IWidget {
 	private float offsetY = 0;
 	private boolean hittable = false;
 	
-	private final CachedUnanchoredBounds<C> cachedUnanchoredBounds = new CachedUnanchoredBounds<C>();
+	private final CachedFlashyText<C> cachedFlashyText = new CachedFlashyText<C>();
 	private final CachedBounds cachedBounds = new CachedBounds();
 
 	public TextGraphics(IFlashyFont<C> font, String text, C color) {
@@ -103,14 +104,15 @@ public class TextGraphics<C> implements IMovieClipLayer, IWidget {
 	public void draw(IDrawCycle drawCycle) {
 		IFlashyFont<C> font = getFont();
 		String text = getText();
-		IFloatRectangle rawBounds = cachedUnanchoredBounds.getUnanchoredBounds(font, text);
+		IFlashyText flashyText = cachedFlashyText.getText(font, text, getColor());
+		IFloatRectangle rawBounds = flashyText.getBounds();
 		IFloatRectangle bounds = cachedBounds.getBounds(getAnchorX(), getAnchorY(), getOffsetX(), getOffsetY(), rawBounds);
 		
-		font.draw(drawCycle, text, bounds.getX() - rawBounds.getX(), bounds.getY() - rawBounds.getY(), getColor());
+		flashyText.draw(drawCycle, bounds.getX() - rawBounds.getX(), bounds.getY() - rawBounds.getY());
 	}
 	
 	public IFloatRectangle getBounds() {
-		return cachedBounds.getBounds(getAnchorX(), getAnchorY(), getOffsetX(), getOffsetY(), cachedUnanchoredBounds.getUnanchoredBounds(font, text));
+		return cachedBounds.getBounds(getAnchorX(), getAnchorY(), getOffsetX(), getOffsetY(), cachedFlashyText.getText(getFont(), getText(), getColor()).getBounds());
 	}
 
 	@Override
@@ -135,26 +137,33 @@ public class TextGraphics<C> implements IMovieClipLayer, IWidget {
 		font = null;
 		text = null;
 		color = null;
-		cachedUnanchoredBounds.fontCacheKey = null;
-		cachedUnanchoredBounds.textCacheKey = null;
-		cachedUnanchoredBounds.unanchoredBounds = null;
+		cachedFlashyText.fontCacheKey = null;
+		cachedFlashyText.textCacheKey = null;
+		cachedFlashyText.tintCacheKey = null;
+		cachedFlashyText.flashyText = null;
 		cachedBounds.unanchoredBoundsCacheKey = null;
 		cachedBounds.bounds = null;
 	}
 	
-	private static class CachedUnanchoredBounds<C> {
+	private static class CachedFlashyText<C> {
 		private IFlashyFont<C> fontCacheKey = null;
 		private String textCacheKey = null;
+		private C tintCacheKey = null;
 		
-		private IFloatRectangle unanchoredBounds = null;
+		private IFlashyText flashyText = null;
 		
-		public IFloatRectangle getUnanchoredBounds(IFlashyFont<C> font, String text) {
-			if(unanchoredBounds == null || fontCacheKey != font || textCacheKey != text) {
+		public IFlashyText getText(IFlashyFont<C> font, String text, C tint) {
+			if(flashyText == null || !same(fontCacheKey, font) || !same(textCacheKey,text) || !same(tintCacheKey, tint)) {
 				fontCacheKey = font;
 				textCacheKey = text;
-				unanchoredBounds = fontCacheKey.getBounds(text);
+				tintCacheKey = tint;
+				flashyText = fontCacheKey.createText(text, tint);
 			}
-			return unanchoredBounds;
+			return flashyText;
+		}
+		
+		private boolean same(Object a, Object b) {
+			return a == null ? b == null : a.equals(b);
 		}
 	}
 	

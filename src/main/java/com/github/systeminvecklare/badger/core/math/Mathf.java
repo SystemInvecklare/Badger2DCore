@@ -39,8 +39,16 @@ public class Mathf {
 	public static float floor(float a) {
 		return (float) Math.floor(a);
 	}
+	
+	public static float ceil(float a) {
+		return (float) Math.ceil(a);
+	}
 
 	public static float clamp(float value, float min, float max) {
+		return value > max ? max : (value < min ? min : value);
+	}
+	
+	public static int clamp(int value, int min, int max) {
 		return value > max ? max : (value < min ? min : value);
 	}
 
@@ -109,5 +117,13 @@ public class Mathf {
 			int res = y - (-x)%y;
 			return res == y ? 0 : res;
 		}
+	}
+
+	public static int ceilToInt(float f) {
+		return (int) Math.ceil(f);
+	}
+	
+	public static int floorToInt(float f) {
+		return (int) Math.floor(f);
 	}
 }

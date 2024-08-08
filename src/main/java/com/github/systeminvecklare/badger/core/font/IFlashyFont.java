@@ -13,4 +13,8 @@ public interface IFlashyFont<C> {
 	void draw(IDrawCycle drawCycle, String text, float x, float y, C tint);
 	void drawWrapped(IDrawCycle drawCycle, String text, float x, float y, C tint, float maxWidth);
 	void drawWrappedCentered(IDrawCycle drawCycle, String text, float x, float y, C tint, float maxWidth);
+	
+	IFlashyText createText(String text, C tint);
+	IFlashyText createTextWrapped(String text, C tint, float maxWidth);
+	IFlashyText createTextWrappedCentered(String text, C tint, float maxWidth);
 }

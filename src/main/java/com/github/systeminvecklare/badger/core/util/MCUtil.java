@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import com.github.systeminvecklare.badger.core.graphics.components.FlashyEngine;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.IMovieClip;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.IMovieClipContainer;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.IMovieClipVisitor;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.behavior.Behavior;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.behavior.IBehavior;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.behavior.IBehaviorVisitor;
+import com.github.systeminvecklare.badger.core.graphics.components.transform.IReadableTransform;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.ITransform;
 import com.github.systeminvecklare.badger.core.math.IReadablePosition;
 import com.github.systeminvecklare.badger.core.pooling.EasyPooler;
@@ -116,9 +118,29 @@ public class MCUtil {
 			return this;
 		}
 		
+		public Manipulator<T> setTransform(final IReadableTransform transform) {
+			movieClip.addBehavior(new InitialTransformManipulatorBehavior() {
+				ITransform storedTransform = FlashyEngine.get().getPoolManager().getPool(ITransform.class).obtain().setTo(transform);
+						
+				@Override
+				protected ITransform manipulateTransform(ITransform transform) {
+					return transform.setTo(storedTransform);
+				}
+				
+				@Override
+				public void dispose() {
+					super.dispose();
+					storedTransform.free();
+					storedTransform = null;
+				}
+			});
+			return this;
+		}
+		
 		public T end() {
 			return movieClip;
 		}
+
 	}
 
 

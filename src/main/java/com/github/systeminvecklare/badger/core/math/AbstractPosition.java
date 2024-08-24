@@ -12,6 +12,11 @@ public abstract class AbstractPosition implements IReadablePosition {
 	}
 	
 	@Override
+	public Position interpolate(float t, IReadablePosition other, Position result) {
+		return result.setTo(Mathf.lerp(t, this.getX(), other.getX()), Mathf.lerp(t, this.getY(), other.getY()));
+	}
+	
+	@Override
 	public float length() {
 		return Mathf.sqrt(length2());
 	}

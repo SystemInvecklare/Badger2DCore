@@ -76,6 +76,11 @@ public class Mathf {
 	public static float lerp(float t, float a, float b) {
 		return (1f-t)*a+t*b;
 	}
+	
+	public static float lerp2(float t, float a, float b, float c) {
+		float tConj = 1f - t;
+		return tConj*(tConj*a+2*t*b)+t*t*c;
+	}
 
 	public static float conjPow(float t, float exp) {
 		return 1f-Mathf.pow(1f-t, exp);

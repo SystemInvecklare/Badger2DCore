@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-/*package-protected*/ abstract class AbstractParentWidget<C extends AbstractParentWidget.Child<?>> implements IWidget {
+/*package-protected*/ abstract class AbstractParentWidget<C extends AbstractParentWidget.Child<?>> extends AbstractWidget implements IWidget {
 	private int x;
 	private int y;
 	private int width;

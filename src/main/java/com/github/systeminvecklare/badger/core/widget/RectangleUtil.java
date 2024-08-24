@@ -1,7 +1,5 @@
 package com.github.systeminvecklare.badger.core.widget;
 
-import com.github.systeminvecklare.badger.core.widget.IRectangle;
-
 public class RectangleUtil {
 	public static IRectangle justSize(final IRectangle rectangle) {
 		return new IRectangle() {
@@ -75,6 +73,30 @@ public class RectangleUtil {
 			@Override
 			public int getHeight() {
 				return source.getHeight();
+			}
+		};
+	}
+	
+	public static <T> IRectangle rectangle(final T object, final IRectangleInterface<T> rectangleInterface) {
+		return new IRectangle() {
+			@Override
+			public int getX() {
+				return rectangleInterface.getX(object);
+			}
+			
+			@Override
+			public int getY() {
+				return rectangleInterface.getY(object);
+			}
+			
+			@Override
+			public int getWidth() {
+				return rectangleInterface.getWidth(object);
+			}
+			
+			@Override
+			public int getHeight() {
+				return rectangleInterface.getHeight(object);
 			}
 		};
 	}

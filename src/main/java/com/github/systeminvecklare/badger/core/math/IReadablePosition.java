@@ -6,6 +6,7 @@ public interface IReadablePosition extends ICopyablePoolable<Position> {
 	public float getX();
 	public float getY();
 	public Vector vectorTo(IReadablePosition other, Vector result);
+	public Position interpolate(float t, IReadablePosition other, Position result);
 	public float length2();
 	public float length();
 	public float distance2(IReadablePosition other);

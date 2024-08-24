@@ -85,4 +85,18 @@ public class PlaceholderWidget implements IResizableWidget {
 		setWidth(width);
 		setHeight(height);
 	}
+	
+	public static IWidget trackSize(final IRectangle rectangle) {
+		return new PlaceholderWidget() {
+			@Override
+			public int getWidth() {
+				return rectangle.getWidth();
+			}
+			
+			@Override
+			public int getHeight() {
+				return rectangle.getHeight();
+			}
+		};
+	}
 }

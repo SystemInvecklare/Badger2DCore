@@ -18,6 +18,7 @@ public class TextGraphics<C> implements IMovieClipLayer, IWidget {
 	private float offsetX = 0;
 	private float offsetY = 0;
 	private boolean hittable = false;
+	private Float maxWidth = null;
 	
 	private final CachedFlashyText<C> cachedFlashyText = new CachedFlashyText<C>();
 	private final CachedBounds cachedBounds = new CachedBounds();
@@ -26,6 +27,15 @@ public class TextGraphics<C> implements IMovieClipLayer, IWidget {
 		this.font = font;
 		this.text = text;
 		this.color = color;
+	}
+	
+	public TextGraphics<C> setMaxWidth(Float maxWidth) {
+		this.maxWidth = maxWidth;
+		return this;
+	}
+	
+	public Float getMaxWidth() {
+		return maxWidth;
 	}
 	
 	public IFlashyFont<C> getFont() {
@@ -104,7 +114,7 @@ public class TextGraphics<C> implements IMovieClipLayer, IWidget {
 	public void draw(IDrawCycle drawCycle) {
 		IFlashyFont<C> font = getFont();
 		String text = getText();
-		IFlashyText flashyText = cachedFlashyText.getText(font, text, getColor());
+		IFlashyText flashyText = cachedFlashyText.getText(font, text, getColor(), getMaxWidth());
 		IFloatRectangle rawBounds = flashyText.getBounds();
 		IFloatRectangle bounds = cachedBounds.getBounds(getAnchorX(), getAnchorY(), getOffsetX(), getOffsetY(), rawBounds);
 		
@@ -112,7 +122,7 @@ public class TextGraphics<C> implements IMovieClipLayer, IWidget {
 	}
 	
 	public IFloatRectangle getBounds() {
-		return cachedBounds.getBounds(getAnchorX(), getAnchorY(), getOffsetX(), getOffsetY(), cachedFlashyText.getText(getFont(), getText(), getColor()).getBounds());
+		return cachedBounds.getBounds(getAnchorX(), getAnchorY(), getOffsetX(), getOffsetY(), cachedFlashyText.getText(getFont(), getText(), getColor(), getMaxWidth()).getBounds());
 	}
 
 	@Override
@@ -149,15 +159,17 @@ public class TextGraphics<C> implements IMovieClipLayer, IWidget {
 		private IFlashyFont<C> fontCacheKey = null;
 		private String textCacheKey = null;
 		private C tintCacheKey = null;
+		private Float maxWidthCacheKey = null;
 		
 		private IFlashyText flashyText = null;
 		
-		public IFlashyText getText(IFlashyFont<C> font, String text, C tint) {
-			if(flashyText == null || !same(fontCacheKey, font) || !same(textCacheKey,text) || !same(tintCacheKey, tint)) {
+		public IFlashyText getText(IFlashyFont<C> font, String text, C tint, Float maxWidth) {
+			if(flashyText == null || !same(fontCacheKey, font) || !same(textCacheKey,text) || !same(tintCacheKey, tint) || !same(maxWidthCacheKey, maxWidth)) {
 				fontCacheKey = font;
 				textCacheKey = text;
 				tintCacheKey = tint;
-				flashyText = fontCacheKey.createText(text, tint);
+				maxWidthCacheKey = maxWidth;
+				flashyText = maxWidth != null ? fontCacheKey.createTextWrapped(text, tint, maxWidth) : fontCacheKey.createText(text, tint);
 			}
 			return flashyText;
 		}

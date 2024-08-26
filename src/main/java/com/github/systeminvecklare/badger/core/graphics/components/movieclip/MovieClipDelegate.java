@@ -451,10 +451,12 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 	
 	@Override
 	public void visitBehaviors(IBehaviorVisitor visitor) {
-		if(behaviours.isEmpty()) {
-			return;
+		if(!getWrapper().isDisposed()) {
+			if(behaviours.isEmpty()) {
+				return;
+			}
+			behaviours.forEach(new VisitBehaviorAction(visitor));
 		}
-		behaviours.forEach(new VisitBehaviorAction(visitor));
 	}
 	
 	@Override

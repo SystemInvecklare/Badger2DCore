@@ -1,6 +1,6 @@
 package com.github.systeminvecklare.badger.core.widget;
 
-public class SpacerWidget implements IWidget {
+public class SpacerWidget extends AbstractWidget implements IWidget {
 	private int x;
 	private int y;
 	private final int width;

@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 
 import com.github.systeminvecklare.badger.core.graphics.framework.engine.SceneManager;
 
-public class FrameWidget extends AbstractParentWidget<AbstractParentWidget.Child<?>> implements IResizableWidget {
+public class FrameWidget extends AbstractResizableParentWidget<AbstractParentWidget.Child<?>> implements IResizableWidget {
 	public FrameWidget() {
 		this(0, 0);
 	}

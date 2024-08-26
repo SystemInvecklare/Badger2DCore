@@ -1,6 +1,7 @@
 package com.github.systeminvecklare.badger.core.widget;
 
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.MovieClip;
+import com.github.systeminvecklare.badger.core.math.Mathf;
 import com.github.systeminvecklare.badger.core.widget.IResizableWidget;
 import com.github.systeminvecklare.badger.core.widget.IWidgetClip;
 
@@ -56,5 +57,89 @@ public class WidgetClip extends MovieClip implements IResizableWidget, IWidgetCl
 	@Override
 	public void addToPosition(int dx, int dy) {
 		IWidgetClip.WIDGET_INTERFACE.addToPosition(this, dx, dy);
+	}
+	
+	// Widget util functions
+	public void setAbove(IRectangle other, float alignX) {
+		setAbove(other, alignX, 0);
+	}
+	
+	public void setBelow(IRectangle other, float alignX) {
+		setBelow(other, alignX, 0);
+	}
+	
+	public void setRightOf(IRectangle other, float alignY) {
+		setRightOf(other, alignY, 0);
+	}
+	
+	public void setLeftOf(IRectangle other, float alignY) {
+		setLeftOf(other, alignY, 0);
+	}
+	
+	public void setAbove(IRectangle other, float alignX, int padding) {
+		setPosition(other.getX() + (int) Mathf.lerp(alignX, 0, other.getWidth() - this.getWidth()), other.getY() + other.getHeight() + padding);
+	}
+	
+	public void setBelow(IRectangle other, float alignX, int padding) {
+		setPosition(other.getX() + (int) Mathf.lerp(alignX, 0, other.getWidth() - this.getWidth()), other.getY() - this.getHeight() - padding);
+	}
+	
+	public void setRightOf(IRectangle other, float alignY, int padding) {
+		setPosition(other.getX() + other.getWidth() + padding, other.getY() + (int) Mathf.lerp(alignY, 0, other.getHeight() - this.getHeight()));
+	}
+	
+	public void setLeftOf(IRectangle other, float alignY, int padding) {
+		setPosition(other.getX() - this.getWidth() - padding, other.getY() + (int) Mathf.lerp(alignY, 0, other.getHeight() - this.getHeight()));
+	}
+	
+	public void setTop(int top) {
+		setPosition(getX(), top - getHeight());
+	}
+	
+	public void setBottom(int bottom) {
+		setPosition(getX(), bottom);
+	}
+	
+	public void setLeft(int left) {
+		setPosition(left, getY());
+	}
+	
+	public void setRight(int right) {
+		setPosition(right - getWidth(), getY());
+	}
+	
+	public final int getLeft() {
+		return getX();
+	}
+	
+	public final int getRight() {
+		return getX() + getWidth();
+	}
+	
+	public final int getBottom() {
+		return getY();
+	}
+	
+	public final int getTop() {
+		return getY() + getHeight();
+	}
+	
+	// Resizable util functions
+	public void stretchTopTo(int top) {
+		setHeight(top - getY());
+	}
+	
+	public void stretchBottomTo(int bottom) {
+		setHeight(getY() - bottom + getHeight());
+		setPosition(getX(), bottom);
+	}
+	
+	public void stretchLeftTo(int left) {
+		setWidth(getX() - left + getWidth());
+		setPosition(left, getY());
+	}
+	
+	public void stretchRightTo(int right) {
+		setWidth(right - getX());
 	}
 }

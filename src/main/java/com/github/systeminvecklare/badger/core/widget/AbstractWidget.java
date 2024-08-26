@@ -34,4 +34,36 @@ public abstract class AbstractWidget implements IWidget {
 	public void setLeftOf(IRectangle other, float alignY, int padding) {
 		setPosition(other.getX() - this.getWidth() - padding, other.getY() + (int) Mathf.lerp(alignY, 0, other.getHeight() - this.getHeight()));
 	}
+	
+	public void setLeft(int left) {
+		setPosition(left, getY());
+	}
+	
+	public void setRight(int right) {
+		setPosition(right - getWidth(), getY());
+	}
+	
+	public void setBottom(int bottom) {
+		setPosition(getX(), bottom);
+	}
+	
+	public void setTop(int top) {
+		setPosition(getX(), top - getHeight());
+	}
+	
+	public final int getLeft() {
+		return getX();
+	}
+	
+	public final int getRight() {
+		return getX() + getWidth();
+	}
+	
+	public final int getBottom() {
+		return getY();
+	}
+	
+	public final int getTop() {
+		return getY() + getHeight();
+	}
 }

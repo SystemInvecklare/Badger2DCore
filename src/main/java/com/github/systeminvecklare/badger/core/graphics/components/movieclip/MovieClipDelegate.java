@@ -302,7 +302,14 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 			Position ptDstCopy = ep.obtain(Position.class);
 			ITransform trans = ep.obtain(ITransform.class);
 			
-			getWrapper().getTransform(trans).invert().transform(ptDst.setTo(p));
+			ITransform transform = getWrapper().getTransform(trans);
+			try {
+				transform = transform.invert();
+			} catch(RuntimeException e) {
+				// Non-invertible
+				return false;
+			}
+			transform.transform(ptDst.setTo(p));
 			
 			HitTestAction hitTestAction = new HitTestAction();
 			

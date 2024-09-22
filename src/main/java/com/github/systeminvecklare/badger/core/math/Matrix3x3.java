@@ -1,5 +1,6 @@
 package com.github.systeminvecklare.badger.core.math;
 
+import com.github.systeminvecklare.badger.core.graphics.components.transform.NonInvertibleMatrixException;
 import com.github.systeminvecklare.badger.core.pooling.IPool;
 import com.github.systeminvecklare.badger.core.pooling.IPoolable;
 
@@ -107,8 +108,11 @@ public class Matrix3x3 extends AbstractMatrix3x3 implements IPoolable {
 		return this;
 	}
 
-	public Matrix3x3 invert() {
+	public Matrix3x3 invert() throws NonInvertibleMatrixException {
 		float determinant = getDeterminant();
+		if(determinant == 0f) {
+			throw new NonInvertibleMatrixException("Determinant is 0");
+		}
 		
 		float oldM11 = data[M11];
 		float oldM12 = data[M12];

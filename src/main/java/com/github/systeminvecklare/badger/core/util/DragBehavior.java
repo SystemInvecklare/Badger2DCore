@@ -7,6 +7,7 @@ import com.github.systeminvecklare.badger.core.graphics.components.core.ITic;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.behavior.Behavior;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.IReadableTransform;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.ITransform;
+import com.github.systeminvecklare.badger.core.graphics.components.transform.NonInvertibleMatrixException;
 import com.github.systeminvecklare.badger.core.graphics.framework.engine.click.IClickEvent;
 import com.github.systeminvecklare.badger.core.graphics.framework.engine.click.IPointerStateEvent;
 import com.github.systeminvecklare.badger.core.math.IReadablePosition;
@@ -189,6 +190,8 @@ public class DragBehavior extends Behavior {
 		try {
 			IReadablePosition localPos = getBound().getParent().toLocalTransform(ep.obtain(ITransform.class).setToIdentity().setPosition(globalPosition)).getPosition();
 			result.setTo(localPos);
+		} catch (NonInvertibleMatrixException e) {
+			e.printStackTrace();
 		} finally {
 			ep.freeAllAndSelf();
 		}

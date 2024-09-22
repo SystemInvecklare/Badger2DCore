@@ -13,6 +13,7 @@ import com.github.systeminvecklare.badger.core.graphics.components.movieclip.beh
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.behavior.IBehaviorVisitor;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.IReadableTransform;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.ITransform;
+import com.github.systeminvecklare.badger.core.graphics.components.transform.NonInvertibleMatrixException;
 import com.github.systeminvecklare.badger.core.math.IReadablePosition;
 import com.github.systeminvecklare.badger.core.pooling.EasyPooler;
 import com.github.systeminvecklare.badger.core.pooling.IPool;
@@ -151,6 +152,9 @@ public class MCUtil {
 			ITransform newTrans = container.toLocalTransform(ep.obtain(ITransform.class).setToIdentity().addToPosition(atPosition.getX(), atPosition.getY()), ep.obtain(ITransform.class));
 			MCUtil.manipulate(movieClip).setPosition(newTrans.getPosition().getX(), newTrans.getPosition().getY()).end();
 			container.addMovieClip(movieClip);
+		} catch (NonInvertibleMatrixException e) {
+			//If transform of container is non-invertible, it means the position is potentially at infinite distance, so we might as well skip attach.
+			e.printStackTrace();
 		}
 		finally
 		{
@@ -164,9 +168,14 @@ public class MCUtil {
 		try
 		{
 			IMovieClipContainer oldParent = movieClip.getParent();
-			ITransform newTransform = newParent.toLocalTransform(oldParent.toGlobalTransform(movieClip.getTransform(ep.obtain(ITransform.class))));
+			try {
+				ITransform newTransform = newParent.toLocalTransform(oldParent.toGlobalTransform(movieClip.getTransform(ep.obtain(ITransform.class))));
+				movieClip.setTransform(newTransform);
+			} catch (NonInvertibleMatrixException e) {
+				e.printStackTrace();
+				movieClip.setTransform(ep.obtain(ITransform.class).setToIdentity());
+			}
 			newParent.addMovieClip(movieClip);
-			movieClip.setTransform(newTransform);
 		}
 		finally
 		{

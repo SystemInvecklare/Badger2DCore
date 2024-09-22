@@ -17,13 +17,11 @@ public abstract class GameLoop implements IGameLoop {
 	
 	private Tic immutableTick = null;
 	
-	
 	public GameLoop(IInputHandler inputHandler, IApplicationContext applicationContext, IGameLoopHooks hooks) {
 		this.inputHandler = inputHandler;
 		this.applicationContext = applicationContext;
 		this.hooks = hooks; 
 	}
-
 
 	@Override
 	public void execute(float deltaTime) {

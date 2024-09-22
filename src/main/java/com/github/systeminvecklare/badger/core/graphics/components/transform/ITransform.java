@@ -20,7 +20,7 @@ public interface ITransform extends IPoolable, IReadableTransform {
 	public ITransform setShear(float shear);
 	public ITransform mult(IReadableTransform other);
 	public ITransform multLeft(IReadableTransform other);
-	public ITransform invert();
+	public ITransform invert() throws NonInvertibleMatrixException;
 	public ITransform addToPosition(float dx, float dy);
 	public ITransform addToPosition(IReadableVector dvector);
 	public ITransform addToRotation(float dtheta);

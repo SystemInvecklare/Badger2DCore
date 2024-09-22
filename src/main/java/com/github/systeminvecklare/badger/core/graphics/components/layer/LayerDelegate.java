@@ -15,6 +15,7 @@ import com.github.systeminvecklare.badger.core.graphics.components.scene.IScene;
 import com.github.systeminvecklare.badger.core.graphics.components.shader.IShader;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.IReadableTransform;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.ITransform;
+import com.github.systeminvecklare.badger.core.graphics.components.transform.NonInvertibleMatrixException;
 import com.github.systeminvecklare.badger.core.graphics.components.util.LifecycleManagerComponent;
 import com.github.systeminvecklare.badger.core.graphics.components.util.PoolableIterable;
 import com.github.systeminvecklare.badger.core.math.IReadablePosition;
@@ -90,8 +91,7 @@ public class LayerDelegate implements ILayerDelegate {
 			return false;
 		}
 		EasyPooler ep = EasyPooler.obtainFresh();
-		try
-		{
+		try {
 			ITransform inverted = FlashyEngine.get().getPoolManager().getPool(ITransform.class).obtain().setTo(getWrapper().getTransform()).invert();
 			Position transformedPoint = ep.obtain(Position.class).setTo(p);
 			inverted.transform(transformedPoint);
@@ -107,9 +107,9 @@ public class LayerDelegate implements ILayerDelegate {
 				}
 			}
 			return false;
-		}
-		finally
-		{
+		} catch(NonInvertibleMatrixException e) {
+			return false;
+		} finally {
 			ep.freeAllAndSelf();
 		}
 	}
@@ -292,17 +292,17 @@ public class LayerDelegate implements ILayerDelegate {
 	}
 	
 	@Override
-	public ITransform toLocalTransform(IReadableTransform transform, ITransform result) {
+	public ITransform toLocalTransform(IReadableTransform transform, ITransform result) throws NonInvertibleMatrixException {
 		return result.setTo(getWrapper().getTransform()).invert().mult(transform);
 	}
 	
 	@Override
-	public ITransform toLocalTransform(ITransform result) {
+	public ITransform toLocalTransform(ITransform result) throws NonInvertibleMatrixException {
 		return result.invert().mult(getWrapper().getTransform()).invert(); //TODO optimize?
 	}
 	
 	@Override
-	public Position toLocalPosition(IReadablePosition position, Position result) {
+	public Position toLocalPosition(IReadablePosition position, Position result) throws NonInvertibleMatrixException {
 		EasyPooler ep = EasyPooler.obtainFresh();
 		try {
 			result.setTo(getWrapper().toLocalTransform(ep.obtain(ITransform.class).setToIdentity().setPosition(position)).getPosition());
@@ -313,7 +313,7 @@ public class LayerDelegate implements ILayerDelegate {
 	}
 	
 	@Override
-	public Position toLocalPosition(Position result) {
+	public Position toLocalPosition(Position result) throws NonInvertibleMatrixException {
 		return getWrapper().toLocalPosition(result, result);
 	}
 	

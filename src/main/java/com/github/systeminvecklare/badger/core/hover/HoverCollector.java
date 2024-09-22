@@ -12,6 +12,7 @@ import com.github.systeminvecklare.badger.core.graphics.components.movieclip.IMo
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.IPositionalMovieClipVisitor;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.ITransformDependentMovieClipVisitor;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.ITransform;
+import com.github.systeminvecklare.badger.core.graphics.components.transform.NonInvertibleMatrixException;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.Transform;
 import com.github.systeminvecklare.badger.core.math.IReadablePosition;
 import com.github.systeminvecklare.badger.core.math.Position;
@@ -52,6 +53,8 @@ public class HoverCollector implements ITransformDependentLayerVisitor, ITransfo
 						IHoverable hoverable = (IHoverable) movieClip;
 						hovered.add(hoverable);
 					}
+				} catch(NonInvertibleMatrixException e) {
+					// transform not invertible
 				} finally {
 					localPos.free();
 				}

@@ -16,6 +16,7 @@ import com.github.systeminvecklare.badger.core.graphics.components.shader.IShade
 import com.github.systeminvecklare.badger.core.graphics.components.transform.IReadableTransform;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.ITransform;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.ITransformOperation;
+import com.github.systeminvecklare.badger.core.graphics.components.transform.NonInvertibleMatrixException;
 import com.github.systeminvecklare.badger.core.graphics.components.util.LifecycleManagerComponent;
 import com.github.systeminvecklare.badger.core.graphics.framework.engine.click.IClickEvent;
 import com.github.systeminvecklare.badger.core.graphics.framework.smartlist.ILoopAction;
@@ -222,7 +223,7 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 	}
 
 	@Override
-	public ITransform toLocalTransform(IReadableTransform transform, ITransform result) {
+	public ITransform toLocalTransform(IReadableTransform transform, ITransform result) throws NonInvertibleMatrixException {
 		result = getWrapper().getParent().toLocalTransform(transform, result);
 		ITransform parentL = FlashyEngine.get().getPoolManager().getPool(ITransform.class).obtain();
 		try
@@ -237,7 +238,7 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 	}
 	
 	@Override
-	public ITransform toLocalTransform(ITransform result) {
+	public ITransform toLocalTransform(ITransform result) throws NonInvertibleMatrixException {
 		result = getWrapper().getParent().toLocalTransform(result);
 		ITransform parentL = FlashyEngine.get().getPoolManager().getPool(ITransform.class).obtain();
 		try
@@ -252,7 +253,7 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 	}
 	
 	@Override
-	public Position toLocalPosition(IReadablePosition position, Position result) {
+	public Position toLocalPosition(IReadablePosition position, Position result) throws NonInvertibleMatrixException {
 		EasyPooler ep = EasyPooler.obtainFresh();
 		try {
 			result.setTo(getWrapper().toLocalTransform(ep.obtain(ITransform.class).setToIdentity().setPosition(position)).getPosition());
@@ -263,7 +264,7 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 	}
 	
 	@Override
-	public Position toLocalPosition(Position result) {
+	public Position toLocalPosition(Position result) throws NonInvertibleMatrixException {
 		return getWrapper().toLocalPosition(result, result);
 	}
 	
@@ -305,8 +306,7 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 			ITransform transform = getWrapper().getTransform(trans);
 			try {
 				transform = transform.invert();
-			} catch(RuntimeException e) {
-				// Non-invertible
+			} catch(NonInvertibleMatrixException e) {
 				return false;
 			}
 			transform.transform(ptDst.setTo(p));

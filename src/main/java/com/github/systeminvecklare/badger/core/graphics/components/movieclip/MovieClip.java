@@ -13,6 +13,7 @@ import com.github.systeminvecklare.badger.core.graphics.components.shader.IShade
 import com.github.systeminvecklare.badger.core.graphics.components.transform.IReadableTransform;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.ITransform;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.ITransformOperation;
+import com.github.systeminvecklare.badger.core.graphics.components.transform.NonInvertibleMatrixException;
 import com.github.systeminvecklare.badger.core.graphics.framework.engine.click.IClickEvent;
 import com.github.systeminvecklare.badger.core.math.IReadablePosition;
 import com.github.systeminvecklare.badger.core.math.Position;
@@ -60,12 +61,12 @@ public class MovieClip implements IMovieClip {
 
 	@Override
 	public ITransform toLocalTransform(IReadableTransform transform,
-			ITransform result) {
+			ITransform result) throws NonInvertibleMatrixException {
 		return delegate.toLocalTransform(transform, result);
 	}
 	
 	@Override
-	public ITransform toLocalTransform(ITransform result) {
+	public ITransform toLocalTransform(ITransform result) throws NonInvertibleMatrixException {
 		return delegate.toLocalTransform(result);
 	}
 	
@@ -80,12 +81,12 @@ public class MovieClip implements IMovieClip {
 	}
 	
 	@Override
-	public Position toLocalPosition(IReadablePosition position, Position result) {
+	public Position toLocalPosition(IReadablePosition position, Position result) throws NonInvertibleMatrixException {
 		return delegate.toLocalPosition(position, result);
 	}
 	
 	@Override
-	public Position toLocalPosition(Position result) {
+	public Position toLocalPosition(Position result) throws NonInvertibleMatrixException {
 		return delegate.toLocalPosition(result);
 	}
 

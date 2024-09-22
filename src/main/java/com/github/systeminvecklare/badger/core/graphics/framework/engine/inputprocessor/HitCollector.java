@@ -9,6 +9,7 @@ import com.github.systeminvecklare.badger.core.graphics.components.movieclip.IPo
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.ITransformDependentMovieClipVisitor;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.MovieClipVisitorWithObject;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.ITransform;
+import com.github.systeminvecklare.badger.core.graphics.components.transform.NonInvertibleMatrixException;
 import com.github.systeminvecklare.badger.core.graphics.framework.engine.click.IClickEvent;
 import com.github.systeminvecklare.badger.core.math.IReadablePosition;
 import com.github.systeminvecklare.badger.core.math.Position;
@@ -54,15 +55,14 @@ public class HitCollector implements ITransformDependentLayerVisitor, ITransform
 				tempTrans.setTo(currentTransform).invert().transform(localPos);
 				
 				boolean hit = movieClip.hitTest(localPos);
-				if(hit)
-				{
+				if(hit) {
 					//(the order will be reversed in the end)
 					movieClips.add(movieClip);
 					movieClip.visitChildrenMovieClips(this);
 				}
-			}
-			finally
-			{
+			} catch(NonInvertibleMatrixException e) {
+				// currentTransform is not invertible
+			} finally {
 				localPos.free();
 			}
 		}

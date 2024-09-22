@@ -258,7 +258,7 @@ public class Transform extends AbstractTransform {
 	}
 
 	@Override
-	public Transform invert() {
+	public Transform invert() throws NonInvertibleMatrixException {
 		EasyPooler ep = EasyPooler.obtainFresh();
 		try
 		{

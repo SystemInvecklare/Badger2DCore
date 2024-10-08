@@ -1,6 +1,6 @@
 package com.github.systeminvecklare.badger.core.widget;
 
-public class PlaceholderWidget extends AbstractWidget implements IResizableWidget {
+public class PlaceholderWidget extends AbstractResizableWidget implements IResizableWidget {
 	private int x;
 	private int y;
 	private int width;

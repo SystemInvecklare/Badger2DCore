@@ -2,8 +2,6 @@ package com.github.systeminvecklare.badger.core.widget;
 
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.MovieClip;
 import com.github.systeminvecklare.badger.core.math.Mathf;
-import com.github.systeminvecklare.badger.core.widget.IResizableWidget;
-import com.github.systeminvecklare.badger.core.widget.IWidgetClip;
 
 public class WidgetClip extends MovieClip implements IResizableWidget, IWidgetClip {
 	private int width;
@@ -90,6 +88,20 @@ public class WidgetClip extends MovieClip implements IResizableWidget, IWidgetCl
 	
 	public void setLeftOf(IRectangle other, float alignY, int padding) {
 		setPosition(other.getX() - this.getWidth() - padding, other.getY() + (int) Mathf.lerp(alignY, 0, other.getHeight() - this.getHeight()));
+	}
+	
+	public void setInside(IRectangle other, float alignX, float alignY) {
+		setInside(other, alignX, alignY, 0);
+	}
+	
+	public void setInside(IRectangle other, float alignX, float alignY, int padding) {
+		setInside(other, alignX, alignY, padding, padding);
+	}
+	
+	public void setInside(IRectangle other, float alignX, float alignY, int paddingX, int paddingY) {
+		int newX = other.getX() + (int) Mathf.lerp(alignX, paddingX, other.getWidth() - this.getWidth() - paddingX);
+		int newY = other.getY() + (int) Mathf.lerp(alignY, paddingY, other.getHeight() - this.getHeight() - paddingY);
+		setPosition(newX, newY);
 	}
 	
 	public void setTop(int top) {

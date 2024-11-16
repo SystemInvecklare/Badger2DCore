@@ -50,4 +50,9 @@ public abstract class AbstractVector implements IReadableVector {
 	public float getRotationTheta() {
 		return Vector.getRotationTheta(this);
 	}
+	
+	@Override
+	public Vector interpolate(float t, IReadableVector other, Vector result) {
+		return result.setTo(Mathf.lerp(t, this.getX(), other.getX()), Mathf.lerp(t, this.getY(), other.getY()));
+	}
 }

@@ -77,6 +77,10 @@ public class Position extends AbstractPosition implements IPoolable, IReadablePo
 		return add(Mathf.cos(theta)*scale, Mathf.sin(theta)*scale);
 	}
 	
+	public Position interpolateTo(float t, IReadablePosition other) {
+		return interpolate(t, other, this);
+	}
+	
 	public static Vector vectorTo(IReadablePosition from, IReadablePosition to, Vector result)
 	{
 		return result.setTo(to.getX()-from.getX(), to.getY()-from.getY());

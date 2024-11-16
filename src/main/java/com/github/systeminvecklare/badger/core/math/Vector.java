@@ -133,6 +133,10 @@ public class Vector extends AbstractVector implements IPoolable {
 		return setToUnitVector(rotation.getTheta());
 	}
 	
+	public Vector interpolateTo(float t, IReadableVector other) {
+		return interpolate(t, other, this);
+	}
+	
 	public static float getRotationTheta(IReadableVector vector)
 	{
 		return Mathf.atan2(vector.getY(), vector.getX());

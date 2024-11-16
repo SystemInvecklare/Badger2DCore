@@ -46,6 +46,10 @@ public class WidgetClip extends MovieClip implements IResizableWidget, IWidgetCl
 		setWidth(width);
 		setHeight(height);
 	}
+	
+	public void setSize(IRectangle rectangle) {
+		setSize(rectangle.getWidth(), rectangle.getHeight());
+	}
 
 	@Override
 	public void setPosition(int x, int y) {

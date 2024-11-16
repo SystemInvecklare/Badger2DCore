@@ -10,4 +10,5 @@ public interface IReadableVector extends ICopyablePoolable<Vector> {
 	public float dot(IReadableVector other);
 	public float cross(IReadableVector other);
 	public float getRotationTheta();
+	public Vector interpolate(float t, IReadableVector other, Vector result);
 }

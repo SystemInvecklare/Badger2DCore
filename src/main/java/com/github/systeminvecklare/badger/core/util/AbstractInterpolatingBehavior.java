@@ -48,7 +48,7 @@ import com.github.systeminvecklare.badger.core.math.Mathf;
 		this.targetState = targetState;
 	}
 	
-	public float getState() {
+	public final float getState() {
 		return state;
 	}
 	
@@ -58,7 +58,8 @@ import com.github.systeminvecklare.badger.core.math.Mathf;
 	
 	@Override
 	public void think(ITic tic) {
-		if(targetState && state < 1) {
+		final boolean currentTargetState = getTargetState();
+		if(currentTargetState && state < 1) {
 			final float currentDuration = getDuration();
 			if(currentDuration <= 0) {
 				state = 1;
@@ -69,9 +70,9 @@ import com.github.systeminvecklare.badger.core.math.Mathf;
 			internalOnStateChanged();
 			onStateChanged(state);
 			if(state >= 1) {
-				onNewStateReached(targetState);
+				onNewStateReached(currentTargetState);
 			}
-		} else if(!targetState && state > 0) {
+		} else if(!currentTargetState && state > 0) {
 			final float currentDuration = getDuration();
 			if(currentDuration <= 0) {
 				state = 0;
@@ -82,7 +83,7 @@ import com.github.systeminvecklare.badger.core.math.Mathf;
 			internalOnStateChanged();
 			onStateChanged(state);
 			if(state <= 0) {
-				onNewStateReached(targetState);
+				onNewStateReached(currentTargetState);
 			}
 		}
 	}

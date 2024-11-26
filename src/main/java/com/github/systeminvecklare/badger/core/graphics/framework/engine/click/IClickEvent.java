@@ -4,7 +4,7 @@ import com.github.systeminvecklare.badger.core.graphics.components.core.IDragEve
 import com.github.systeminvecklare.badger.core.graphics.components.core.IReleaseEventListener;
 
 public interface IClickEvent extends IPointerStateEvent {
-	public void consume(); //Disable request to go any futher
+	public boolean consume(); //Disable request to go any further
 	
 	public boolean isConsumed();
 	public void fireRelease(IPointerStateEvent e);

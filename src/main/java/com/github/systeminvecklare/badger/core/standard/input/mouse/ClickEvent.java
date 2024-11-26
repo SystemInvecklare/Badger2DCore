@@ -44,8 +44,10 @@ public class ClickEvent implements IPoolableClickEvent {
 	}
 
 	@Override
-	public void consume() {
+	public boolean consume() {
+		boolean wasNot = !this.consumed;
 		this.consumed = true;
+		return wasNot;
 	}
 
 	@Override

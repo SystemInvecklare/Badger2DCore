@@ -9,6 +9,7 @@ import com.github.systeminvecklare.badger.core.pooling.IPool;
 
 public class KeyPressEvent implements IPoolableKeyPressEvent {
 	private int keyCode;
+	private boolean consumed;
 	private Collection<IKeyReleaseListener> listeners = new ArrayList<IKeyReleaseListener>();
 	private IPool<IPoolableKeyPressEvent> pool;
 	
@@ -47,7 +48,22 @@ public class KeyPressEvent implements IPoolableKeyPressEvent {
 	public KeyPressEvent init(int keyCode) {
 		if(!listeners.isEmpty()) listeners.clear();
 		this.keyCode = keyCode;
+		this.consumed = false;
 		return this;
 	}
 
+	@Override
+	public boolean consume() {
+		if(consumed) {
+			return false;
+		} else {
+			consumed = true;
+			return true;
+		}
+	}
+
+	@Override
+	public boolean isConsumed() {
+		return consumed;
+	}
 }

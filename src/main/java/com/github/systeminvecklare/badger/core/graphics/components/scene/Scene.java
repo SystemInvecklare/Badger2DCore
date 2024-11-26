@@ -5,6 +5,7 @@ import com.github.systeminvecklare.badger.core.graphics.components.core.IDrawCyc
 import com.github.systeminvecklare.badger.core.graphics.components.core.IKeyPressListener;
 import com.github.systeminvecklare.badger.core.graphics.components.core.IKeyTypedListener;
 import com.github.systeminvecklare.badger.core.graphics.components.core.ILifecycleOwner;
+import com.github.systeminvecklare.badger.core.graphics.components.core.IPrioritizedKeyPressListener;
 import com.github.systeminvecklare.badger.core.graphics.components.core.ITic;
 import com.github.systeminvecklare.badger.core.graphics.components.layer.ILayer;
 import com.github.systeminvecklare.badger.core.graphics.components.layer.ILayerVisitor;
@@ -69,6 +70,11 @@ public class Scene implements IScene {
 	
 	@Override
 	public void addKeyPressListener(IKeyPressListener listener) {
+		delegate.addKeyPressListener(listener);
+	}
+	
+	@Override
+	public void addKeyPressListener(IPrioritizedKeyPressListener listener) {
 		delegate.addKeyPressListener(listener);
 	}
 	

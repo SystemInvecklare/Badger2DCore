@@ -1,5 +1,7 @@
 package com.github.systeminvecklare.badger.core.widget;
 
+import com.github.systeminvecklare.badger.core.math.Mathf;
+
 public class RectangleUtil {
 	public static IRectangle justSize(final IRectangle rectangle) {
 		return new IRectangle() {
@@ -99,5 +101,11 @@ public class RectangleUtil {
 				return rectangleInterface.getHeight(object);
 			}
 		};
+	}
+
+	public static void lerp(float t, IRectangle a, IRectangle b, IResizableWidget result) {
+		result.setPosition(Math.round(Mathf.lerp(t, a.getX(), b.getX())), Math.round(Mathf.lerp(t, a.getY(), b.getY())));
+		result.setWidth(Math.round(Mathf.lerp(t, a.getWidth(), b.getWidth())));
+		result.setHeight(Math.round(Mathf.lerp(t, a.getHeight(), b.getHeight())));
 	}
 }

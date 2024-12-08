@@ -3,7 +3,6 @@ package com.github.systeminvecklare.badger.core.util;
 import com.github.systeminvecklare.badger.core.graphics.components.core.ITic;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.IMovieClip;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.behavior.Behavior;
-import com.github.systeminvecklare.badger.core.graphics.framework.engine.SceneManager;
 import com.github.systeminvecklare.badger.core.math.IInterpolator;
 import com.github.systeminvecklare.badger.core.math.Interpolators;
 import com.github.systeminvecklare.badger.core.math.Mathf;
@@ -64,7 +63,7 @@ import com.github.systeminvecklare.badger.core.math.Mathf;
 			if(currentDuration <= 0) {
 				state = 1;
 			} else {
-				state += SceneManager.get().getStep()/currentDuration;
+				state += getStep(tic)/currentDuration;
 				state = Mathf.clamp(state, 0, 1);
 			}
 			internalOnStateChanged();
@@ -77,7 +76,7 @@ import com.github.systeminvecklare.badger.core.math.Mathf;
 			if(currentDuration <= 0) {
 				state = 0;
 			} else {
-				state -= SceneManager.get().getStep()/currentDuration;
+				state -= getStep(tic)/currentDuration;
 				state = Mathf.clamp(state, 0, 1);
 			}
 			internalOnStateChanged();
@@ -88,6 +87,10 @@ import com.github.systeminvecklare.badger.core.math.Mathf;
 		}
 	}
 	
+	protected float getStep(ITic tic) {
+		return tic.getStep();
+	}
+
 	protected void onStateChanged(float newState) {
 	}
 	

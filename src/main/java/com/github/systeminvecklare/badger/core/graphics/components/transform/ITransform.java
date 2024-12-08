@@ -23,6 +23,7 @@ public interface ITransform extends IPoolable, IReadableTransform {
 	public ITransform invert() throws NonInvertibleMatrixException;
 	public ITransform addToPosition(float dx, float dy);
 	public ITransform addToPosition(IReadableVector dvector);
+	public ITransform addRadialToPosition(float theta, float scale);
 	public ITransform addToRotation(float dtheta);
 	public ITransform addToRotation(IReadableDeltaRotation drotation);
 	public ITransform multiplyScale(float sx, float sy);

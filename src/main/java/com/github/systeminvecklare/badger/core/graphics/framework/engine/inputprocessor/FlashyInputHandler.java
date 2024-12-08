@@ -271,7 +271,8 @@ public class FlashyInputHandler implements IInputHandler {
 			PointerIdentifier pointerIdentifier = newPointerIdentifier(clickEvent.getPointerID(), clickEvent.getButton());
 			IPoolableClickEvent existingClickEvent = downMap.put(pointerIdentifier, clickEvent);
 			if(existingClickEvent != null) {
-				existingClickEvent.free(); //Need to free it here, otherwise it will never be free. The old pointer identifier is however lost forever. But it's ok. Happens rarely.
+				clickEvent.inheritListeners(existingClickEvent);
+				existingClickEvent.free(); //Need to free it here, otherwise it will never be free. The old pointer identifier is however lost forever. But it's ok. Happens rarely. Actually, happens if you begin click, turn off mouse, release, turn mouse back on.
 			}
 			scene.visitLayers(hitCollector.reset(clickEvent.getPosition()));
 			hitCollector.doClick(clickEvent);

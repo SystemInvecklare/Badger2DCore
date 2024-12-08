@@ -102,4 +102,20 @@ public class ClickEvent implements IPoolableClickEvent {
 		this.consumed = false;
 		return this;
 	}
+	
+	@Override
+	public Collection<? extends IDragEventListener> getDragListeners() {
+		return dragListeners;
+	}
+	
+	@Override
+	public Collection<? extends IReleaseEventListener> getReleaseListeners() {
+		return listeners;
+	}
+
+	@Override
+	public void inheritListeners(IPoolableClickEvent other) {
+		this.listeners.addAll(other.getReleaseListeners());
+		this.dragListeners.addAll(other.getDragListeners());
+	}
 }

@@ -39,6 +39,9 @@ public class Interpolators {
 		}
 	};
 	
+	private static final ExtensibleInterpolator EASE_IN = easeIn(LINEAR);
+	private static final ExtensibleInterpolator EASE_OUT = easeOut(LINEAR);
+	
 	public static ExtensibleInterpolator linear() {
 		return LINEAR;
 	}
@@ -46,6 +49,14 @@ public class Interpolators {
 
 	public static ExtensibleInterpolator ease() {
 		return EASE;
+	}
+	
+	public static ExtensibleInterpolator easeIn() {
+		return EASE_IN;
+	}
+	
+	public static ExtensibleInterpolator easeOut() {
+		return EASE_OUT;
 	}
 	
 	public static ExtensibleInterpolator cubic(final float derivativeAtZero, final float derivativeAtOne) {

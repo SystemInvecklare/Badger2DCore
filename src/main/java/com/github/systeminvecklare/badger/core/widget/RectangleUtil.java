@@ -79,6 +79,30 @@ public class RectangleUtil {
 		};
 	}
 	
+	public static IRectangle offsetByParent(final IRectangle parent, final IRectangle child) {
+		return new IRectangle() {
+			@Override
+			public int getX() {
+				return child.getX() + parent.getX();
+			}
+			
+			@Override
+			public int getY() {
+				return child.getY() + parent.getY();
+			}
+			
+			@Override
+			public int getWidth() {
+				return child.getWidth();
+			}
+			
+			@Override
+			public int getHeight() {
+				return child.getHeight();
+			}
+		};
+	}
+	
 	public static <T> IRectangle rectangle(final T object, final IRectangleInterface<T> rectangleInterface) {
 		return new IRectangle() {
 			@Override

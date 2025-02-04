@@ -12,4 +12,6 @@ public interface ISceneManager {
 	public float getStep();
 	public void skipQueuedUpdates();
 	public IApplicationContext getApplicationContext();
+	public float getPointerX();
+	public float getPointerY();
 }

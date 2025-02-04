@@ -2,6 +2,9 @@ package com.github.systeminvecklare.badger.core.widget;
 
 public class WidgetUtil {
 	public static AbstractWidget makeAbstract(final IWidget widget) {
+		if(widget instanceof AbstractWidget) {
+			return (AbstractWidget) widget;
+		}
 		return new AbstractWidget() {
 			@Override
 			public int getX() {

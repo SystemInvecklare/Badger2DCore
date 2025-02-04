@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.github.systeminvecklare.badger.core.graphics.components.FlashyEngine;
-import com.github.systeminvecklare.badger.core.graphics.components.core.IIntSource;
 import com.github.systeminvecklare.badger.core.graphics.components.scene.IScene;
+import com.github.systeminvecklare.badger.core.graphics.framework.engine.IPixelTranslator;
 import com.github.systeminvecklare.badger.core.graphics.framework.smartlist.ILoopAction;
 import com.github.systeminvecklare.badger.core.graphics.framework.smartlist.ISmartList;
 import com.github.systeminvecklare.badger.core.math.IReadablePosition;
@@ -20,6 +20,7 @@ import com.github.systeminvecklare.badger.core.pooling.SimplePool;
 import com.github.systeminvecklare.badger.core.standard.input.keyboard.IPoolableKeyPressEvent;
 import com.github.systeminvecklare.badger.core.standard.input.mouse.IPoolableClickEvent;
 import com.github.systeminvecklare.badger.core.standard.input.mouse.PointerIdentifier;
+import com.github.systeminvecklare.badger.core.util.GeometryUtil;
 
 public class FlashyInputHandler implements IInputHandler {
 	private ISmartList<IQueuedInput> inputEvents = FlashyEngine.get().newSmartList();
@@ -86,10 +87,16 @@ public class FlashyInputHandler implements IInputHandler {
 		}
 	};
 	
-	private IIntSource screenHeightSource = null;
+	private final IPixelTranslator pixelTranslator;
+	private final IWindowCanvas requireInsideOrNull;
 	
-	public FlashyInputHandler(IIntSource screenHeightSource) {
-		this.screenHeightSource = screenHeightSource;
+	public FlashyInputHandler(IPixelTranslator pixelTranslator) {
+		this(pixelTranslator, null);
+	}
+	
+	public FlashyInputHandler(IPixelTranslator pixelTranslator, IWindowCanvas requireInsideOrNull) {
+		this.pixelTranslator = pixelTranslator;
+		this.requireInsideOrNull = requireInsideOrNull;
 	}
 
 
@@ -115,9 +122,13 @@ public class FlashyInputHandler implements IInputHandler {
 	
 	@Override
 	public boolean registerPointerDown(int screenX, int screenY, int pointer, int button) {
-		IPoolableClickEvent clickEvent = newClickEvent(screenX, screenY, pointer, button);
-		inputEvents.addToBirthList(queuedPressPool.obtain().setEvent(clickEvent));
-		return true;
+		IPoolableClickEvent clickEvent = newClickEvent(screenX, screenY, pointer, button, false);
+		if(clickEvent != null) {
+			inputEvents.addToBirthList(queuedPressPool.obtain().setEvent(clickEvent));
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	@Override
@@ -133,21 +144,17 @@ public class FlashyInputHandler implements IInputHandler {
 	}
 
 	
-	private IPoolableClickEvent newClickEvent(float x, float y, int pointer, int button)
+	private IPoolableClickEvent newClickEvent(int x, int y, int pointer, int button, boolean neverNull)
 	{
 		IPoolManager pm = FlashyEngine.get().getPoolManager();
-		Position position = pm.getPool(Position.class).obtain();
-		if(screenHeightSource == null)
-		{
-			position.setTo(x, y);
-		}
-		else
-		{
-			position.setTo(x, screenHeightSource.getFromSource()-y);
-		}
-		
+		Position position = pixelTranslator.translate(x, y, pm.getPool(Position.class).obtain());
 		try
 		{
+			if(!neverNull && requireInsideOrNull != null) {
+				if(!isInsideTranslated(x, y, requireInsideOrNull, pixelTranslator)) {
+					return null;
+				}
+			}
 			return pm.getPool(IPoolableClickEvent.class).obtain().init(position, button, pointer);
 		}
 		finally
@@ -305,7 +312,7 @@ public class FlashyInputHandler implements IInputHandler {
 				IPoolableClickEvent event = downMap.get(temp);
 				if(event != null)
 				{
-					IPoolableClickEvent release = newClickEvent(screenX, screenY, pointer, button);
+					IPoolableClickEvent release = newClickEvent(screenX, screenY, pointer, button, true);
 					try
 					{
 						event.fireRelease(release);
@@ -366,7 +373,7 @@ public class FlashyInputHandler implements IInputHandler {
 				
 				for(IPoolableClickEvent event : events)
 				{
-					IPoolableClickEvent dragEvent = newClickEvent(screenX, screenY, pointer, event.getButton());
+					IPoolableClickEvent dragEvent = newClickEvent(screenX, screenY, pointer, event.getButton(), true);
 					try
 					{
 						event.fireDrag(dragEvent);
@@ -471,6 +478,33 @@ public class FlashyInputHandler implements IInputHandler {
 			queuedInput.execute(scene);
 			queuedInput.free();
 			return true;
+		}
+	}
+	
+	public static boolean isInsideTranslated(int pixelX, int pixelY, IWindowCanvas windowCanvas, IPixelTranslator pixelTranslator) {
+		IPool<Position> positionPool = FlashyEngine.get().getPoolManager().getPool(Position.class);
+		Position translatedZero = positionPool.obtain();
+		Position translatedOne = positionPool.obtain();
+		try {
+			translatedZero = pixelTranslator.translate(0, 0, translatedZero);
+			translatedOne = pixelTranslator.translate(1, 1, translatedOne);
+			
+			float alphaX = translatedZero.getX();
+			float betaX = translatedOne.getX() - alphaX;
+			
+			float xMin = -alphaX/betaX;
+			float xMax = (windowCanvas.getWidth() - alphaX)/betaX;
+			
+			float alphaY = translatedZero.getY();
+			float betaY = translatedOne.getY() - alphaY;
+			
+			float yMin = (windowCanvas.getHeight() - alphaY)/betaY;
+			float yMax = -alphaY/betaY;
+			
+			return pixelX >= xMin && pixelY >= yMin && pixelX < xMax && pixelY < yMax;
+		} finally {
+			translatedZero.free();
+			translatedOne.free();
 		}
 	}
 }

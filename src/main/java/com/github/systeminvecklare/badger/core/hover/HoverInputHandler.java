@@ -1,16 +1,17 @@
 package com.github.systeminvecklare.badger.core.hover;
 
-import com.github.systeminvecklare.badger.core.graphics.components.core.IIntSource;
 import com.github.systeminvecklare.badger.core.graphics.components.scene.IScene;
+import com.github.systeminvecklare.badger.core.graphics.framework.engine.IPixelTranslator;
 import com.github.systeminvecklare.badger.core.graphics.framework.engine.inputprocessor.FlashyInputHandler;
+import com.github.systeminvecklare.badger.core.graphics.framework.engine.inputprocessor.IWindowCanvas;
 import com.github.systeminvecklare.badger.core.math.Position;
 import com.github.systeminvecklare.badger.core.pooling.EasyPooler;
 
 public abstract class HoverInputHandler extends FlashyInputHandler {
 	private final HoverCollector hoverCollector;
 
-	public HoverInputHandler(IIntSource heightSource) {
-		super(heightSource);
+	public HoverInputHandler(IPixelTranslator pixelTranslator, IWindowCanvas requireInsideOrNull) {
+		super(pixelTranslator, requireInsideOrNull);
 		this.hoverCollector = new HoverCollector();
 	}
 	
@@ -21,15 +22,21 @@ public abstract class HoverInputHandler extends FlashyInputHandler {
 
 	@Override
 	public void handleInputs(IScene scene) {
+		boolean hovering = false;
 		EasyPooler ep = EasyPooler.obtainFresh();
 		try {
 			Position hoverPosition = getHoverPosition(ep);
-			hoverCollector.beginHover(hoverPosition.getX(), hoverPosition.getY());
+			if(hoverPosition != null) {
+				hovering = true;
+				hoverCollector.beginHover(hoverPosition.getX(), hoverPosition.getY());
+			}
 		} finally {
 			ep.freeAllAndSelf();
 		}
-		scene.visitLayers(hoverCollector);
-		hoverCollector.endHover();
+		if(hovering) {
+			scene.visitLayers(hoverCollector);
+			hoverCollector.endHover();
+		}
 		super.handleInputs(scene);
 	}
 }

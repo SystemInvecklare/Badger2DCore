@@ -73,9 +73,11 @@ public abstract class GameLoop implements IGameLoop {
 		}
 		hooks.onBeforeDraw();
 		if(scene != null) {
-			scene.draw(this.newDrawCycle());
+			IDrawCycle drawCycle = this.newDrawCycle();
+			hooks.onBeforeSceneDraw(drawCycle);
+			scene.draw(drawCycle);
+			hooks.onAfterSceneDraw(drawCycle);
 			closeDrawCycle();
-			hooks.onAfterSceneDraw();
 		}
 		hooks.onAfterDraw();
 		SceneManager.get().emptyTrashCan();

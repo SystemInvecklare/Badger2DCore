@@ -80,4 +80,12 @@ public abstract class AbstractWidget implements IWidget {
 	public final int getTop() {
 		return getY() + getHeight();
 	}
+	
+	public float getCenterX() {
+		return getX() + getWidth()/2;
+	}
+	
+	public float getCenterY() {
+		return getY() + getHeight()/2;
+	}
 }

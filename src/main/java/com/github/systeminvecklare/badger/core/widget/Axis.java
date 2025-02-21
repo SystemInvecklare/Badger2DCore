@@ -65,6 +65,14 @@ public enum Axis {
 		}
 		throw new RuntimeException();
 	}
+	
+	public ICellLayoutSettings setAlign(ICellLayoutSettings layoutSettings, float align) {
+		switch (this) {
+			case X: return layoutSettings.alignX(align);
+			case Y: return layoutSettings.alignY(align);
+		}
+		throw new RuntimeException();
+	}
 
 	public <T> float pick(T object, IReadableCoordinatedInterface<? super T> readableInterface) {
 		switch (this) {

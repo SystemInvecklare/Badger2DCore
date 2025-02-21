@@ -140,6 +140,14 @@ public class WidgetClip extends MovieClip implements IResizableWidget, IWidgetCl
 		return getY() + getHeight();
 	}
 	
+	public float getCenterX() {
+		return getX() + getWidth()/2;
+	}
+	
+	public float getCenterY() {
+		return getY() + getHeight()/2;
+	}
+	
 	// Resizable util functions
 	public void stretchTopTo(int top) {
 		setHeight(top - getY());

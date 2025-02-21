@@ -1,6 +1,14 @@
 package com.github.systeminvecklare.badger.core.widget;
 
+import java.util.function.Consumer;
+
 public class WidgetUtil {
+	public static final Consumer<ICellLayoutSettings> DEFAULT_LAYOUT = new Consumer<ICellLayoutSettings>() {
+		@Override
+		public void accept(ICellLayoutSettings settings) {
+		}
+	};
+	
 	public static AbstractWidget makeAbstract(final IWidget widget) {
 		if(widget instanceof AbstractWidget) {
 			return (AbstractWidget) widget;

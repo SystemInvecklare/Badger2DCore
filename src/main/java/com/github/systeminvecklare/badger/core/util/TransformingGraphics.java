@@ -15,6 +15,10 @@ public class TransformingGraphics implements IMovieClipLayer {
 	private final boolean takeOwnership;
 	private ITransform transform = FlashyEngine.get().getPoolManager().getPool(ITransform.class).obtain().setToIdentity();
 	
+	public TransformingGraphics(IMovieClipLayer wrapped) {
+		this(wrapped, true);
+	}
+	
 	public TransformingGraphics(IMovieClipLayer wrapped, boolean takeOwnership) {
 		this.wrapped = wrapped;
 		this.takeOwnership = takeOwnership;

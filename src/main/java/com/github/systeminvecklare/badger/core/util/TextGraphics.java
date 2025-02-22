@@ -3,9 +3,6 @@ package com.github.systeminvecklare.badger.core.util;
 import com.github.systeminvecklare.badger.core.font.IFlashyFont;
 import com.github.systeminvecklare.badger.core.font.IFlashyText;
 import com.github.systeminvecklare.badger.core.graphics.components.core.IDrawCycle;
-import com.github.systeminvecklare.badger.core.graphics.components.core.ITic;
-import com.github.systeminvecklare.badger.core.graphics.components.movieclip.IMovieClip;
-import com.github.systeminvecklare.badger.core.graphics.components.movieclip.MovieClip;
 import com.github.systeminvecklare.badger.core.graphics.components.moviecliplayer.IMovieClipLayer;
 import com.github.systeminvecklare.badger.core.math.IReadablePosition;
 import com.github.systeminvecklare.badger.core.math.Mathf;
@@ -280,24 +277,5 @@ public class TextGraphics<C> implements IMovieClipLayer, IWidget {
 	
 	public <R> float findScaleToFitInside(R rectangle, IRectangleInterface<R> rectangleInterface) {
 		return findScaleToFitInside(new FloatRectangle(rectangle, rectangleInterface));
-	}
-
-	public void addFittingWithin(IMovieClip container, IRectangle targetRectangle) {
-		this.setOffset(targetRectangle.getX() +  targetRectangle.getWidth()/2, targetRectangle.getY() + targetRectangle.getHeight()/2);
-		this.setAnchor(0.5f, 0.5f);
-		float textScale = this.findScaleToFitInside(targetRectangle);
-		if(textScale != 1f) {
-			MovieClip scaler = new MovieClip() {
-				@Override
-				public void think(ITic tic) {
-					// Don't think
-				}
-			};
-			scaler.addGraphics(this);
-			container.addMovieClip(MCUtil.manipulate(scaler).addPosition(this.getOffsetX(), this.getOffsetY()).scaleScale(textScale).end());
-			this.setOffset(0, 0);
-		} else {
-			container.addGraphics(this);
-		}
 	}
 }

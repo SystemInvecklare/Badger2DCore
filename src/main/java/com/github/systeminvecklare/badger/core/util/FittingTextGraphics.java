@@ -115,8 +115,8 @@ public class FittingTextGraphics<C> implements IRectangle, IMovieClipLayer {
 		refreshFit();
 		float scaledWidth = textGraphics.getWidth()*scaleAndBounds.scale;
 		float scaledHeight = textGraphics.getHeight()*scaleAndBounds.scale;
-		int x = Math.round(textGraphics.getOffsetX() - (scaledWidth*0.5f));
-		int y = Math.round(textGraphics.getOffsetY() - (scaledHeight*0.5f));
+		int x = Math.round(scaleAndBounds.bounds.getCenterX() - (scaledWidth*0.5f));
+		int y = Math.round(scaleAndBounds.bounds.getCenterY() - (scaledHeight*0.5f));
 		return GeometryUtil.isInRectangle(p.getX(), p.getY(), x, y, (int) scaledWidth, (int) scaledHeight);
 	}
 
@@ -133,13 +133,13 @@ public class FittingTextGraphics<C> implements IRectangle, IMovieClipLayer {
 	@Override
 	public int getX() {
 		refreshFit();
-		return Math.round(textGraphics.getOffsetX() - (textGraphics.getWidth()*scaleAndBounds.scale*0.5f));
+		return Math.round(scaleAndBounds.bounds.getCenterX() - (textGraphics.getWidth()*scaleAndBounds.scale*0.5f));
 	}
 
 	@Override
 	public int getY() {
 		refreshFit();
-		return Math.round(textGraphics.getOffsetY() - (textGraphics.getHeight()*scaleAndBounds.scale*0.5f));
+		return Math.round(scaleAndBounds.bounds.getCenterY() - (textGraphics.getHeight()*scaleAndBounds.scale*0.5f));
 	}
 
 	@Override

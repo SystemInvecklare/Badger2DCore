@@ -1,7 +1,13 @@
 package com.github.systeminvecklare.badger.core.util;
 
+import java.util.List;
+import java.util.function.Supplier;
+
+import com.github.systeminvecklare.badger.core.font.EmbellishmentTextSegment;
+import com.github.systeminvecklare.badger.core.font.IEmbellishmentOwner;
 import com.github.systeminvecklare.badger.core.font.IFlashyFont;
 import com.github.systeminvecklare.badger.core.font.IFlashyText;
+import com.github.systeminvecklare.badger.core.font.TransformedFlashyText;
 import com.github.systeminvecklare.badger.core.graphics.components.core.IDrawCycle;
 import com.github.systeminvecklare.badger.core.graphics.components.moviecliplayer.IMovieClipLayer;
 import com.github.systeminvecklare.badger.core.math.IReadablePosition;
@@ -10,7 +16,7 @@ import com.github.systeminvecklare.badger.core.widget.IRectangle;
 import com.github.systeminvecklare.badger.core.widget.IRectangleInterface;
 import com.github.systeminvecklare.badger.core.widget.IWidget;
 
-public class TextGraphics<C> implements IMovieClipLayer, IWidget {
+public class TextGraphics<C> implements IMovieClipLayer, IWidget, IEmbellishmentOwner {
 	private IFlashyFont<C> font;
 	private String text;
 	private C color;
@@ -213,6 +219,57 @@ public class TextGraphics<C> implements IMovieClipLayer, IWidget {
 		offsetY += dy;
 	}
 	
+	@Override
+	public List<EmbellishmentTextSegment> getEmbellishments(List<EmbellishmentTextSegment> result, Supplier<TransformedFlashyText> transfromedTextSupplier) {
+		IFlashyText flashyText = cachedFlashyText.getText(getFont(), getText(), getColor(), getMaxWidth());
+		OffsetBounds offsetBounds = cachedBounds.getBounds(getAnchorX(), getAnchorY(), getOffsetX(), getOffsetY(), flashyText.getBounds());
+		for(EmbellishmentTextSegment segment : flashyText.getEmbellishments(result, transfromedTextSupplier)) {
+			segment.transformed.translate(offsetBounds.boundsOffsetX, offsetBounds.boundsOffsetY);
+		}
+		return result;
+	}
+	
+	private static class OffsetBounds implements IFloatRectangle  {
+		private final IFloatRectangle wrappedBounds;
+		private final float boundsOffsetX;
+		private final float boundsOffsetY;
+
+		public OffsetBounds(float anchorX, float anchorY, float offsetX, float offsetY,
+				IFloatRectangle wrappedBounds) {
+			this.wrappedBounds = wrappedBounds;
+			if(anchorX == 0f) {
+				this.boundsOffsetX = offsetX;
+			} else {
+				this.boundsOffsetX = Mathf.lerp(anchorX, 0, -wrappedBounds.getWidth()) + offsetX;
+			}
+			if(anchorY == 1f) {
+				this.boundsOffsetY = offsetY;
+			} else {
+				this.boundsOffsetY = Mathf.lerp(1f - anchorY, 0, wrappedBounds.getHeight()) + offsetY;
+			}
+		}
+
+		@Override
+		public float getX() {
+			return wrappedBounds.getX() + boundsOffsetX;
+		}
+		
+		@Override
+		public float getY() {
+			return wrappedBounds.getY() + boundsOffsetY;
+		}
+		
+		@Override
+		public float getWidth() {
+			return wrappedBounds.getWidth();
+		}
+		
+		@Override
+		public float getHeight() {
+			return wrappedBounds.getHeight();
+		}
+	}
+	
 	private static class CachedBounds {
 		private float anchorXCacheKey = 0;
 		private float anchorYCacheKey = 1;
@@ -220,42 +277,16 @@ public class TextGraphics<C> implements IMovieClipLayer, IWidget {
 		private float offsetYCacheKey = 0;
 		private IFloatRectangle unanchoredBoundsCacheKey = null;
 		
-		private IFloatRectangle bounds = null;
+		private OffsetBounds bounds = null;
 		
-		public IFloatRectangle getBounds(final float anchorX, final float anchorY, final float offsetX, final float offsetY, final IFloatRectangle unanchoredBounds) {
+		public OffsetBounds getBounds(final float anchorX, final float anchorY, final float offsetX, final float offsetY, final IFloatRectangle unanchoredBounds) {
 			if(bounds == null || anchorXCacheKey != anchorX || anchorYCacheKey != anchorY || offsetXCacheKey != offsetX || offsetYCacheKey != offsetY || unanchoredBoundsCacheKey != unanchoredBounds) {
 				anchorXCacheKey = anchorX;
 				anchorYCacheKey = anchorY;
 				offsetXCacheKey = offsetX;
 				offsetYCacheKey = offsetY;
 				unanchoredBoundsCacheKey = unanchoredBounds;
-				bounds = new IFloatRectangle() {
-					@Override
-					public float getX() {
-						if(anchorX == 0f) {
-							return unanchoredBounds.getX() + offsetX;
-						}
-						return Mathf.lerp(anchorX, 0, -unanchoredBounds.getWidth()) + unanchoredBounds.getX() + offsetX;
-					}
-					
-					@Override
-					public float getY() {
-						if(anchorY == 1f) {
-							return unanchoredBounds.getY() + offsetY;
-						}
-						return Mathf.lerp(1f - anchorY, 0, unanchoredBounds.getHeight()) + unanchoredBounds.getY() + offsetY;
-					}
-					
-					@Override
-					public float getWidth() {
-						return unanchoredBounds.getWidth();
-					}
-					
-					@Override
-					public float getHeight() {
-						return unanchoredBounds.getHeight();
-					}
-				};
+				bounds = new OffsetBounds(anchorX, anchorY, offsetX, offsetY, unanchoredBounds);
 			}
 			return bounds;
 		}

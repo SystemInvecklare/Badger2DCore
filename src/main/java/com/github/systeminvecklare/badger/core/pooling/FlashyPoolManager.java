@@ -7,6 +7,7 @@ import java.util.Map;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.ITransform;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.Transform;
 import com.github.systeminvecklare.badger.core.graphics.components.util.PoolableIterable;
+import com.github.systeminvecklare.badger.core.graphics.components.util.PoolableList;
 import com.github.systeminvecklare.badger.core.math.DeltaRotation;
 import com.github.systeminvecklare.badger.core.math.Matrix2x2;
 import com.github.systeminvecklare.badger.core.math.Matrix3x3;
@@ -122,6 +123,7 @@ public class FlashyPoolManager implements IPoolManager, IPoolRegistry {
 				return new PoolableArrayOf16Floats(this);
 			}
 		});
+		PoolableList.registerPool(this);
 	}
 	
 	protected int getPoolSizeForType(Class<?> type) {

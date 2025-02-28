@@ -319,6 +319,22 @@ public class GridWidget extends AbstractParentWidget<GridWidget.GridChild<?>> im
 		this.outerPaddingBottom = bottom;
 	}
 	
+	public int getOuterPaddingLeft() {
+		return outerPaddingLeft;
+	}
+	
+	public int getOuterPaddingRight() {
+		return outerPaddingRight;
+	}
+	
+	public int getOuterPaddingBottom() {
+		return outerPaddingBottom;
+	}
+	
+	public int getOuterPaddingTop() {
+		return outerPaddingTop;
+	}
+	
 	private static class SpacingSettings implements ISpacingSettings {
 		private int amount = 0;
 		private final Map<Integer, Integer> overrides = new HashMap<Integer, Integer>();

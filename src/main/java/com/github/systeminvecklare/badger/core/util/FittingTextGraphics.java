@@ -1,6 +1,12 @@
 package com.github.systeminvecklare.badger.core.util;
 
+import java.util.List;
+import java.util.function.Supplier;
+
+import com.github.systeminvecklare.badger.core.font.EmbellishmentTextSegment;
+import com.github.systeminvecklare.badger.core.font.IEmbellishmentOwner;
 import com.github.systeminvecklare.badger.core.font.IFlashyFont;
+import com.github.systeminvecklare.badger.core.font.TransformedFlashyText;
 import com.github.systeminvecklare.badger.core.graphics.components.core.IDrawCycle;
 import com.github.systeminvecklare.badger.core.graphics.components.moviecliplayer.IMovieClipLayer;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.ITransform;
@@ -9,7 +15,7 @@ import com.github.systeminvecklare.badger.core.pooling.EasyPooler;
 import com.github.systeminvecklare.badger.core.widget.IRectangle;
 import com.github.systeminvecklare.badger.core.widget.PlaceholderWidget;
 
-public class FittingTextGraphics<C> implements IRectangle, IMovieClipLayer {
+public class FittingTextGraphics<C> implements IRectangle, IMovieClipLayer, IEmbellishmentOwner {
 	private final TextGraphics<C> textGraphics;
 	private IRectangle fitRectangle;
 	private float alignX = 0.5f;
@@ -118,6 +124,18 @@ public class FittingTextGraphics<C> implements IRectangle, IMovieClipLayer {
 		int x = Math.round(scaleAndBounds.bounds.getCenterX() - (scaledWidth*0.5f));
 		int y = Math.round(scaleAndBounds.bounds.getCenterY() - (scaledHeight*0.5f));
 		return GeometryUtil.isInRectangle(p.getX(), p.getY(), x, y, (int) scaledWidth, (int) scaledHeight);
+	}
+	
+	@Override
+	public List<EmbellishmentTextSegment> getEmbellishments(List<EmbellishmentTextSegment> result,
+			Supplier<TransformedFlashyText> transfromedTextSupplier) {
+		refreshFit();
+		float dx = scaleAndBounds.bounds.getCenterX();
+		float dy = scaleAndBounds.bounds.getCenterY();
+		for(EmbellishmentTextSegment embellishmentTextSegment : textGraphics.getEmbellishments(result, transfromedTextSupplier)) {
+			embellishmentTextSegment.transformed.transform(dx, dy, scaleAndBounds.scale);
+		}
+		return result;
 	}
 
 	@Override

@@ -27,32 +27,40 @@ public class RectangleUtil {
 		};
 	}
 	
-	public static IRectangle inset(final IRectangle source, final int inset) {
+	public static IRectangle inset(final IRectangle source, final int insetHorizontal, final int insetVertical) {
 		return new IRectangle() {
 			@Override
 			public int getX() {
-				return source.getX() + inset;
+				return source.getX() + insetHorizontal;
 			}
 
 			@Override
 			public int getY() {
-				return source.getY() + inset;
+				return source.getY() + insetVertical;
 			}
 
 			@Override
 			public int getWidth() {
-				return source.getWidth() - inset*2;
+				return source.getWidth() - insetHorizontal*2;
 			}
 
 			@Override
 			public int getHeight() {
-				return source.getHeight() - inset*2;
+				return source.getHeight() - insetVertical*2;
 			}
 		};
 	}
 	
+	public static IRectangle inset(IRectangle source, int inset) {
+		return inset(source, inset, inset);
+	}
+	
 	public static IRectangle outset(IRectangle source, int outset) {
 		return inset(source, -outset);
+	}
+	
+	public static IRectangle outset(IRectangle source, int outsetHorizontal, int outsetVertical) {
+		return inset(source, -outsetHorizontal, -outsetVertical);
 	}
 	
 	public static IRectangle offset(final IRectangle source, final int offsetX, final int offsetY) {

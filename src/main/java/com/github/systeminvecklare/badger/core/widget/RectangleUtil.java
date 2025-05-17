@@ -1,6 +1,11 @@
 package com.github.systeminvecklare.badger.core.widget;
 
+import com.github.systeminvecklare.badger.core.graphics.components.layer.ILayer;
+import com.github.systeminvecklare.badger.core.graphics.components.movieclip.IMovieClip;
+import com.github.systeminvecklare.badger.core.graphics.components.transform.NonInvertibleMatrixException;
 import com.github.systeminvecklare.badger.core.math.Mathf;
+import com.github.systeminvecklare.badger.core.math.Position;
+import com.github.systeminvecklare.badger.core.pooling.EasyPooler;
 
 public class RectangleUtil {
 	public static IRectangle justSize(final IRectangle rectangle) {
@@ -139,5 +144,51 @@ public class RectangleUtil {
 		result.setPosition(Math.round(Mathf.lerp(t, a.getX(), b.getX())), Math.round(Mathf.lerp(t, a.getY(), b.getY())));
 		result.setWidth(Math.round(Mathf.lerp(t, a.getWidth(), b.getWidth())));
 		result.setHeight(Math.round(Mathf.lerp(t, a.getHeight(), b.getHeight())));
+	}
+
+	public static IRectangle offsetByMovieClipToLayer(final IMovieClip movieClip, final IRectangle rectangle) {
+		return new IRectangle() {
+			private int getXOrY(boolean x) {
+				if(movieClip.isDisposed()) {
+					return 0;
+				}
+				EasyPooler ep = EasyPooler.obtainFresh();
+				try {
+					Position pos = movieClip.toGlobalPosition(ep.obtain(Position.class).setToOrigin());
+					try {
+						ILayer layer = movieClip.getLayer();
+						if(layer.isDisposed()) {
+							return 0;
+						}
+						layer.toLocalPosition(pos);
+					} catch (NonInvertibleMatrixException e) {
+						return 0;
+					}
+					return x ? ((int) pos.getX() + rectangle.getX()) : ((int) pos.getY() + rectangle.getY());
+				} finally {
+					ep.freeAllAndSelf();
+				}
+			}
+			
+			@Override
+			public int getX() {
+				return getXOrY(true);
+			}
+			
+			@Override
+			public int getY() {
+				return getXOrY(false);
+			}						
+			
+			@Override
+			public int getWidth() {
+				return rectangle.getWidth();
+			}
+			
+			@Override
+			public int getHeight() {
+				return rectangle.getHeight();
+			}
+		};
 	}
 }

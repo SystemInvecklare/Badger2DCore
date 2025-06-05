@@ -19,6 +19,7 @@ import com.github.systeminvecklare.badger.core.pooling.IPoolable;
 import com.github.systeminvecklare.badger.core.pooling.SimplePool;
 import com.github.systeminvecklare.badger.core.standard.input.keyboard.IPoolableKeyPressEvent;
 import com.github.systeminvecklare.badger.core.standard.input.mouse.IPoolableClickEvent;
+import com.github.systeminvecklare.badger.core.standard.input.mouse.IPoolableScrollEvent;
 import com.github.systeminvecklare.badger.core.standard.input.mouse.PointerIdentifier;
 import com.github.systeminvecklare.badger.core.util.GeometryUtil;
 
@@ -42,6 +43,12 @@ public class FlashyInputHandler implements IInputHandler {
 		@Override
 		public QueuedDrag newObject() {
 			return new QueuedDrag(this);
+		}
+	};
+	private IPool<QueuedScroll> queuedScrollPool = new SimplePool<QueuedScroll>(1,5) {
+		@Override
+		public QueuedScroll newObject() {
+			return new QueuedScroll(this);
 		}
 	};
 	
@@ -142,6 +149,12 @@ public class FlashyInputHandler implements IInputHandler {
 		inputEvents.addToBirthList(queuedDragPool.obtain().setTo(screenX,screenY,pointer));
 		return true;
 	}
+	
+	@Override
+	public boolean registerScrolled(int screenX, int screenY, float amountX, float amountY) {
+		inputEvents.addToBirthList(queuedScrollPool.obtain().setTo(screenX, screenY, amountX, amountY));
+		return true;
+	}
 
 	
 	private IPoolableClickEvent newClickEvent(int x, int y, int pointer, int button, boolean neverNull)
@@ -156,6 +169,25 @@ public class FlashyInputHandler implements IInputHandler {
 				}
 			}
 			return pm.getPool(IPoolableClickEvent.class).obtain().init(position, button, pointer);
+		}
+		finally
+		{
+			position.free();
+		}
+	}
+	
+	private IPoolableScrollEvent newScrollEvent(int x, int y, float scrollX, float scrollY)
+	{
+		IPoolManager pm = FlashyEngine.get().getPoolManager();
+		Position position = pixelTranslator.translate(x, y, pm.getPool(Position.class).obtain());
+		try
+		{
+			if(requireInsideOrNull != null) {
+				if(!isInsideTranslated(x, y, requireInsideOrNull, pixelTranslator)) {
+					return null;
+				}
+			}
+			return pm.getPool(IPoolableScrollEvent.class).obtain().init(position, scrollX, scrollY);
 		}
 		finally
 		{
@@ -465,6 +497,36 @@ public class FlashyInputHandler implements IInputHandler {
 			scene.onKeyTyped(c);
 		}
 	}
+	
+	private class QueuedScroll extends AbstractQueuedInput<QueuedScroll> {
+		private int screenX;
+		private int screenY;
+		private float scrollX;
+		private float scrollY;
+
+		public QueuedScroll(IPool<QueuedScroll> pool) {
+			super(pool);
+		}
+
+		public QueuedScroll setTo(int screenX, int screenY, float scrollX, float scrollY) {
+			this.screenX = screenX;
+			this.screenY = screenY;
+			this.scrollX = scrollX;
+			this.scrollY = scrollY;
+			return this;
+		}
+
+		@Override
+		public void execute(IScene scene) {
+			IPoolableScrollEvent scrollEvent = newScrollEvent(screenX, screenY, scrollX, scrollY);
+			if(scrollEvent != null) {
+				scene.visitLayers(hitCollector.reset(scrollEvent.getPosition()));
+				hitCollector.doScroll(scrollEvent);
+				scrollEvent.free();
+			}
+		}
+	}
+	
 	
 	private static class ExecuteQueuedInput implements ILoopAction<IQueuedInput> {
 		private final IScene scene;

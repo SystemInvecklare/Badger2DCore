@@ -4,6 +4,7 @@ import com.github.systeminvecklare.badger.core.graphics.components.core.ILifecyc
 import com.github.systeminvecklare.badger.core.graphics.components.layer.ILayerVisitor;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.IMovieClipVisitor;
 import com.github.systeminvecklare.badger.core.graphics.framework.engine.click.IClickEvent;
+import com.github.systeminvecklare.badger.core.graphics.framework.engine.click.IScrollEvent;
 
 /**
  * 
@@ -14,5 +15,6 @@ import com.github.systeminvecklare.badger.core.graphics.framework.engine.click.I
 public interface IMovieClipCollector<A> extends ILayerVisitor, IMovieClipVisitor, ILifecycleOwner {
 	public void traverseAndClearCollected(IMovieClipVisitor visitor);
 	public void doClick(IClickEvent clickEvent);
+	public void doScroll(IScrollEvent scrollEvent);
 	public IMovieClipCollector<A> reset(A value);
 }

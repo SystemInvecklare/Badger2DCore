@@ -9,5 +9,6 @@ public interface IInputHandler {
 	boolean registerPointerDown(int screenX, int screenY, int pointer, int button);
 	boolean registerPointerUp(int screenX, int screenY, int pointer, int button);
 	boolean registerPointerDragged(int screenX, int screenY, int pointer);
+	boolean registerScrolled(int screenX, int screenY, float amountX, float amountY);
 	void handleInputs(IScene scene);
 }

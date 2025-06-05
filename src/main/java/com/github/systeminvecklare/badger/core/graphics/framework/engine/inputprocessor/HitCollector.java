@@ -11,9 +11,11 @@ import com.github.systeminvecklare.badger.core.graphics.components.movieclip.Mov
 import com.github.systeminvecklare.badger.core.graphics.components.transform.ITransform;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.NonInvertibleMatrixException;
 import com.github.systeminvecklare.badger.core.graphics.framework.engine.click.IClickEvent;
+import com.github.systeminvecklare.badger.core.graphics.framework.engine.click.IScrollEvent;
 import com.github.systeminvecklare.badger.core.math.IReadablePosition;
 import com.github.systeminvecklare.badger.core.math.Position;
 import com.github.systeminvecklare.badger.core.pooling.IPool;
+import com.github.systeminvecklare.badger.core.scroll.IScrollable;
 import com.github.systeminvecklare.badger.core.util.IQuickArray;
 import com.github.systeminvecklare.badger.core.util.QuickArray;
 
@@ -92,6 +94,22 @@ public class HitCollector implements ITransformDependentLayerVisitor, ITransform
 				if(!event.isConsumed())
 				{
 					movieClip.onClick(event);
+				}
+			}
+		});
+	}
+	
+	@Override
+	public void doScroll(IScrollEvent scrollEvent)
+	{
+		traverseAndClearCollected(new MovieClipVisitorWithObject<IScrollEvent>(scrollEvent) {
+			@Override
+			protected void visitWith(IMovieClip movieClip, IScrollEvent event) {
+				if(!event.isConsumed())
+				{
+					if(movieClip instanceof IScrollable) {
+						((IScrollable) movieClip).onScroll(event);
+					}
 				}
 			}
 		});

@@ -18,7 +18,9 @@ import com.github.systeminvecklare.badger.core.standard.input.keyboard.IPoolable
 import com.github.systeminvecklare.badger.core.standard.input.keyboard.KeyPressEvent;
 import com.github.systeminvecklare.badger.core.standard.input.mouse.ClickEvent;
 import com.github.systeminvecklare.badger.core.standard.input.mouse.IPoolableClickEvent;
+import com.github.systeminvecklare.badger.core.standard.input.mouse.IPoolableScrollEvent;
 import com.github.systeminvecklare.badger.core.standard.input.mouse.PointerIdentifier;
+import com.github.systeminvecklare.badger.core.standard.input.mouse.ScrollEvent;
 import com.github.systeminvecklare.badger.core.util.PoolableArrayOf16Floats;
 
 
@@ -115,6 +117,12 @@ public class FlashyPoolManager implements IPoolManager, IPoolRegistry {
 			@Override
 			public IPoolableKeyPressEvent newObject() {
 				return new KeyPressEvent(this);
+			}
+		});
+		registerPool(IPoolableScrollEvent.class, new SimplePool<IPoolableScrollEvent>(3,10) {
+			@Override
+			public IPoolableScrollEvent newObject() {
+				return new ScrollEvent(this);
 			}
 		});
 		registerPool(PoolableArrayOf16Floats.class, new SimplePool<PoolableArrayOf16Floats>(5, 10) {

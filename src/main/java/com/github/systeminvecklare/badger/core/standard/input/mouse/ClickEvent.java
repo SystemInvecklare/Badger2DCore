@@ -12,7 +12,7 @@ import com.github.systeminvecklare.badger.core.math.IReadablePosition;
 import com.github.systeminvecklare.badger.core.math.Position;
 import com.github.systeminvecklare.badger.core.pooling.IPool;
 
-public class ClickEvent implements IPoolableClickEvent {
+public class ClickEvent extends AbstractConsumableEvent implements IPoolableClickEvent {
 	private IPool<IPoolableClickEvent> pool;
 	
 	private Collection<IReleaseEventListener> listeners = new ArrayList<IReleaseEventListener>();
@@ -21,7 +21,6 @@ public class ClickEvent implements IPoolableClickEvent {
 	private Position position;
 	private int button;
 	private int pointer;
-	private boolean consumed = false;
 	
 	public ClickEvent(IPool<IPoolableClickEvent> pool) {
 		this.pool = pool;
@@ -41,18 +40,6 @@ public class ClickEvent implements IPoolableClickEvent {
 	@Override
 	public int getPointerID() {
 		return pointer;
-	}
-
-	@Override
-	public boolean consume() {
-		boolean wasNot = !this.consumed;
-		this.consumed = true;
-		return wasNot;
-	}
-
-	@Override
-	public boolean isConsumed() {
-		return consumed;
 	}
 	
 	@Override
@@ -99,7 +86,7 @@ public class ClickEvent implements IPoolableClickEvent {
 		this.position.setTo(position);
 		this.button = button;
 		this.pointer = pointer;
-		this.consumed = false;
+		resetConsumed();
 		return this;
 	}
 	

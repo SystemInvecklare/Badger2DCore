@@ -1,24 +1,25 @@
 package com.github.systeminvecklare.badger.core.pooling;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public abstract class SimplePool<T> implements IPool<T> {
-	private List<T> pool;
+	private Object[] poolArray;
+	private int poolArrayLength = 0;
 	private int maxSize;
 	
-	public SimplePool(int initCapacity,int maxSize) {
-		this.pool = new ArrayList<T>(initCapacity);
+	public SimplePool(int initCapacity, int maxSize) {
+		this.poolArray = new Object[initCapacity];
 		this.maxSize = maxSize;
 	}
 
 	@Override
 	public T obtain() {
-		if(pool.size() > 0)
+		if(poolArrayLength > 0)
 		{
 			try
 			{
-				T obj = pool.remove(pool.size()-1);
+				poolArrayLength--;
+				@SuppressWarnings("unchecked")
+				T obj = (T) poolArray[poolArrayLength];
+				poolArray[poolArrayLength] = null;
 				return obj;
 			}
 			catch(IndexOutOfBoundsException e)
@@ -41,8 +42,14 @@ public abstract class SimplePool<T> implements IPool<T> {
 	@Override
 	public void free(T poolable) {
 		if(poolable != null) {
-			if(pool.size() < maxSize) {
-				pool.add(poolable);
+			if(poolArrayLength < maxSize) {
+				if(poolArray.length <= poolArrayLength) {
+					Object[] newArray = new Object[poolArray.length + 1];
+					System.arraycopy(poolArray, 0, newArray, 0, poolArray.length);
+					poolArray = newArray;
+				}
+				poolArray[poolArrayLength] = poolable;
+				poolArrayLength++;
 			}
 		}
 	}

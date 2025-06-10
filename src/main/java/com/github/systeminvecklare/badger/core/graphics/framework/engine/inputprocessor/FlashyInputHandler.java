@@ -21,7 +21,6 @@ import com.github.systeminvecklare.badger.core.standard.input.keyboard.IPoolable
 import com.github.systeminvecklare.badger.core.standard.input.mouse.IPoolableClickEvent;
 import com.github.systeminvecklare.badger.core.standard.input.mouse.IPoolableScrollEvent;
 import com.github.systeminvecklare.badger.core.standard.input.mouse.PointerIdentifier;
-import com.github.systeminvecklare.badger.core.util.GeometryUtil;
 
 public class FlashyInputHandler implements IInputHandler {
 	private ISmartList<IQueuedInput> inputEvents = FlashyEngine.get().newSmartList();

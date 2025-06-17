@@ -6,6 +6,7 @@ import com.github.systeminvecklare.badger.core.graphics.components.transform.Non
 import com.github.systeminvecklare.badger.core.math.Mathf;
 import com.github.systeminvecklare.badger.core.math.Position;
 import com.github.systeminvecklare.badger.core.pooling.EasyPooler;
+import com.github.systeminvecklare.badger.core.util.IFloatRectangle;
 
 public class RectangleUtil {
 	public static IRectangle justSize(final IRectangle rectangle) {
@@ -28,6 +29,30 @@ public class RectangleUtil {
 			@Override
 			public int getHeight() {
 				return rectangle.getHeight();
+			}
+		};
+	}
+	
+	public static IRectangle fromFloat(final IFloatRectangle floatRectangle) {
+		return new IRectangle() {
+			@Override
+			public int getX() {
+				return (int) floatRectangle.getX();
+			}
+			
+			@Override
+			public int getY() {
+				return (int) floatRectangle.getY();
+			}
+			
+			@Override
+			public int getWidth() {
+				return (int) floatRectangle.getWidth();
+			}
+			
+			@Override
+			public int getHeight() {
+				return (int) floatRectangle.getHeight();
 			}
 		};
 	}

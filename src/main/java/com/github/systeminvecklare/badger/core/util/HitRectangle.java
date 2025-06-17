@@ -4,7 +4,7 @@ import com.github.systeminvecklare.badger.core.graphics.components.core.IDrawCyc
 import com.github.systeminvecklare.badger.core.graphics.components.moviecliplayer.IMovieClipLayer;
 import com.github.systeminvecklare.badger.core.math.IReadablePosition;
 
-public class HitRectangle implements IMovieClipLayer {
+public class HitRectangle implements IMovieClipLayer, IFloatRectangle {
 	private float x;
 	private float y;
 	private float width;
@@ -40,5 +40,25 @@ public class HitRectangle implements IMovieClipLayer {
 
 	@Override
 	public void dispose() {
+	}
+
+	@Override
+	public float getX() {
+		return x;
+	}
+
+	@Override
+	public float getY() {
+		return y;
+	}
+
+	@Override
+	public float getWidth() {
+		return width;
+	}
+
+	@Override
+	public float getHeight() {
+		return height;
 	}
 }

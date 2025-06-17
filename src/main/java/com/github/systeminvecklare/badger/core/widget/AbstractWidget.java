@@ -49,6 +49,12 @@ public abstract class AbstractWidget implements IWidget {
 		setPosition(newX, newY);
 	}
 	
+	public void alignTo(IRectangle other, Axis axis, float align) {
+		int newX = axis.pick(other.getX() + (int) Mathf.lerp(align, 0, other.getWidth() - this.getWidth()), this.getX());
+		int newY = axis.pick(this.getY(), other.getY() + (int) Mathf.lerp(align, 0, other.getHeight() - this.getHeight()));
+		setPosition(newX, newY);
+	}
+	
 	public void setLeft(int left) {
 		setPosition(left, getY());
 	}

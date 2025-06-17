@@ -18,4 +18,14 @@ public abstract class AbstractResizableWidget extends AbstractWidget implements 
 	public void stretchRightTo(int right) {
 		setWidth(right - getX());
 	}
+	
+	public void inset(int amount) {
+		setPosition(amount, amount);
+		setWidth(getWidth() - amount*2);
+		setHeight(getHeight() - amount*2);
+	}
+	
+	public void outset(int amount) {
+		inset(-amount);
+	}
 }

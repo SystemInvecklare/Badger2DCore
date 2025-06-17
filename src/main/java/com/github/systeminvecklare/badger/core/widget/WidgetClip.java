@@ -108,6 +108,12 @@ public class WidgetClip extends MovieClip implements IResizableWidget, IWidgetCl
 		setPosition(newX, newY);
 	}
 	
+	public void alignTo(IRectangle other, Axis axis, float align) {
+		int newX = axis.pick(other.getX() + (int) Mathf.lerp(align, 0, other.getWidth() - this.getWidth()), this.getX());
+		int newY = axis.pick(this.getY(), other.getY() + (int) Mathf.lerp(align, 0, other.getHeight() - this.getHeight()));
+		setPosition(newX, newY);
+	}
+	
 	public void setTop(int top) {
 		setPosition(getX(), top - getHeight());
 	}
@@ -165,5 +171,15 @@ public class WidgetClip extends MovieClip implements IResizableWidget, IWidgetCl
 	
 	public void stretchRightTo(int right) {
 		setWidth(right - getX());
+	}
+	
+	public void inset(int amount) {
+		setPosition(amount, amount);
+		setWidth(getWidth() - amount*2);
+		setHeight(getHeight() - amount*2);
+	}
+	
+	public void outset(int amount) {
+		inset(-amount);
 	}
 }

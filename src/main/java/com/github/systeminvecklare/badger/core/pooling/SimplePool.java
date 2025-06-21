@@ -20,6 +20,9 @@ public abstract class SimplePool<T> implements IPool<T> {
 				@SuppressWarnings("unchecked")
 				T obj = (T) poolArray[poolArrayLength];
 				poolArray[poolArrayLength] = null;
+				if(obj == null) {
+					obj = newObject(); // This should not happen, but for safety... Let's make sure thins never return a null object
+				}
 				return obj;
 			}
 			catch(IndexOutOfBoundsException e)

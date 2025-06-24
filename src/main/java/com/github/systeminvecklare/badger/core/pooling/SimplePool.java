@@ -1,17 +1,20 @@
 package com.github.systeminvecklare.badger.core.pooling;
 
 public abstract class SimplePool<T> implements IPool<T> {
+	private final Thread owningThread;
 	private Object[] poolArray;
 	private int poolArrayLength = 0;
 	private int maxSize;
 	
 	public SimplePool(int initCapacity, int maxSize) {
+		this.owningThread = Thread.currentThread();
 		this.poolArray = new Object[initCapacity];
 		this.maxSize = maxSize;
 	}
 
 	@Override
 	public T obtain() {
+		validateThread();
 		if(poolArrayLength > 0)
 		{
 			try
@@ -44,6 +47,7 @@ public abstract class SimplePool<T> implements IPool<T> {
 
 	@Override
 	public void free(T poolable) {
+		validateThread();
 		if(poolable != null) {
 			if(poolArrayLength < maxSize) {
 				if(poolArray.length <= poolArrayLength) {
@@ -54,6 +58,12 @@ public abstract class SimplePool<T> implements IPool<T> {
 				poolArray[poolArrayLength] = poolable;
 				poolArrayLength++;
 			}
+		}
+	}
+	
+	private void validateThread() {
+		if(owningThread != Thread.currentThread()) {
+			throw new RuntimeException("Thread "+Thread.currentThread()+" tried to access pool owned by "+owningThread);
 		}
 	}
 

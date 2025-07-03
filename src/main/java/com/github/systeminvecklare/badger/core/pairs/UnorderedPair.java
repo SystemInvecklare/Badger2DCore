@@ -1,11 +1,10 @@
 package com.github.systeminvecklare.badger.core.pairs;
 
-
-public class UnorderedPair<A,B> implements IPair<A,B> {
+public class UnorderedPair<A> implements IPair<A,A> {
 	private A a;
-	private B b;
+	private A b;
 	
-	public UnorderedPair(A a, B b) {
+	public UnorderedPair(A a, A b) {
 		this.a = a;
 		this.b = b;
 	}
@@ -16,8 +15,21 @@ public class UnorderedPair<A,B> implements IPair<A,B> {
 	}
 
 	@Override
-	public B getSecond() {
+	public A getSecond() {
 		return b;
+	}
+	
+	public boolean equalsAny(A object) {
+		return (a == null ? object == null : a.equals(object)) || (b == null ? object == null : b.equals(object));
+	}
+	
+	public A getOther(A object) {
+		if(a == null ? object == null : a.equals(object)) {
+			return b;
+		} else if(b == null ? object == null : b.equals(object)) {
+			return a;
+		}
+		throw new IllegalArgumentException(object+" is not part of the pair.");
 	}
 	
 	@Override
@@ -28,10 +40,10 @@ public class UnorderedPair<A,B> implements IPair<A,B> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean equals(Object obj) {
-		return (obj instanceof UnorderedPair) && equalsOwn((UnorderedPair<A, B>) obj);
+		return (obj instanceof UnorderedPair) && equalsOwn((UnorderedPair<A>) obj);
 	}
 
-	private boolean equalsOwn(UnorderedPair<A, B> obj) {
+	private boolean equalsOwn(UnorderedPair<A> obj) {
 		return (this.a.equals(obj.a) && this.b.equals(obj.b)) || (this.b.equals(obj.a) && this.a.equals(obj.b));
 	}
 
@@ -46,8 +58,8 @@ public class UnorderedPair<A,B> implements IPair<A,B> {
 		return builder.toString();
 	}
 	
-	public static <A,B> UnorderedPair<A, B> of(A a,B b)
+	public static <A> UnorderedPair<A> of(A a,A b)
 	{
-		return new UnorderedPair<A, B>(a, b);
+		return new UnorderedPair<A>(a, b);
 	}
 }

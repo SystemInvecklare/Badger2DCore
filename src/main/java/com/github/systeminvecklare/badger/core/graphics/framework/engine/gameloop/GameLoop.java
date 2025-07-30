@@ -14,6 +14,7 @@ public abstract class GameLoop implements IGameLoop {
 	private boolean skipUpdates = false;
 	private IGameLoopHooks hooks;
 	private IScene scenePreviousLoop = null;
+	private boolean currentSceneHasHadOneThink = false;
 	
 	private Tic immutableTick = null;
 	
@@ -29,6 +30,7 @@ public abstract class GameLoop implements IGameLoop {
 		accum += deltaTime;
 		IScene scene = getCurrentScene();
 		if (scenePreviousLoop != scene) {
+			currentSceneHasHadOneThink = false;
 			sendForegroundingEvents(scenePreviousLoop, scene);
 			scenePreviousLoop = scene;
 		}
@@ -53,9 +55,9 @@ public abstract class GameLoop implements IGameLoop {
 				applicationContext.think(currentTick);
 				if(scene != null) {
 					scene.think(currentTick);
+					atLeastOneThink = true;
 				}
 				hooks.onAfterThink();
-				atLeastOneThink = true;
 			}
 		}
 		else
@@ -67,9 +69,16 @@ public abstract class GameLoop implements IGameLoop {
 				applicationContext.think(currentTick);
 				if(scene != null) {
 					scene.think(currentTick);
+					atLeastOneThink = true;
 				}
 				hooks.onAfterThink();
 			}
+		}
+		if(!currentSceneHasHadOneThink) {
+			if(!atLeastOneThink) {
+				scene.think(currentTick); // Ensure at least one think
+			}
+			currentSceneHasHadOneThink = true;
 		}
 		hooks.onBeforeDraw();
 		if(scene != null) {

@@ -35,5 +35,7 @@ public interface IMovieClip extends IMovieClipContainer, IHittable, IDrawable, I
 	public void addGraphics(IMovieClipLayer movieClipLayer);
 	public void removeGraphics(IMovieClipLayer movieClipLayer);
 	
+	public boolean isVisible();
+	
 //	public IShader resolveShader();
 }

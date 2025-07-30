@@ -31,6 +31,8 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 	private final LifecycleManagerComponent managerComponent = new LifecycleManagerComponent();
 	private MovieClip wrapper;
 	
+	private boolean isPostThink = false; // If at least 1 think has happened. Currently assumed to only be used for isVisible
+	
 	private IMovieClipContainer parent;
 	
 	private ISmartList<IMovieClipLayer> graphics;
@@ -337,7 +339,7 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 
 	@Override
 	public void draw(IDrawCycle drawCycle) {
-		if(!disposed)
+		if(!disposed && getWrapper().isVisible())
 		{
 			IPool<ITransform> transformPool = FlashyEngine.get().getPoolManager().getPool(ITransform.class);
 			
@@ -405,6 +407,8 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 	public void think(ITic tic) {
 		if(!disposed)
 		{
+			isPostThink = true;
+			
 			this.thinkAction.setTic(tic);
 			if(!getWrapper().isDisposed() && !children.isEmpty()) {
 				children.forEach(this.thinkAction);
@@ -562,6 +566,16 @@ public class MovieClipDelegate implements IMovieClipDelegate {
 	@Override
 	public boolean isDisposed() {
 		return managerComponent.isDisposed();
+	}
+	
+	@Override
+	public boolean isVisible() {
+		return isPostThink;
+	}
+	
+	@Override
+	public void setVisibleBeforeThink() {
+		isPostThink = true;
 	}
 
 	@Override

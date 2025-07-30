@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import com.github.systeminvecklare.badger.core.graphics.components.FlashyEngine;
+import com.github.systeminvecklare.badger.core.graphics.components.core.ITic;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.IMovieClip;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.IMovieClipContainer;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.IMovieClipVisitor;
@@ -29,6 +30,12 @@ public class MCUtil {
 		public void free(InitialTransformManipulatorBehaviorVisitor poolable) {
 			poolable.clear();
 			super.free(poolable);
+		}
+	};
+	public static final ITic ZERO_TIC = new ITic() {
+		@Override
+		public float getStep() {
+			return 0;
 		}
 	};
 	

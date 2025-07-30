@@ -225,4 +225,14 @@ public class MovieClip implements IMovieClip {
 	public boolean isDisposed() {
 		return delegate.isDisposed();
 	}
+	
+	@Override
+	public boolean isVisible() {
+		return delegate.isVisible();
+	}
+
+	public MovieClip setVisibleBeforeThink() {
+		delegate.setVisibleBeforeThink();
+		return this;
+	}
 }

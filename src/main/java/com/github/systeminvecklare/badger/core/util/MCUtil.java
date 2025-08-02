@@ -175,12 +175,14 @@ public class MCUtil {
 		try
 		{
 			IMovieClipContainer oldParent = movieClip.getParent();
-			try {
-				ITransform newTransform = newParent.toLocalTransform(oldParent.toGlobalTransform(movieClip.getTransform(ep.obtain(ITransform.class))));
-				movieClip.setTransform(newTransform);
-			} catch (NonInvertibleMatrixException e) {
-				e.printStackTrace();
-				movieClip.setTransform(ep.obtain(ITransform.class).setToIdentity());
+			if(movieClip.isInitialized()) {
+				try {
+					ITransform newTransform = newParent.toLocalTransform(oldParent.toGlobalTransform(movieClip.getTransform(ep.obtain(ITransform.class))));
+					movieClip.setTransform(newTransform);
+				} catch (NonInvertibleMatrixException e) {
+					e.printStackTrace();
+					movieClip.setTransform(ep.obtain(ITransform.class).setToIdentity());
+				}
 			}
 			newParent.addMovieClip(movieClip);
 		}

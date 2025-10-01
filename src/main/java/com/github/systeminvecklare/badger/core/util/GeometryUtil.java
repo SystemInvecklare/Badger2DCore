@@ -1,5 +1,11 @@
 package com.github.systeminvecklare.badger.core.util;
 
+import com.github.systeminvecklare.badger.core.graphics.components.transform.ITransform;
+import com.github.systeminvecklare.badger.core.graphics.components.transform.NonInvertibleMatrixException;
+import com.github.systeminvecklare.badger.core.math.IReadablePosition;
+import com.github.systeminvecklare.badger.core.math.Position;
+import com.github.systeminvecklare.badger.core.math.Vector;
+import com.github.systeminvecklare.badger.core.pooling.EasyPooler;
 import com.github.systeminvecklare.badger.core.widget.IRectangle;
 
 public class GeometryUtil {
@@ -40,5 +46,20 @@ public class GeometryUtil {
 		float dx = (px-x)/radiusX;
 		float dy = (py-y)/radiusY;
 		return dx*dx + dy*dy < 1f;
+	}
+
+	public static boolean isInBeam(float px, float py, IReadablePosition beamStart, IReadablePosition beamEnd, float beamThickness, EasyPooler ep) {
+		ITransform transform = ep.obtain(ITransform.class).setToIdentity().setRotation(beamStart.vectorTo(beamEnd, ep.obtain(Vector.class)).getRotationTheta()).setPosition(beamStart);
+		try {
+			transform.invert();
+		} catch (NonInvertibleMatrixException e) {
+			return false;
+		}
+		
+		Position transformedPosition = ep.obtain(Position.class).setTo(px, py);
+		transform.transform(transformedPosition);
+		
+		float width = Math.round(beamStart.distance(beamEnd));
+		return GeometryUtil.isInRectangle(transformedPosition.getX(), transformedPosition.getY(), 0, -beamThickness/2, width, beamThickness);
 	}
 }

@@ -174,7 +174,7 @@ public class RectangleUtil {
 	public static IRectangle offsetByMovieClipToLayer(final IMovieClip movieClip, final IRectangle rectangle) {
 		return new IRectangle() {
 			private int getXOrY(boolean x) {
-				if(movieClip.isDisposed()) {
+				if(!movieClip.isInitialized() || movieClip.isDisposed()) {
 					return 0;
 				}
 				EasyPooler ep = EasyPooler.obtainFresh();
@@ -182,7 +182,7 @@ public class RectangleUtil {
 					Position pos = movieClip.toGlobalPosition(ep.obtain(Position.class).setToOrigin());
 					try {
 						ILayer layer = movieClip.getLayer();
-						if(layer.isDisposed()) {
+						if(!layer.isInitialized() || layer.isDisposed()) {
 							return 0;
 						}
 						layer.toLocalPosition(pos);

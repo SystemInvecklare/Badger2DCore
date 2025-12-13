@@ -2,7 +2,6 @@ package com.github.systeminvecklare.badger.core.util;
 
 import com.github.systeminvecklare.badger.core.graphics.components.core.ITic;
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.behavior.Behavior;
-import com.github.systeminvecklare.badger.core.graphics.framework.engine.SceneManager;
 
 public class TimedBehavior extends Behavior {
 	private boolean disposed = false;
@@ -13,7 +12,7 @@ public class TimedBehavior extends Behavior {
 		if(isDisposed()) {
 			return;
 		}
-		lifetime += SceneManager.get().getStep()*getTimeSpeed();
+		lifetime += tic.getStep()*getTimeSpeed();
 	}
 
 	protected float getTimeSpeed() {

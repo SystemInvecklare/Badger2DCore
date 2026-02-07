@@ -81,6 +81,24 @@ public class Mathf {
 		float tConj = 1f - t;
 		return tConj*(tConj*a+2*t*b)+t*t*c;
 	}
+	
+	/**
+	 * Function f(t)
+	 * <br>
+	 * f(0) = valueAtZero <br>
+	 * f(controlPointT) = valueAtControlPoint <br>
+	 * f(inf) = valueAtInfinity <br>
+	 * 
+	 * @param t
+	 * @param valueAtZero
+	 * @param valueAtInfinity
+	 * @param controlPointT
+	 * @param valueAtControlPoint
+	 * @return
+	 */
+	public static float infiniLerp(float t, float valueAtZero, float valueAtInfinity, float controlPointT, float valueAtControlPoint) {
+		return (float) ((valueAtZero - valueAtInfinity)*Math.exp(-Math.log((valueAtInfinity - valueAtZero)/(valueAtInfinity - valueAtControlPoint))*t/controlPointT) + valueAtInfinity);
+	}
 
 	public static float conjPow(float t, float exp) {
 		return 1f-Mathf.pow(1f-t, exp);

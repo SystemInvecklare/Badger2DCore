@@ -216,4 +216,29 @@ public class RectangleUtil {
 			}
 		};
 	}
+
+	public static boolean intersects(IRectangle a, IRectangle b, IResizableWidget intersectionResultOrNull) {
+		int xL = Math.max(a.getX(), b.getX());
+		int xR = Math.min(a.getX()+a.getWidth(), b.getX()+b.getWidth());
+		
+		int yB = Math.max(a.getY(), b.getY());
+		int yT = Math.min(a.getY()+a.getHeight(), b.getY()+b.getHeight());
+		
+		if(intersectionResultOrNull != null) {
+			intersectionResultOrNull.setPosition(xL, yB);
+			intersectionResultOrNull.setWidth(xR - xL);
+			intersectionResultOrNull.setHeight(yT - yB);
+		}
+		
+		return xR - xL > 0 & yT - yB > 0;
+	}
+
+	public static boolean contains(IRectangle container, IRectangle child) {
+		int childX = child.getX();
+		int childY = child.getY();
+		int containerX = container.getX();
+		int containerY = container.getY();
+		return childX >= containerX && childX + child.getWidth() <= containerX + container.getWidth()
+			&& childY >= containerY && childY + child.getHeight() <= containerY + container.getHeight();
+	}
 }

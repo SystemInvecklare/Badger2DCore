@@ -6,7 +6,7 @@ import java.util.Collection;
 import com.github.systeminvecklare.badger.core.graphics.components.FlashyEngine;
 
 
-public class EasyPooler {
+public class EasyPooler implements IPooler {
 	private IPool<EasyPooler> homePool;
 	private Collection<IPoolable> poolables = new ArrayList<IPoolable>();
 	private IPoolManager poolmanager;
@@ -27,6 +27,7 @@ public class EasyPooler {
 		myHomePool.free(this);
 	}
 	
+	@Override
 	public <T extends IPoolable> T obtain(Class<T> type)
 	{
 		IPool<T> pool = poolmanager.getPool(type);

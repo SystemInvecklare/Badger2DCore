@@ -81,6 +81,30 @@ public class RectangleUtil {
 		};
 	}
 	
+	public static IRectangle inset(final IRectangle source, final int left, final int right, final int top, final int bottom) {
+		return new IRectangle() {
+			@Override
+			public int getX() {
+				return source.getX() + left;
+			}
+
+			@Override
+			public int getY() {
+				return source.getY() + bottom;
+			}
+
+			@Override
+			public int getWidth() {
+				return source.getWidth() - left - right;
+			}
+
+			@Override
+			public int getHeight() {
+				return source.getHeight() - bottom - top;
+			}
+		};
+	}
+	
 	public static IRectangle inset(IRectangle source, int inset) {
 		return inset(source, inset, inset);
 	}
@@ -91,6 +115,10 @@ public class RectangleUtil {
 	
 	public static IRectangle outset(IRectangle source, int outsetHorizontal, int outsetVertical) {
 		return inset(source, -outsetHorizontal, -outsetVertical);
+	}
+	
+	public static IRectangle outset(IRectangle source, int left, int right, int top, int bottom) {
+		return inset(source, -left, -right, -top, -bottom);
 	}
 	
 	public static IRectangle offset(final IRectangle source, final int offsetX, final int offsetY) {

@@ -8,6 +8,7 @@ import java.util.Random;
 public class Mathf {
 	public static final float PI = (float) Math.PI;
 	public static final float TWO_PI = 2f*PI;
+	public static final float SQRT_2 = (float) Math.sqrt(2);
 
 	public static float sin(float theta)
 	{

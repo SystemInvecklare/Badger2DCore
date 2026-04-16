@@ -1,6 +1,7 @@
 package com.github.systeminvecklare.badger.core.widget;
 
 import com.github.systeminvecklare.badger.core.graphics.components.movieclip.MovieClip;
+import com.github.systeminvecklare.badger.core.math.IReadablePosition;
 import com.github.systeminvecklare.badger.core.math.Mathf;
 
 public class WidgetClip extends MovieClip implements IResizableWidget, IWidgetClip {
@@ -181,5 +182,29 @@ public class WidgetClip extends MovieClip implements IResizableWidget, IWidgetCl
 	
 	public void outset(int amount) {
 		inset(-amount);
+	}
+	
+	public void setAt(int x, int y, float alignX, float alignY) {
+		setPosition(x - Math.round(alignX*getWidth()), y - Math.round(alignY*getHeight()));
+	}
+	
+	public void setAt(float x, float y, float alignX, float alignY) {
+		setAt((int) x, (int) y, alignX, alignY);
+	}
+	
+	public void setAt(IReadablePosition position, float alignX, float alignY) {
+		setAt((int) position.getX(), (int) position.getY(), alignX, alignY);
+	}
+	
+	public void setCenteredAt(int x, int y) {
+		setAt(x, y, 0.5f, 0.5f);
+	}
+	
+	public void setCenteredAt(float x, float y) {
+		setAt((int) x, (int) y, 0.5f, 0.5f);
+	}
+	
+	public void setCenteredAt(IReadablePosition position) {
+		setAt((int) position.getX(), (int) position.getY(), 0.5f, 0.5f);
 	}
 }

@@ -26,7 +26,22 @@ public interface ITransform extends IPoolable, IReadableTransform {
 	public ITransform addRadialToPosition(float theta, float scale);
 	public ITransform addToRotation(float dtheta);
 	public ITransform addToRotation(IReadableDeltaRotation drotation);
+	public ITransform addRotationAround(float dtheta, float x, float y);
+	public ITransform addRotationAround(float dtheta, IReadableVector pivot);
+	public ITransform addRotationAround(float dtheta, IReadablePosition pivot);
+	public ITransform addRotationAround(IReadableDeltaRotation dtheta, float x, float y);
+	public ITransform addRotationAround(IReadableDeltaRotation dtheta, IReadableVector pivot);
+	public ITransform addRotationAround(IReadableDeltaRotation dtheta, IReadablePosition pivot);
 	public ITransform multiplyScale(float sx, float sy);
 	public ITransform multiplyScale(IReadableVector dscale);
 	public ITransform multiplyScale(float s);
+	public ITransform multiplyScaleAround(float scaleX, float scaleY, float x, float y);
+	public ITransform multiplyScaleAround(IReadableVector scale, float x, float y);
+	public ITransform multiplyScaleAround(float scale, float x, float y);
+	public ITransform multiplyScaleAround(float scaleX, float scaleY, IReadableVector pivot);
+	public ITransform multiplyScaleAround(IReadableVector scale, IReadableVector pivot);
+	public ITransform multiplyScaleAround(float scale, IReadableVector pivot);
+	public ITransform multiplyScaleAround(float scaleX, float scaleY, IReadablePosition pivot);
+	public ITransform multiplyScaleAround(IReadableVector scale, IReadablePosition pivot);
+	public ITransform multiplyScaleAround(float scale, IReadablePosition pivot);
 }

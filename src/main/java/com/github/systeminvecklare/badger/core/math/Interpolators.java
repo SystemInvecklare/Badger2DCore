@@ -242,6 +242,42 @@ public class Interpolators {
 		};
 	}
 	
+	public static ExtensibleInterpolator bounce(final IInterpolator interpolator, final float length, final float bounces, final float bounceHeight, final float bounceTimeDecay) {
+		// Desmos:
+		// \left\{x\ <\ 1-a\ :\frac{f\left(x\right)}{f\left(1-a\right)},\ 1\ge x\ \ge\ 1-a:\ 1-h\cdot\operatorname{abs}\left(\left(1-f\left(x\right)\right)\cdot\sin\left(\left(\frac{\left(x-1\right)}{a}+1\right)^{\left(d+1\right)}\cdot b\cdot\pi\right)\right)\right\}
+		// https://www.desmos.com/calculator/bgzw14iq2w   <-- Not sure if this link still works
+		return new ExtensibleInterpolator() {
+			@Override
+			public float evalOpen(float t) {
+				if(t < 1f - length) {
+					return interpolator.eval(t)/interpolator.eval(1f-length);
+				}
+				return 1f - bounceHeight*Math.abs((1f-interpolator.eval(t))*Mathf.sin(Mathf.pow((t-1f)/length + 1f, bounceTimeDecay+1f)*Mathf.PI*bounces));
+			}
+		};
+	}
+	
+	public static ExtensibleInterpolator boioioioioing(final IInterpolator interpolator, final float length, final float stiffness, final float deltaForDerivative) {
+		// Desmos:
+		// p\left(x\right)=\left\{0\le x\le1-a:\ f\left(\frac{x}{1-a}\right),1-a<x\ \le\ 1:\left(1+\left(1-s\right)^{2}\cdot\left(1-f\left(x\right)\right)\cdot\sin\left(b\cdot\left(x-1+a\right)\right)\right)\right\}
+		// https://www.desmos.com/calculator/xqdwlxon2g   <-- Not sure if this link still works
+		return new ExtensibleInterpolator() {
+			// Assumes interpolator.eval(1) == 1. Otherwise this will look weird regardless
+			private final float criticalPoint = 1f-length;
+			private final float fPrime = (1f-interpolator.eval(1-deltaForDerivative))/deltaForDerivative;
+			private final float c = (1f-stiffness)*(1f-stiffness);
+			private final float b = fPrime/(criticalPoint*(1f-interpolator.eval(criticalPoint))*c);
+			
+			@Override
+			public float evalOpen(float t) {
+				if(t < criticalPoint) {
+					return interpolator.eval(t/criticalPoint);
+				}
+				return 1f + c*(1f-interpolator.eval(t))*Mathf.sin(b*(t-criticalPoint));
+			}
+		};
+	}
+	
 	public static ExtensibleInterpolator symmetrize(final IInterpolator interpolator) {
 		return concatenate(interpolator, conjugate(interpolator));
 	}
@@ -395,6 +431,14 @@ public class Interpolators {
 		
 		public ExtensibleInterpolator wobble(float amount, int wobbles) {
 			return Interpolators.wobble(this, amount, wobbles);
+		}
+		
+		public ExtensibleInterpolator bounce(float length, float bounces, float bounceHeight, float bounceTimeDecay) {
+			return Interpolators.bounce(this, length, bounces, bounceHeight, bounceTimeDecay);
+		}
+		
+		public ExtensibleInterpolator boioioioioing(float length, float stiffness, float deltaForDerivative) {
+			return Interpolators.boioioioioing(this, length, stiffness, deltaForDerivative);
 		}
 		
 		public ExtensibleInterpolator symmetrize() {

@@ -1,5 +1,6 @@
 package com.github.systeminvecklare.badger.core.widget;
 
+import com.github.systeminvecklare.badger.core.math.IReadablePosition;
 import com.github.systeminvecklare.badger.core.math.Mathf;
 
 public abstract class AbstractWidget implements IWidget {
@@ -53,6 +54,30 @@ public abstract class AbstractWidget implements IWidget {
 		int newX = axis.pick(other.getX() + (int) Mathf.lerp(align, 0, other.getWidth() - this.getWidth()), this.getX());
 		int newY = axis.pick(this.getY(), other.getY() + (int) Mathf.lerp(align, 0, other.getHeight() - this.getHeight()));
 		setPosition(newX, newY);
+	}
+	
+	public void setAt(int x, int y, float alignX, float alignY) {
+		setPosition(x - Math.round(alignX*getWidth()), y - Math.round(alignY*getHeight()));
+	}
+	
+	public void setAt(float x, float y, float alignX, float alignY) {
+		setAt((int) x, (int) y, alignX, alignY);
+	}
+	
+	public void setAt(IReadablePosition position, float alignX, float alignY) {
+		setAt((int) position.getX(), (int) position.getY(), alignX, alignY);
+	}
+	
+	public void setCenteredAt(int x, int y) {
+		setAt(x, y, 0.5f, 0.5f);
+	}
+	
+	public void setCenteredAt(float x, float y) {
+		setAt((int) x, (int) y, 0.5f, 0.5f);
+	}
+	
+	public void setCenteredAt(IReadablePosition position) {
+		setAt((int) position.getX(), (int) position.getY(), 0.5f, 0.5f);
 	}
 	
 	public void setLeft(int left) {

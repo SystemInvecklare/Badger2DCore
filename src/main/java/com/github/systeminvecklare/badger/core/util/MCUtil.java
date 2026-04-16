@@ -145,6 +145,30 @@ public class MCUtil {
 			return this;
 		}
 		
+		public Manipulator<T> addRotationAround(final float dtheta, final float pivotX, final float pivotY) {
+			movieClip.addBehavior(new InitialTransformManipulatorBehavior() {
+				@Override
+				protected ITransform manipulateTransform(ITransform transform) {
+					return transform.addRotationAround(dtheta, pivotX, pivotY);
+				}
+			});
+			return this;
+		}
+		
+		public Manipulator<T> scaleScaleAround(final float scaleX, final float scaleY, final float pivotX, final float pivotY) {
+			movieClip.addBehavior(new InitialTransformManipulatorBehavior() {
+				@Override
+				protected ITransform manipulateTransform(ITransform transform) {
+					return transform.multiplyScaleAround(scaleX, scaleY, pivotX, pivotY);
+				}
+			});
+			return this;
+		}
+		
+		public Manipulator<T> scaleScaleAround(float scale, float pivotX, float pivotY) {
+			return scaleScaleAround(scale, scale, pivotX, pivotY);
+		}
+		
 		public T end() {
 			return movieClip;
 		}

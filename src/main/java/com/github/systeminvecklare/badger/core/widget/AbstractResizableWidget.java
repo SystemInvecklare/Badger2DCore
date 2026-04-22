@@ -20,7 +20,7 @@ public abstract class AbstractResizableWidget extends AbstractWidget implements 
 	}
 	
 	public void inset(int amount) {
-		setPosition(amount, amount);
+		addToPosition(amount, amount);
 		setWidth(getWidth() - amount*2);
 		setHeight(getHeight() - amount*2);
 	}

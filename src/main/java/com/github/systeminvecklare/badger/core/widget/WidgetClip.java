@@ -5,6 +5,8 @@ import com.github.systeminvecklare.badger.core.math.IReadablePosition;
 import com.github.systeminvecklare.badger.core.math.Mathf;
 
 public class WidgetClip extends MovieClip implements IResizableWidget, IWidgetClip {
+	private int preInitX = 0;
+	private int preInitY = 0;
 	private int width;
 	private int height;
 	
@@ -15,11 +17,17 @@ public class WidgetClip extends MovieClip implements IResizableWidget, IWidgetCl
 
 	@Override
 	public int getX() {
+		if(!isInitialized()) {
+			return preInitX;
+		}
 		return IWidgetClip.WIDGET_INTERFACE.getX(this);
 	}
 
 	@Override
 	public int getY() {
+		if(!isInitialized()) {
+			return preInitY;
+		}
 		return IWidgetClip.WIDGET_INTERFACE.getY(this);
 	}
 
@@ -54,11 +62,19 @@ public class WidgetClip extends MovieClip implements IResizableWidget, IWidgetCl
 
 	@Override
 	public void setPosition(int x, int y) {
+		if(!isInitialized()) {
+			preInitX = x;
+			preInitY = y;
+		}
 		IWidgetClip.WIDGET_INTERFACE.setPosition(this, x , y);
 	}
 
 	@Override
 	public void addToPosition(int dx, int dy) {
+		if(!isInitialized()) {
+			preInitX += dx;
+			preInitY += dy;
+		}
 		IWidgetClip.WIDGET_INTERFACE.addToPosition(this, dx, dy);
 	}
 	

@@ -3,7 +3,6 @@ package com.github.systeminvecklare.badger.core.font;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.github.systeminvecklare.badger.core.graphics.components.FlashyEngine;
@@ -15,7 +14,7 @@ import com.github.systeminvecklare.badger.core.util.FloatRectangle;
 import com.github.systeminvecklare.badger.core.util.IFloatRectangle;
 
 public class EmbellishedFont<C> implements IFlashyFont<C> {
-	private static final Pattern LINE_BREAK_PATTERN = Pattern.compile("\n", Pattern.LITERAL);
+	private static final Pattern LINE_BREAK_PATTERN = Pattern.compile("\n");
 	
 	private final IFlashyFont<C> baseFont;
 	private final float capHeight;
@@ -244,7 +243,7 @@ public class EmbellishedFont<C> implements IFlashyFont<C> {
 				String text = ((PureTextPart<C>) textPart).text;
 				// Find the first match for the first embellishment.
 				for(Embellishment<C> embellishment : embellishments) {
-					Matcher matcher = embellishment.pattern.matcher(text);
+					GwtSafeMatcher matcher = GwtSafeMatcher.matcher(embellishment.pattern, text);
 					if(matcher.find()) {
 						textParts.remove(i); // Remove old
 						int before = matcher.start();
@@ -274,7 +273,7 @@ public class EmbellishedFont<C> implements IFlashyFont<C> {
 				String text = ((PureTextPart<C>) textPart).text;
 				int insertIndex = i;
 				boolean found = false;
-				Matcher matcher = LINE_BREAK_PATTERN.matcher(text);
+				GwtSafeMatcher matcher = GwtSafeMatcher.matcher(LINE_BREAK_PATTERN, text);
 				int lastEnd = 0;
 				while(matcher.find()) {
 					if(!found) {

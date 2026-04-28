@@ -33,31 +33,25 @@ public class GwtSafeMatcher {
 
     public boolean find() {
         hasMatch = false;
-        while (remaining != null) {
-            Matcher m = pattern.matcher(remaining);
-            if (!m.find()) {
-                remaining = null;
-                return false;
-            }
+        if (remaining == null) return false;
 
-            String matched = m.group(0);
-
-            int localStart = remaining.indexOf(matched);
-            if (localStart < 0) {
-                offset += 1;
-                remaining = remaining.substring(1);
-                continue;
-            }
-            int localEnd = localStart + matched.length();
-
-            storeMatch(matched, m, offset + localStart, offset + localEnd);
-
-            int advance = localEnd > localStart ? localEnd : localStart + 1;
-            offset += advance;
-            remaining = advance >= remaining.length() ? null : remaining.substring(advance);
-            return true;
+        Matcher m = pattern.matcher(remaining);
+        if (!m.find()) {
+            remaining = null;
+            return false;
         }
-        return false;
+
+        String matched = m.group(0);
+        // Split on the matched string to get the text before it
+        String[] parts = remaining.split(quoteRegex(matched), 2);
+        int localStart = parts[0].length();
+        int localEnd = localStart + matched.length();
+
+        storeMatch(matched, m, offset + localStart, offset + localEnd);
+
+        offset += localEnd;
+        remaining = localEnd >= remaining.length() ? null : remaining.substring(localEnd);
+        return true;
     }
 
     public boolean matches() {
@@ -97,6 +91,22 @@ public class GwtSafeMatcher {
         checkMatch();
         return matchEnd;
     }
+    
+    private static String quoteRegex(String s) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            switch (c) {
+                case '\\': case '.': case '+': case '*': case '?':
+                case '^': case '$': case '{': case '}': case '[':
+                case ']': case '(': case ')': case '|':
+                    sb.append('\\');
+                    break;
+            }
+            sb.append(c);
+        }
+        return sb.toString();
+    }
 
     private void storeMatch(String matched, Matcher m, int absStart, int absEnd) {
         matchedGroup0 = matched;
@@ -107,7 +117,7 @@ public class GwtSafeMatcher {
         for (int i = 1; ; i++) {
             try {
                 captureGroups.add(m.group(i));
-            } catch (IndexOutOfBoundsException e) {
+            } catch (Exception e) {
                 break;
             }
         }

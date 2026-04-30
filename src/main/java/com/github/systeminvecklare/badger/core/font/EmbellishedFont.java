@@ -3,18 +3,21 @@ package com.github.systeminvecklare.badger.core.font;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
-import java.util.regex.Pattern;
 
 import com.github.systeminvecklare.badger.core.graphics.components.FlashyEngine;
 import com.github.systeminvecklare.badger.core.graphics.components.core.IDrawCycle;
 import com.github.systeminvecklare.badger.core.graphics.components.transform.ITransform;
 import com.github.systeminvecklare.badger.core.graphics.components.util.PoolableList;
+import com.github.systeminvecklare.badger.core.pattern.IPatternMatch;
+import com.github.systeminvecklare.badger.core.pattern.IPatternMatchHandler;
+import com.github.systeminvecklare.badger.core.pattern.IPatternMatcher;
+import com.github.systeminvecklare.badger.core.pattern.PatternMatcher;
 import com.github.systeminvecklare.badger.core.pooling.IPool;
 import com.github.systeminvecklare.badger.core.util.FloatRectangle;
 import com.github.systeminvecklare.badger.core.util.IFloatRectangle;
 
 public class EmbellishedFont<C> implements IFlashyFont<C> {
-	private static final Pattern LINE_BREAK_PATTERN = Pattern.compile("\n");
+	private static final IPatternMatcher LINE_BREAK_PATTERN = PatternMatcher.simple("\n");
 	
 	private final IFlashyFont<C> baseFont;
 	private final float capHeight;
@@ -95,14 +98,18 @@ public class EmbellishedFont<C> implements IFlashyFont<C> {
 	}
 	
 	private IFlashyText createTextInternal(String text, C tint, Float maxWidth, float alignX) {
+		ReusablePatternMatchHandler patternMatchHandler = new ReusablePatternMatchHandler();
+		
 		IPool<PoolableList> listPool = FlashyEngine.get().getPoolManager().getPool(PoolableList.class);
 		
 		PoolableList poolableTextParts = listPool.obtain();
 		List<ITextPart<C>> textParts = poolableTextParts.list();
 		textParts.add(new PureTextPart<C>(text));
-		embellish(textParts, tint);
+		embellish(listPool, patternMatchHandler, textParts, tint);
 		
-		linebreaks(textParts);
+		linebreaks(listPool, patternMatchHandler, textParts);
+		
+		patternMatchHandler.clear();
 		
 		PoolableList poolableRows = listPool.obtain();
 		List<Row> rows = poolableRows.list(Row.class);
@@ -236,64 +243,61 @@ public class EmbellishedFont<C> implements IFlashyFont<C> {
 		return combinedFlashyText;
 	}
 
-	private void embellish(List<ITextPart<C>> textParts, C tint) {
-		for(int i = 0; i < textParts.size(); ++i) {
-			ITextPart<C> textPart = textParts.get(i);
-			if(textPart instanceof PureTextPart) {
-				String text = ((PureTextPart<C>) textPart).text;
-				// Find the first match for the first embellishment.
-				for(Embellishment<C> embellishment : embellishments) {
-					GwtSafeMatcher matcher = GwtSafeMatcher.matcher(embellishment.pattern, text);
-					if(matcher.find()) {
-						textParts.remove(i); // Remove old
-						int before = matcher.start();
-						int after = matcher.end();
-						int insertIndex = i;
-						if(before > 0) {
-							textParts.add(insertIndex++, new PureTextPart<C>(text.substring(0, before)));
+	private void embellish(IPool<PoolableList> listPool, ReusablePatternMatchHandler patternMatchHandler, List<ITextPart<C>> textParts, final C tint) {
+		PoolableList poolableNewParts = listPool.obtain();
+		try {
+			final List<ITextPart<C>> newParts = poolableNewParts.list();
+			for(int i = 0; i < textParts.size(); ++i) {
+				ITextPart<C> textPart = textParts.get(i);
+				if(textPart instanceof PureTextPart) {
+					String text = ((PureTextPart<C>) textPart).text;
+					// Find the first match for the first embellishment.
+					for(final Embellishment<C> embellishment : embellishments) {
+						newParts.clear();
+						try {
+							boolean matched = embellishment.pattern.match(text, patternMatchHandler.reset(newParts, embellishment, tint, false));
+							if(matched) {
+								textParts.remove(i);
+								textParts.addAll(i, newParts);
+								i--; // Repeat at same index
+								break; // Break embellishment-loop
+							}
+						} finally {
+							newParts.clear();
 						}
-						ITextEmbellishment part = embellishment.create(baseFont, tint, capHeight, matcher);
-						textParts.add(insertIndex++, new EmbellishedTextPart<C>(part));
-						if(after < text.length() - 1) {
-							textParts.add(insertIndex++, new PureTextPart<C>(text.substring(after)));
-						}
-						i--; // Repeat at same index
-						break; // Break embellishment-loop
 					}
 				}
 			}
+		} finally {
+			poolableNewParts.free();
 		}
 	}
 	
 
-	private void linebreaks(List<ITextPart<C>> textParts) {
-		for(int i = 0; i < textParts.size(); ++i) {
-			ITextPart<C> textPart = textParts.get(i);
-			if(textPart instanceof PureTextPart) {
-				String text = ((PureTextPart<C>) textPart).text;
-				int insertIndex = i;
-				boolean found = false;
-				GwtSafeMatcher matcher = GwtSafeMatcher.matcher(LINE_BREAK_PATTERN, text);
-				int lastEnd = 0;
-				while(matcher.find()) {
-					if(!found) {
-						found = true;
-						textParts.remove(i);
+	private void linebreaks(IPool<PoolableList> listPool, ReusablePatternMatchHandler patternMatchHandler, List<ITextPart<C>> textParts) {
+		PoolableList poolableNewParts = listPool.obtain();
+		try {
+			final List<ITextPart<C>> newParts = poolableNewParts.list();
+			for(int i = 0; i < textParts.size(); ++i) {
+				ITextPart<C> textPart = textParts.get(i);
+				if(textPart instanceof PureTextPart) {
+					String text = ((PureTextPart<C>) textPart).text;
+					
+					newParts.clear();
+					try {
+						boolean found = LINE_BREAK_PATTERN.match(text, patternMatchHandler.reset(newParts, null, null, true));
+						if(found) {
+							textParts.remove(i);
+							textParts.addAll(i, newParts);
+							i += newParts.size() - 1;
+						}
+					} finally {
+						newParts.clear();
 					}
-					int start = matcher.start();
-					if(start > lastEnd) {
-						textParts.add(insertIndex++, new PureTextPart<C>(text.substring(lastEnd, start)));
-					}
-					textParts.add(insertIndex++, getLineBreakPart());
-					lastEnd = matcher.end();
-				}
-				if(found) {
-					if(lastEnd < text.length()) {
-						textParts.add(insertIndex++, new PureTextPart<C>(text.substring(lastEnd)));
-					}
-					i = insertIndex - 1;
 				}
 			}
+		} finally {
+			poolableNewParts.free();
 		}
 	}
 	
@@ -651,6 +655,42 @@ public class EmbellishedFont<C> implements IFlashyFont<C> {
 				maxX = Math.max(maxX, bounds.getX() + bounds.getWidth());
 			}
 			parts.add(part);
+		}
+	}
+	
+	private class ReusablePatternMatchHandler implements IPatternMatchHandler {
+		private List<ITextPart<C>> newParts = null;
+		private Embellishment<C> embellishment = null;
+		private C tint = null;
+		private boolean isLinebreak = false;
+
+		public ReusablePatternMatchHandler reset(List<ITextPart<C>> newParts, Embellishment<C> embellishment, C tint, boolean isLinebreak) {
+			this.newParts = newParts;
+			this.embellishment = embellishment;
+			this.tint = tint;
+			this.isLinebreak = isLinebreak;
+			return this;
+		}
+		
+		public void clear() {
+			this.newParts = null;
+			this.embellishment = null;
+			this.tint = null;
+			this.isLinebreak = false;
+		}
+		
+		@Override
+		public void onText(String text) {
+			newParts.add(new PureTextPart<C>(text));
+		}
+		
+		@Override
+		public void onPattern(IPatternMatch patternMatch) {
+			if(isLinebreak) {
+				newParts.add(getLineBreakPart());
+			} else {
+				newParts.add(new EmbellishedTextPart<C>(embellishment.create(baseFont, tint, capHeight, patternMatch)));
+			}
 		}
 	}
 }

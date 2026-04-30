@@ -414,6 +414,7 @@ public class PatternMatcher implements IPatternMatcher {
 				} else if(partIndex == 0) {
 					matchingInARow = 0;
 					partIndex = 0;
+					matchLength = 0;
 				}
 			} else { // Capture part (part index odd)
 				matchLength++;

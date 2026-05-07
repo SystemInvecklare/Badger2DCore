@@ -13,6 +13,7 @@ import com.github.systeminvecklare.badger.core.pooling.EasyPooler;
 public class TransformingGraphics implements IMovieClipLayer {
 	private final IMovieClipLayer wrapped;
 	private final boolean takeOwnership;
+	private boolean disposed = false;
 	private ITransform transform = FlashyEngine.get().getPoolManager().getPool(ITransform.class).obtain().setToIdentity();
 	
 	public TransformingGraphics(IMovieClipLayer wrapped) {
@@ -26,6 +27,9 @@ public class TransformingGraphics implements IMovieClipLayer {
 
 	@Override
 	public void draw(IDrawCycle drawCycle) {
+		if(disposed) {
+			return;
+		}
 		EasyPooler ep = EasyPooler.obtainFresh();
 		try {
 			ITransform drawCycleTransform = drawCycle.getTransform();
@@ -43,11 +47,17 @@ public class TransformingGraphics implements IMovieClipLayer {
 	}
 	
 	protected ITransform getTransform(ITransform result) {
+		if(disposed) {
+			return result;
+		}
 		return result.setTo(transform);
 	}
 
 	@Override
 	public boolean hitTest(IReadablePosition p) {
+		if(disposed) {
+			return false;
+		}
 		EasyPooler ep = EasyPooler.obtainFresh();
 		try {
 			Position position = p.copy(ep);
@@ -76,6 +86,7 @@ public class TransformingGraphics implements IMovieClipLayer {
 			transform.free();
 			transform = null;
 		}
+		disposed = true;
 	}
 
 	public TransformingGraphics setRotation(final float theta) {

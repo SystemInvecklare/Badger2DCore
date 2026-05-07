@@ -16,6 +16,10 @@ public class WrapperWidget extends AbstractParentWidget<WrapperWidget.Positioned
 		super(x, y, 0, 0);
 	}
 	
+	public <W extends IWidget> W addChild(W widget) {
+		return addChild(widget, widget.getX(), widget.getY(), defaultLayoutSettings());
+	}
+	
 	public <W extends IWidget> W addChild(W widget, int x, int y) {
 		return addChild(widget, x, y, defaultLayoutSettings());
 	}
@@ -34,6 +38,9 @@ public class WrapperWidget extends AbstractParentWidget<WrapperWidget.Positioned
 		return widget;
 	}
 	
+	public <W> W addChild(W widget, IWidgetInterface<? super W> widgetInterface) {
+		return addChild(widget, widgetInterface, widgetInterface.getX(widget), widgetInterface.getY(widget), defaultLayoutSettings());
+	}
 	
 	public <W> W addChild(W widget, IWidgetInterface<? super W> widgetInterface, int x, int y) {
 		return addChild(widget, widgetInterface, x, y, defaultLayoutSettings());

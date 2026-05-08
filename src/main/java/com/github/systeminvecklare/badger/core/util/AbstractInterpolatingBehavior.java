@@ -7,7 +7,7 @@ import com.github.systeminvecklare.badger.core.math.IInterpolator;
 import com.github.systeminvecklare.badger.core.math.Interpolators;
 import com.github.systeminvecklare.badger.core.math.Mathf;
 
-/*package-protected*/ abstract class AbstractInterpolatingBehavior<Self> extends Behavior {
+/*package-protected*/ abstract class AbstractInterpolatingBehavior<Self> extends Behavior implements IStateControlledBehavior {
 	private final IInterpolator interpolator;
 	private boolean targetState;
 	private float state;
@@ -38,11 +38,13 @@ import com.github.systeminvecklare.badger.core.math.Mathf;
 		return self();
 	}
 	
+	@Override
 	public void setState(boolean currentState) {
 		this.state = currentState ? 1 : 0;
 		onStateChanged(this.state);
 	}
 	
+	@Override
 	public void setTargetState(boolean targetState) {
 		this.targetState = targetState;
 	}
@@ -51,6 +53,7 @@ import com.github.systeminvecklare.badger.core.math.Mathf;
 		return state;
 	}
 	
+	@Override
 	public boolean getTargetState() {
 		return targetState;
 	}

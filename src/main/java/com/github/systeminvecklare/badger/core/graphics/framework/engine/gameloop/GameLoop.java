@@ -67,7 +67,7 @@ public abstract class GameLoop implements IGameLoop {
 				accum -= currentStep;
 				hooks.onBeforeThink();
 				applicationContext.think(currentTick);
-				if(scene != null) {
+				if(scene != null && isCurrentScene(scene)) {
 					scene.think(currentTick);
 					atLeastOneThink = true;
 				}
@@ -75,7 +75,7 @@ public abstract class GameLoop implements IGameLoop {
 			}
 		}
 		if(!currentSceneHasHadOneThink) {
-			if(!atLeastOneThink) {
+			if(!atLeastOneThink && isCurrentScene(scene)) {
 				scene.think(currentTick); // Ensure at least one think
 			}
 			currentSceneHasHadOneThink = true;
@@ -107,6 +107,9 @@ public abstract class GameLoop implements IGameLoop {
 		skipUpdates = true;
 	}
 
+	protected boolean isCurrentScene(IScene scene) {
+		return scene == getCurrentScene();
+	}
 
 	protected abstract IScene getCurrentScene();
 	

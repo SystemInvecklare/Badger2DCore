@@ -5,3 +5,11 @@ sourceCompatibility = 1.6
 
 
 sourceSets.main.resources.srcDirs = ["src/main/java"]
+
+sourceSets {
+	main {
+		java {
+			exclude "super/**"
+		}
+	}
+}

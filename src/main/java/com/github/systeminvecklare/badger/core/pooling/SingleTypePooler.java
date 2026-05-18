@@ -14,12 +14,10 @@ public class SingleTypePooler<PT> implements IPooler {
 	}
 
 	public void freeAll() {
-		if(IPoolable.class.isAssignableFrom(poolableType)) {
-			for(PT poolable : poolables) {
+		for(PT poolable : poolables) {
+			if(poolable instanceof IPoolable) {
 				((IPoolable) poolable).free();
-			}
-		} else {
-			for(PT poolable : poolables) {
+			} else {
 				pool.free(poolable);
 			}
 		}
@@ -36,7 +34,7 @@ public class SingleTypePooler<PT> implements IPooler {
 			return poolable;
 		} catch (RuntimeException e) { // Note: Might be impossible atm. But keep it in case we update logic inside try-block
 			if(poolable != null) {
-				if(IPoolable.class.isAssignableFrom(poolableType)) {
+				if(poolable instanceof IPoolable) {
 					((IPoolable) poolable).free();
 				} else {
 					pool.free(poolable);
@@ -49,7 +47,7 @@ public class SingleTypePooler<PT> implements IPooler {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends IPoolable> T obtain(Class<T> type) {
-		if(!type.isAssignableFrom(poolableType)) {
+		if(type != poolableType) {
 			throw new IllegalArgumentException("Tried to obtain "+type.getName()+" from "+getClass().getName()+" of "+poolableType.getName());
 		}
 		return (T) obtain();

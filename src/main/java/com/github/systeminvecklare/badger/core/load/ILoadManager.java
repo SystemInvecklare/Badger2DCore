@@ -1,6 +1,6 @@
 package com.github.systeminvecklare.badger.core.load;
 
-public interface ILoadManager extends ILoadTask {
+public interface ILoadManager extends IProgressingLoadTask {
 	/**
 	 * @return true if all tasks done
 	 */

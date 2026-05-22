@@ -383,9 +383,22 @@ public class PatternMatcher implements IPatternMatcher {
 		public boolean feed(char c) {
 			if(matchLength > 0 && allowReset) {
 				if(textParts[0].charAt(0) == c) {
-					partIndex = 0;
-					matchLength = 0;
-					matchingInARow = 0;
+					// If last character matches first, don't reset (ex "${filename}.png")
+					boolean skipReset = false;
+					String lastTextPart = textParts[textParts.length - 1];
+					if(lastTextPart.length() > 0) {
+						if(lastTextPart.charAt(lastTextPart.length() - 1) == c) {
+							int lastPartIndex = captureParts.length + textParts.length - 1;
+							if((partIndex == lastPartIndex - 1 && matchingInARow == lastTextPart.length() - 1)) {
+								skipReset = true;
+							}
+						}
+					}
+					if(!skipReset) {
+						partIndex = 0;
+						matchLength = 0;
+						matchingInARow = 0;
+					}
 				}
 			}
 			if(resetMatchLengthNextFeed) {

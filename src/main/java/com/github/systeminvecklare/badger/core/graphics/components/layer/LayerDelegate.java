@@ -59,29 +59,38 @@ public class LayerDelegate implements ILayerDelegate {
 
 	@Override
 	public void draw(IDrawCycle drawCycle) {
-		EasyPooler ep = EasyPooler.obtainFresh();
-		try
-		{
+		IPool<ITransform> transformPool = FlashyEngine.get().getPoolManager().getPool(ITransform.class);
+		ITransform original = transformPool.obtain();
+		try {
 			ITransform drawCycleTransform = drawCycle.getTransform();
 			drawCycle.setShader(getWrapper().resolveShader());
 			
-			if(!movieClips.isEmpty()) {
-				ITransform original = ep.obtain(ITransform.class).setTo(drawCycleTransform);
-				drawCycleTransform.mult(getWrapper().getTransform());
-				ITransform drawTransformCopy = ep.obtain(ITransform.class).setTo(drawCycleTransform);
-				
-				for(IMovieClip movieClip : movieClips)
-				{
-					drawCycleTransform.setTo(drawTransformCopy);
+			original.setTo(drawCycleTransform);
+			drawCycleTransform.mult(getWrapper().getTransform());
+			
+			getWrapper().drawWithoutTransform(drawCycle);
+			
+			drawCycleTransform.setTo(original);
+		} finally {
+			original.free();
+		}
+	}
+	
+	@Override
+	public void drawWithoutTransform(IDrawCycle drawCycle) {
+		if(!movieClips.isEmpty()) {
+			IPool<ITransform> transformPool = FlashyEngine.get().getPoolManager().getPool(ITransform.class);
+			
+			ITransform originalTransform = transformPool.obtain().setTo(drawCycle.getTransform());
+			try {
+				ITransform drawCycleTransform = drawCycle.getTransform();
+				for(IMovieClip movieClip : movieClips) {
+					drawCycleTransform.setTo(originalTransform);
 					movieClip.draw(drawCycle);
 				}
-				
-				drawCycleTransform.setTo(original);
+			} finally {
+				originalTransform.free();
 			}
-		}
-		finally
-		{
-			ep.freeAllAndSelf();
 		}
 	}
 

@@ -1,5 +1,6 @@
 package com.github.systeminvecklare.badger.core.graphics.components.layer;
 
+import com.github.systeminvecklare.badger.core.graphics.components.core.IDrawCycle;
 import com.github.systeminvecklare.badger.core.graphics.components.core.IDrawable;
 import com.github.systeminvecklare.badger.core.graphics.components.core.IHittable;
 import com.github.systeminvecklare.badger.core.graphics.components.core.ILifecycleManager;
@@ -11,6 +12,8 @@ import com.github.systeminvecklare.badger.core.graphics.components.transform.IRe
 
 public interface ILayer extends IMovieClipContainer,IDrawable,IHittable,IThinker,ILifecycleOwner,ILifecycleManager {
 	public IReadableTransform getTransform();
+	
+	public void drawWithoutTransform(IDrawCycle drawCycle);
 	
 	public void setScene(IScene parentScene);
 }

@@ -43,6 +43,11 @@ public class Layer implements ILayer {
 	public void draw(IDrawCycle drawCycle) {
 		delegate.draw(drawCycle);
 	}
+	
+	@Override
+	public void drawWithoutTransform(IDrawCycle drawCycle) {
+		delegate.drawWithoutTransform(drawCycle);
+	}
 
 	@Override
 	public boolean hitTest(IReadablePosition p) {

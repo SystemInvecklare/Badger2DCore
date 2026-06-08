@@ -269,4 +269,22 @@ public class RectangleUtil {
 		return childX >= containerX && childX + child.getWidth() <= containerX + container.getWidth()
 			&& childY >= containerY && childY + child.getHeight() <= containerY + container.getHeight();
 	}
+	
+	/**
+	 * @param a
+	 * @param b
+	 * @param result (allowed to be a, b or third object)
+	 */
+	public static <R extends IResizableWidget> R union(IRectangle a, IRectangle b, R result) {
+		int xL = Math.min(a.getX(), b.getX());
+		int xR = Math.max(a.getX()+a.getWidth(), b.getX()+b.getWidth());
+		
+		int yB = Math.min(a.getY(), b.getY());
+		int yT = Math.max(a.getY()+a.getHeight(), b.getY()+b.getHeight());
+		
+		result.setPosition(xL, yB);
+		result.setWidth(xR - xL);
+		result.setHeight(yT - yB);
+		return result;
+	}
 }

@@ -69,4 +69,14 @@ public abstract class AbstractPosition implements IReadablePosition {
 	public float distance(float x, float y) {
 		return Mathf.sqrt(distance2(x, y));
 	}
+	
+	@Override
+	public float angleTo(IReadablePosition other) {
+		return angleTo(other.getX(), other.getY());
+	}
+	
+	@Override
+	public float angleTo(float x, float y) {
+		return Mathf.atan2(y - this.getY(), x - this.getX());
+	}
 }

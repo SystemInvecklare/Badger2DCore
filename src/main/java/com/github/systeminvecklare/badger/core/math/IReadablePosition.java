@@ -13,4 +13,6 @@ public interface IReadablePosition extends ICopyablePoolable<Position> {
 	public float distance(IReadablePosition other);
 	public float distance2(float x, float y);
 	public float distance(float x, float y);
+	public float angleTo(IReadablePosition other);
+	public float angleTo(float x, float y);
 }

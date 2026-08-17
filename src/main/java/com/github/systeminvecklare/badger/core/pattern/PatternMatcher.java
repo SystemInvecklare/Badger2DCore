@@ -23,7 +23,7 @@ public class PatternMatcher implements IPatternMatcher {
 			private final String name;
 			private boolean expectingText = true;
 			private final List<String> textParts = new ArrayList<String>();
-			private final List<String> captureNames = new ArrayList<String>();
+			private final List<CaptureBuilder> capturePartBuilders = new ArrayList<CaptureBuilder>();
 			private boolean allowReset = false;
 
 			private PatternBuilder(String name) {
@@ -58,6 +58,18 @@ public class PatternMatcher implements IPatternMatcher {
 			 * @throws PatternCompilationException
 			 */
 			public PatternBuilder group(String name) throws PatternCompilationException {
+				return group(name, null);
+			}
+			
+			/**
+			 * A group can be named or anonymous. Named groups must have unique names.
+			 * 
+			 * @param name May be <code>null</code>
+			 * @param illegalCharacters A string of characters NOT allowed to be captured by this group
+			 * @return
+			 * @throws PatternCompilationException
+			 */
+			public PatternBuilder group(String name, String illegalCharacters) throws PatternCompilationException {
 				if(expectingText) {
 					if(textParts.isEmpty()) {
 						throw new PatternCompilationException("First call must be text(String text)");
@@ -65,10 +77,14 @@ public class PatternMatcher implements IPatternMatcher {
 						throw new PatternCompilationException("Expected text(String text) to be called! Calls must alternate text(...) -> group(...) -> text(...)");
 					}
 				}
-				if(name != null && !"".equals(name) && captureNames.contains(name)) {
-					throw new PatternCompilationException("Group with name \""+name+"\" already added");
+				if(name != null && !"".equals(name)) {
+					for(CaptureBuilder builder : capturePartBuilders) {
+						if(name.equals(builder.name)) {
+							throw new PatternCompilationException("Group with name \""+name+"\" already added");
+						}
+					}
 				}
-				captureNames.add(name);
+				capturePartBuilders.add(new CaptureBuilder(name, CaptureFilter.fromIllegal(illegalCharacters)));
 				expectingText = true;
 				return this;
 			}
@@ -77,13 +93,13 @@ public class PatternMatcher implements IPatternMatcher {
 				if(textParts.isEmpty()) {
 					throw new PatternCompilationException("Patterns must have at least 1 text part");
 				}
-				if(textParts.size() != captureNames.size() + 1) {
+				if(textParts.size() != capturePartBuilders.size() + 1) {
 					throw new PatternCompilationException("Last call must be text(String text)");
 				}
 				
-				Capture[] captureParts = new Capture[captureNames.size()];
+				Capture[] captureParts = new Capture[capturePartBuilders.size()];
 				for(int i = 0; i < captureParts.length; ++i) {
-					captureParts[i] = new Capture(captureNames.get(i));
+					captureParts[i] = capturePartBuilders.get(i).build();
 				}
 				matchers.add(new Matcher(name, allowReset, textParts.toArray(new String[textParts.size()]), captureParts));
 				return PatternMatcherBuilder.this;
@@ -327,18 +343,63 @@ public class PatternMatcher implements IPatternMatcher {
 		}
 	}
 	
+	private static class CaptureBuilder {
+		public final String name;
+		public CaptureFilter captureFilter;
+		
+		public CaptureBuilder(String name, CaptureFilter captureFilter) {
+			this.name = name;
+			this.captureFilter = captureFilter;
+		}
+		
+		public Capture build() {
+			return new Capture(name, captureFilter);
+		}
+	}
+	
+	private static class CaptureFilter {
+		public static final CaptureFilter DEFAULT = new CaptureFilter(new char[0]);
+		
+		private final char[] illegalChars;
+
+		public CaptureFilter(char[] illegalChars) {
+			this.illegalChars = illegalChars;
+		}
+
+		public boolean isAllowedToCapture(char c) {
+			if(this == DEFAULT) {
+				return true;
+			}
+			for(int i = 0; i < illegalChars.length; ++i) {
+				if(illegalChars[i] == c) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		public static CaptureFilter fromIllegal(String illegalCharacters) {
+			if(illegalCharacters == null || illegalCharacters.length() == 0) {
+				return DEFAULT;
+			}
+			return new CaptureFilter(illegalCharacters.toCharArray());
+		}
+	}
+	
 	private static class Capture {
 		private final String name;
+		public final CaptureFilter captureFilter;
 		// Relative to matchStart.
 		public int captureStart;
 		public int captureEnd;
 		
-		public Capture(String name) {
+		public Capture(String name, CaptureFilter captureFilter) {
 			this.name = name;
+			this.captureFilter = captureFilter;
 		}
 		
 		public Capture copy() {
-			return new Capture(name);
+			return new Capture(name, captureFilter);
 		}
 	}
 	
@@ -449,7 +510,14 @@ public class PatternMatcher implements IPatternMatcher {
 						}
 					}
 				} else {
-					captureParts[(partIndex-1)/2].captureEnd += (matchingInARow + 1);
+					Capture capturePart = captureParts[(partIndex-1)/2];
+					if(capturePart.captureFilter.isAllowedToCapture(c)) {
+						capturePart.captureEnd += (matchingInARow + 1);
+					} else {
+						// Character not valid for capture part
+						partIndex = 0;
+						matchLength = 0;
+					}
 					matchingInARow = 0;
 				}
 			}

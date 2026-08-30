@@ -24,10 +24,12 @@ public class FittingTextGraphics<C> implements IRectangle, IMovieClipLayer, IEmb
 	private final CachedScaleAndBounds<C> scaleAndBounds = new CachedScaleAndBounds<C>();
 	private IFlashyFont<C> font;
 	private String text;
+	private C color;
 	
 	public FittingTextGraphics(IFlashyFont<C> font, String text, C color, IRectangle fitRectangle) {
 		this.font = font;
 		this.text = text;
+		this.color = color;
 		this.textGraphics = new TextGraphics<C>(font, text, color) {
 			@Override
 			public String getText() {
@@ -37,6 +39,11 @@ public class FittingTextGraphics<C> implements IRectangle, IMovieClipLayer, IEmb
 			@Override
 			public IFlashyFont<C> getFont() {
 				return FittingTextGraphics.this.getFont();
+			}
+			
+			@Override
+			public C getColor() {
+				return FittingTextGraphics.this.getColor();
 			}
 		};
 		this.textGraphics.setAnchor(0.5f, 0.5f);
@@ -58,7 +65,7 @@ public class FittingTextGraphics<C> implements IRectangle, IMovieClipLayer, IEmb
 	}
 	
 	public FittingTextGraphics<C> setColor(C color) {
-		textGraphics.setColor(color);
+		this.color = color;
 		return this;
 	}
 	
@@ -68,6 +75,10 @@ public class FittingTextGraphics<C> implements IRectangle, IMovieClipLayer, IEmb
 	
 	public String getText() {
 		return text;
+	}
+	
+	public C getColor() {
+		return color;
 	}
 	
 	public FittingTextGraphics<C> setFont(IFlashyFont<C> font) {

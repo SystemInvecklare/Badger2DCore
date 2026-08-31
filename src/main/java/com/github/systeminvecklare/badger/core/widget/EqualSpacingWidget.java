@@ -120,7 +120,8 @@ public class EqualSpacingWidget extends AbstractParentWidget<EqualSpacingWidget.
 		return widget;
 	}
 	
-	public void pack() {
+	@Override
+	protected void pack(int outerPaddingLeft, int outerPaddingRight, int outerPaddingTop, int outerPaddingBottom) {
 		int numberOfChildren = children.size();
 		if(numberOfChildren > 1) {
 			Collections.sort(children, Child.INDEX_COMPARATOR);

@@ -134,10 +134,12 @@ public class FlowWidget extends AbstractParentWidget<AbstractParentWidget.Child<
 		sectionWidget.addChild(child.widget, child.widgetInterface,  layoutAxis.pick(0, secondaryPosition), layoutAxis.pick(secondaryPosition, 0), child.layoutSettings);
 	}
 	
-	public void pack() {
+	@Override
+	protected void pack(int outerPaddingLeft, int outerPaddingRight, int outerPaddingTop, int outerPaddingBottom) {
 		gridWidget.clear();
 		gridWidget.rowSpacing().setTo(layoutAxis.pick(rowSpacing, 0));
 		gridWidget.columnSpacing().setTo(layoutAxis.pick(0, columnSpacing));
+		gridWidget.setOuterPadding(outerPaddingLeft, outerPaddingRight, outerPaddingTop, outerPaddingBottom);
 		position = 0;
 		int secondaryPosition = 0;
 		GridWidget sectionWidget = null;

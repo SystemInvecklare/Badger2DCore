@@ -97,11 +97,12 @@ public class FrameWidget extends AbstractResizableParentWidget<AbstractParentWid
 		return widget;
 	}
 	
-	public void pack() {
-		final int x = this.getX();
-		final int y = this.getY();
-		final int width = this.getWidth();
-		final int height = this.getHeight();
+	@Override
+	protected void pack(int outerPaddingLeft, int outerPaddingRight, int outerPaddingTop, int outerPaddingBottom) {
+		final int x = this.getX() + outerPaddingLeft;
+		final int y = this.getY() + outerPaddingBottom;
+		final int width = this.getWidth() - outerPaddingLeft - outerPaddingRight;
+		final int height = this.getHeight() - outerPaddingBottom - outerPaddingTop;
 		for(Child<?> child : children) {
 			child.setPosition(x, y, width, height);
 		}

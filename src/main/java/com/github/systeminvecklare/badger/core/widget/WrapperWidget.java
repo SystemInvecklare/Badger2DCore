@@ -3,11 +3,6 @@ package com.github.systeminvecklare.badger.core.widget;
 import java.util.function.Consumer;
 
 public class WrapperWidget extends AbstractParentWidget<WrapperWidget.PositionedChild<?>> implements IWidget {
-	private int outerPaddingLeft = 0;
-	private int outerPaddingRight = 0;
-	private int outerPaddingTop = 0;
-	private int outerPaddingBottom = 0;
-	
 	public WrapperWidget() {
 		this(0, 0);
 	}
@@ -55,7 +50,8 @@ public class WrapperWidget extends AbstractParentWidget<WrapperWidget.Positioned
 		return widget;
 	}
 	
-	public void pack() {
+	@Override
+	protected void pack(int outerPaddingLeft, int outerPaddingRight, int outerPaddingTop, int outerPaddingBottom) {
 		int minX = Integer.MAX_VALUE;
 		int minY = Integer.MAX_VALUE;
 		int maxX = Integer.MIN_VALUE;
@@ -127,54 +123,5 @@ public class WrapperWidget extends AbstractParentWidget<WrapperWidget.Positioned
 		public int getMaxY() {
 			return y + getHeight();
 		}
-	}
-
-	public void setOuterPadding(int padding) {
-		setOuterPadding(padding, padding, padding, padding);
-	}
-	
-	public void setOuterPadding(int horizontal, int vertical) {
-		setOuterPadding(horizontal, horizontal, vertical, vertical);
-	}
-	
-	public void setOuterPadding(int left, int right, int top, int bottom) {
-		setOuterPaddingLeft(left);
-		setOuterPaddingRight(right);
-		setOuterPaddingTop(top);
-		setOuterPaddingBottom(bottom);
-	}
-	
-	public void setOuterPaddingHorizontal(int padding) {
-		setOuterPaddingHorizontal(padding, padding);
-	}
-	
-	public void setOuterPaddingHorizontal(int left, int right) {
-		setOuterPaddingLeft(left);
-		setOuterPaddingRight(right);
-	}
-	
-	public void setOuterPaddingVertical(int padding) {
-		setOuterPaddingVertical(padding, padding);
-	}
-	
-	public void setOuterPaddingVertical(int top, int bottom) {
-		setOuterPaddingTop(top);
-		setOuterPaddingBottom(bottom);
-	}
-	
-	public void setOuterPaddingLeft(int left) {
-		this.outerPaddingLeft = left;
-	}
-	
-	public void setOuterPaddingRight(int right) {
-		this.outerPaddingRight = right;
-	}
-	
-	public void setOuterPaddingTop(int top) {
-		this.outerPaddingTop = top;
-	}
-	
-	public void setOuterPaddingBottom(int bottom) {
-		this.outerPaddingBottom = bottom;
 	}
 }

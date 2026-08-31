@@ -11,11 +11,6 @@ import com.github.systeminvecklare.badger.core.math.simplex.TabularMethodSimpleS
 import com.github.systeminvecklare.badger.core.math.simplex.exception.SimplexException;
 
 public class GridWidget extends AbstractParentWidget<GridWidget.GridChild<?>> implements IWidget {
-	private int outerPaddingLeft = 0;
-	private int outerPaddingRight = 0;
-	private int outerPaddingTop = 0;
-	private int outerPaddingBottom = 0;
-	
 	private final SpacingSettings rowSpacing = new SpacingSettings();
 	private final SpacingSettings columnSpacing = new SpacingSettings();
 
@@ -119,7 +114,8 @@ public class GridWidget extends AbstractParentWidget<GridWidget.GridChild<?>> im
 		columnSpacing.insert(columnIndex, numberOfColumns);
 	}
 	
-	public void pack() {
+	@Override
+	protected void pack(int outerPaddingLeft, int outerPaddingRight, int outerPaddingTop, int outerPaddingBottom) {
 		int maxRowIndex = -1;
 		int maxColumnIndex = -1;
 		for(GridChild<?> child : children) {
@@ -268,71 +264,6 @@ public class GridWidget extends AbstractParentWidget<GridWidget.GridChild<?>> im
 	
 	public ISpacingSettings rowSpacing() {
 		return rowSpacing;
-	}
-	
-	public void setOuterPadding(int padding) {
-		setOuterPadding(padding, padding, padding, padding);
-	}
-	
-	public void setOuterPadding(int horizontal, int vertical) {
-		setOuterPadding(horizontal, horizontal, vertical, vertical);
-	}
-	
-	public void setOuterPadding(int left, int right, int top, int bottom) {
-		setOuterPaddingLeft(left);
-		setOuterPaddingRight(right);
-		setOuterPaddingTop(top);
-		setOuterPaddingBottom(bottom);
-	}
-	
-	public void setOuterPaddingHorizontal(int padding) {
-		setOuterPaddingHorizontal(padding, padding);
-	}
-	
-	public void setOuterPaddingHorizontal(int left, int right) {
-		setOuterPaddingLeft(left);
-		setOuterPaddingRight(right);
-	}
-	
-	public void setOuterPaddingVertical(int padding) {
-		setOuterPaddingVertical(padding, padding);
-	}
-	
-	public void setOuterPaddingVertical(int top, int bottom) {
-		setOuterPaddingTop(top);
-		setOuterPaddingBottom(bottom);
-	}
-	
-	public void setOuterPaddingLeft(int left) {
-		this.outerPaddingLeft = left;
-	}
-	
-	public void setOuterPaddingRight(int right) {
-		this.outerPaddingRight = right;
-	}
-	
-	public void setOuterPaddingTop(int top) {
-		this.outerPaddingTop = top;
-	}
-	
-	public void setOuterPaddingBottom(int bottom) {
-		this.outerPaddingBottom = bottom;
-	}
-	
-	public int getOuterPaddingLeft() {
-		return outerPaddingLeft;
-	}
-	
-	public int getOuterPaddingRight() {
-		return outerPaddingRight;
-	}
-	
-	public int getOuterPaddingBottom() {
-		return outerPaddingBottom;
-	}
-	
-	public int getOuterPaddingTop() {
-		return outerPaddingTop;
 	}
 	
 	private static class SpacingSettings implements ISpacingSettings {

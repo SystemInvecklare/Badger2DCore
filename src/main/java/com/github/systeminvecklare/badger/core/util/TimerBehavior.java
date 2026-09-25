@@ -42,8 +42,13 @@ public abstract class TimerBehavior extends TimedBehavior {
 			this.dispose();
 		}
 	}
+	
 
 	protected abstract void onTrigger();
+	
+	protected final float getNormalizedTime() {
+		return ringTime > 0 ? getLifetime()/ringTime : 1f;
+	}
 	
 	public static TimerBehavior setTargetState(final float afterTime, final IStateControlledBehavior stateControlledBehavior, final boolean state) {
 		return new TimerBehavior(afterTime) {
